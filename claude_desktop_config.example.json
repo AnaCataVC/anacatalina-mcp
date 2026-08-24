@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "anacatalina-cv": {
+      "command": "python",
+      "args": [
+        "/path/to/anacatalina-mcp/conecta_cata.py"
+      ],
+      "env": {
+        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-xxxxx-uc.a.run.app/sse"
+      }
+    }
+  }
+}

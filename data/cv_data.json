@@ -1,0 +1,148 @@
+{
+  "personal_info": {
+    "name": "Ana Catalina",
+    "title": "Data Scientist & Learning Engineer",
+    "location": "Santiago, Chile",
+    "contact": {
+      "email": "anacatalina@example.com",
+      "linkedin": "https://linkedin.com/in/anacatalinavc"
+    },
+    "portfolio_links": {
+      "github": "https://github.com/AnaCataVC"
+    }
+  },
+  "summary": {
+    "es": "Data Scientist y Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en el ecosistema de Google Cloud Platform (BigQuery, Vertex AI), Python y containerización con Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
+    "en": "Data Scientist and Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions."
+  },
+  "experience": [
+    {
+      "company": "SimpliRoute",
+      "role": "Data Scientist & Learning Engineer",
+      "period": "2023 - Presente",
+      "location": "Santiago, Chile (Remoto/Híbrido)",
+      "type": "laboral",
+      "responsibilities": [
+        "Desarrollo e integración de modelos de optimización y algoritmos de ruteo vehicular aplicados a logística de última milla.",
+        "Diseño e implementación de pipelines de datos y experimentación de modelos en Google Cloud Platform usando BigQuery y Vertex AI.",
+        "Automatización de procesos analíticos y despliegue de microservicios con Python, FastAPI y Docker.",
+        "Investigación e integración de soluciones basadas en LLMs y arquitecturas de agentes para mejora de flujos internos."
+      ],
+      "technologies": [
+        "Python",
+        "GCP",
+        "BigQuery",
+        "Vertex AI",
+        "Docker",
+        "FastAPI",
+        "Scikit-learn",
+        "Pandas"
+      ]
+    },
+    {
+      "company": "Fracttal",
+      "role": "Data Scientist / Data Analyst",
+      "period": "2021 - 2023",
+      "location": "Santiago, Chile",
+      "type": "laboral",
+      "responsibilities": [
+        "Desarrollo de modelos predictivos para mantenimiento de activos y gestión inteligente de operaciones de mantenimiento (CMMS/EAM).",
+        "Creación de pipelines ETL para ingesta, limpieza y transformación de telemetría IoT e indicadores operacionales.",
+        "Construcción de dashboards analíticos y reportes automatizados para clientes corporativos y toma de decisiones de negocio."
+      ],
+      "technologies": [
+        "Python",
+        "SQL",
+        "Docker",
+        "Pandas",
+        "NumPy",
+        "Data Warehousing",
+        "Power BI"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "category": "Lenguajes & Backend",
+      "skills": [
+        {"name": "Python", "level": "Avanzado"},
+        {"name": "SQL", "level": "Avanzado"},
+        {"name": "FastAPI", "level": "Avanzado"},
+        {"name": "Starlette / AnyIO", "level": "Intermedio"}
+      ]
+    },
+    {
+      "category": "Cloud & Infraestructura (GCP / DevOps)",
+      "skills": [
+        {"name": "Google Cloud Platform (GCP)", "level": "Avanzado"},
+        {"name": "BigQuery", "level": "Avanzado"},
+        {"name": "Vertex AI", "level": "Avanzado"},
+        {"name": "Docker", "level": "Avanzado"},
+        {"name": "Google Cloud Run", "level": "Avanzado"},
+        {"name": "CI/CD (GitHub Actions)", "level": "Intermedio"}
+      ]
+    },
+    {
+      "category": "Data Science & Machine Learning",
+      "skills": [
+        {"name": "Machine Learning (Scikit-Learn, XGBoost)", "level": "Avanzado"},
+        {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
+        {"name": "LLMs & Agent Architectures", "level": "Avanzado"},
+        {"name": "Data Processing (Pandas, NumPy)", "level": "Avanzado"},
+        {"name": "Optimización & Ruteo Logístico", "level": "Avanzado"}
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Interactive MCP Curriculum & Agent Server",
+      "type": "personal",
+      "description": "Servidor MCP oficial con transporte SSE montado sobre FastAPI para consulta interactiva de trayectoria profesional por parte de LLMs, preparado para despliegue Serverless en Google Cloud Run y puente local stdio.",
+      "technologies": [
+        "Python",
+        "Model Context Protocol (MCP)",
+        "FastAPI",
+        "Server-Sent Events (SSE)",
+        "Docker",
+        "Google Cloud Run"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
+      "demo_url": null
+    },
+    {
+      "name": "Pipeline de Inferencia y Monitoreo de Modelos en Vertex AI",
+      "type": "laboral",
+      "description": "Arquitectura de entrenamiento continuo y despliegue de endpoints en Vertex AI con ingesta de datos directos desde BigQuery y containerización en Docker para simplificar el ciclo MLOps.",
+      "technologies": [
+        "Python",
+        "Vertex AI",
+        "BigQuery",
+        "Docker",
+        "GCP"
+      ],
+      "repo_url": null,
+      "demo_url": null
+    },
+    {
+      "name": "Predictive Maintenance & Asset Telemetry Engine",
+      "type": "laboral",
+      "description": "Motor analítico para detección de anomalías y predicción de fallas en equipos industriales a partir de señales de telemetría IoT.",
+      "technologies": [
+        "Python",
+        "SQL",
+        "Time-Series Analysis",
+        "Docker"
+      ],
+      "repo_url": null,
+      "demo_url": null
+    }
+  ],
+  "education": [
+    {
+      "institution": "Universidad",
+      "degree": "Ingeniería / Licenciatura en Ciencias",
+      "period": "Graduada",
+      "details": "Especialización en análisis de datos, modelos computacionales y estadística aplicada."
+    }
+  ]
+}
