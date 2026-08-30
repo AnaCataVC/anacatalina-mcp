@@ -105,6 +105,19 @@ async def obtener_resumen_ejecutivo(idioma: str = "es") -> str:
 
 
 # 3. Register Custom Routes (Health Check & Info)
+@mcp.custom_route("/", methods=["GET"])
+async def root_info(request: Request):
+    """Root endpoint for Cloud Run default probe and server discovery."""
+    return JSONResponse({
+        "name": "Ana Catalina Interactive Portfolio MCP",
+        "status": "healthy",
+        "version": "1.0.0",
+        "sse_endpoint": "/sse",
+        "messages_endpoint": "/messages/",
+        "health_endpoint": "/health"
+    })
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     """Health check endpoint for Google Cloud Run container liveness."""
@@ -112,7 +125,7 @@ async def health_check(request: Request):
         "status": "healthy",
         "service": "anacatalina-mcp",
         "version": "1.0.0",
-        "transports": ["SSE (/sse)", "POST (/messages)"]
+        "transports": ["SSE (/sse)", "POST (/messages/)"]
     })
 
 
@@ -125,4 +138,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
     host = os.environ.get("HOST", "0.0.0.0")
     print(f"Starting MCP Server on http://{host}:{port}/sse")
-    uvicorn.run(app, host=host, port=port)
+    uvicorn.run(app, host=host, port=port, log_level="info")
+
