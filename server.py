@@ -18,8 +18,10 @@ from models.cv import (
 )
 from services.cv_service import get_cv_service
 
-# 1. Initialize FastMCP instance
-mcp = FastMCP("Ana Catalina Interactive Portfolio MCP")
+# 1. Initialize FastMCP instance bound to 0.0.0.0 for Cloud Run
+port = int(os.environ.get("PORT", 8080))
+host = os.environ.get("HOST", "0.0.0.0")
+mcp = FastMCP("Ana Catalina Interactive Portfolio MCP", host=host, port=port)
 cv_service = get_cv_service()
 
 
