@@ -28,4 +28,4 @@ COPY . .
 EXPOSE 8080
 
 # Run uvicorn respecting dynamic Cloud Run $PORT
-CMD exec uvicorn server:app --host 0.0.0.0 --port ${PORT} --workers 1
+CMD ["sh", "-c", "exec uvicorn server:app --host 0.0.0.0 --port ${PORT:-8080}"]
