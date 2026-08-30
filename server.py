@@ -1,15 +1,12 @@
 """
-server.py - Interactive Curriculum MCP Server with SSE Transport over FastAPI.
+server.py - Interactive Curriculum MCP Server with SSE Transport.
 Configured for Google Cloud Run deployment and local inspection.
 """
 import os
-import sys
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, Request
-from starlette.routing import Route, Mount
-from starlette.applications import Starlette
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 from mcp.server.fastmcp import FastMCP
-from mcp.server.sse import SseServerTransport
 
 from models.cv import (
     ExperienceItem,
@@ -105,56 +102,25 @@ async def obtener_resumen_ejecutivo(idioma: str = "es") -> str:
     return cv_service.get_summary(lang=idioma)
 
 
-# 3. Setup SSE Transport & FastAPI Application
-sse_transport = SseServerTransport("/messages/")
-
-
-async def handle_sse(request: Request):
-    """GET /sse endpoint establishing bidirectional MCP event stream."""
-    async with sse_transport.connect_sse(
-        request.scope, request.receive, request._send
-    ) as (read_stream, write_stream):
-        await mcp._mcp_server.run(
-            read_stream,
-            write_stream,
-            mcp._mcp_server.create_initialization_options()
-        )
-
-
-# Starlette Sub-App for SSE streaming & POST message routing
-sse_app = Starlette(
-    routes=[
-        Route("/sse", endpoint=handle_sse, methods=["GET"]),
-        Mount("/messages/", app=sse_transport.handle_post_message),
-    ]
-)
-
-# FastAPI Main Application
-app = FastAPI(
-    title="Ana Catalina - Interactive Curriculum MCP Server",
-    description="Official Model Context Protocol (MCP) server providing interactive CV data via SSE.",
-    version="1.0.0",
-)
-
-
-@app.get("/health", tags=["Monitoring"])
-async def health_check():
+# 3. Register Custom Routes (Health Check & Info)
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request: Request):
     """Health check endpoint for Google Cloud Run container liveness."""
-    return {
+    return JSONResponse({
         "status": "healthy",
         "service": "anacatalina-mcp",
         "version": "1.0.0",
-        "transports": ["SSE (/sse)", "POST (/messages/)"]
-    }
+        "transports": ["SSE (/sse)", "POST (/messages)"]
+    })
 
 
-# Mount SSE routes at root level
-app.mount("/", sse_app)
+# 4. Generate ASGI Application for SSE Transport
+app = mcp.sse_app()
 
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", "8080"))
-    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.environ.get("PORT", 8080))
+    host = os.environ.get("HOST", "0.0.0.0")
     print(f"Starting MCP Server on http://{host}:{port}/sse")
-    uvicorn.run("server:app", host=host, port=port, reload=True)
+    uvicorn.run(app, host=host, port=port)

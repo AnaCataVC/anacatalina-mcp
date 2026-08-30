@@ -27,5 +27,5 @@ COPY . .
 # Expose default Cloud Run port
 EXPOSE 8080
 
-# Run uvicorn respecting dynamic Cloud Run $PORT
-CMD ["sh", "-c", "exec uvicorn server:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Run python server directly reading PORT environment variable
+CMD ["python", "server.py"]
