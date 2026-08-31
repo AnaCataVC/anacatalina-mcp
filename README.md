@@ -16,6 +16,11 @@
 
 > **Official Model Context Protocol (MCP) Server** with Server-Sent Events (SSE) transport over FastAPI, exposing an interactive CV and portfolio for AI assistants and LLM clients. Includes a local `stdio` bridge for Claude Desktop and a production-ready container for Google Cloud Run.
 
+<div align="center">
+  <h3>🟢 Live Server URL / Servidor en Vivo:</h3>
+  <code>https://anacatalina-mcp-165536131179.us-central1.run.app/</code>
+</div>
+
 ---
 
 ## 🇪🇸 Descripción del Proyecto (Spanish)
@@ -23,7 +28,7 @@
 Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)** en Python que permite a evaluadores técnicos, reclutadores y modelos LLM (como Claude o GPT) explorar de forma interactiva y estructurada la trayectoria profesional, habilidades técnicas, proyectos insignia y compatibilidad con vacantes de **Ana Catalina** (Data Scientist & Learning Engineer en SimpliRoute, ex-Fracttal).
 
 ### Características Principales
-- **Transporte SSE Remoto:** Integrado con FastAPI y `SseServerTransport` para despliegue Serverless en Google Cloud Run.
+- **Transporte SSE Remoto:** Integrado con FastAPI y `SseServerTransport` para despliegue Serverless en Google Cloud Run. ¡El servidor ya se encuentra en producción!
 - **8 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación y contacto.
 - **Script Puente Local (`conecta_cata.py`):** Permite conectar clientes locales basados en `stdio` (como Claude Desktop) con el servidor remoto alojado en Cloud Run a través de HTTP/SSE.
 - **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
@@ -35,7 +40,7 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana Catalina** (Data Scientist & Learning Engineer at SimpliRoute, former Fracttal).
 
 ### Key Features
-- **Remote SSE Transport:** Implemented via FastAPI and `SseServerTransport`, optimized for Serverless hosting on Google Cloud Run.
+- **Remote SSE Transport:** Implemented via FastAPI and `SseServerTransport`, optimized for Serverless hosting on Google Cloud Run. Live and deployed!
 - **8 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, and contact details.
 - **Local Stdio Bridge (`conecta_cata.py`):** Bi-directional async adapter connecting `stdio`-based clients (such as Claude Desktop) to remote SSE endpoints.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
@@ -101,6 +106,9 @@ El servidor expone **8 herramientas oficiales** registradas a través del protoc
 3. **Desacoplamiento y Validación de Datos:**
    - La separación entre la capa de datos (`data/cv_data.json`), los contratos de interfaz (`models/cv.py`) y la lógica de negocio (`services/cv_service.py`) permite actualizar el contenido del currículum sin modificar el servidor MCP ni arriesgar la compatibilidad de tipos.
 
+4. **Compatibilidad y Cambios de API en `mcp 2.x`:**
+   - Recientemente, la versión `2.0.0` del SDK oficial de MCP introdujo cambios que renombraron `FastMCP`. Para mantener la estabilidad del despliegue en Cloud Run y garantizar que nuestro código `FastMCP` v1 continúe funcionando correctamente sin refactorización inmediata, fijamos la dependencia en `requirements.txt` a `mcp>=1.3.0,<2`.
+
 ---
 
 ## 🚀 Instalación y Uso Local / Local Setup
@@ -146,10 +154,12 @@ Endpoints disponibles:
 
 ## 🔌 Configuración en Claude Desktop
 
-Para conectar Claude Desktop con el servidor (ya sea en ejecución local o en Cloud Run), añade la configuración en tu archivo `claude_desktop_config.json`:
+Para conectar Claude Desktop con el servidor remoto desplegado en Cloud Run usando el puente local, puedes basarte en el archivo [`claude_desktop_config.example.json`](claude_desktop_config.example.json) incluido en este repositorio. Añade o reemplaza la configuración en tu archivo `claude_desktop_config.json`:
 
 - **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
 - **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+Asegúrate de ajustar el argumento `command` o las rutas según tu sistema operativo. Usa rutas relativas de entorno o tu ruta local al script puente `conecta_cata.py`, pero **nunca compartas rutas absolutas locales en repositorios públicos**.
 
 ```json
 {
@@ -157,10 +167,10 @@ Para conectar Claude Desktop con el servidor (ya sea en ejecución local o en Cl
     "anacatalina-cv": {
       "command": "python",
       "args": [
-        "/path/to/anacatalina-mcp/conecta_cata.py"
+        "conecta_cata.py" 
       ],
       "env": {
-        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-xxxxx-uc.a.run.app/sse"
+        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-165536131179.us-central1.run.app/sse"
       }
     }
   }
@@ -168,7 +178,7 @@ Para conectar Claude Desktop con el servidor (ya sea en ejecución local o en Cl
 ```
 
 > [!TIP]
-> **Pruebas en desarrollo local:** Para conectar Claude Desktop con tu servidor local, configura `"MCP_SERVER_SSE_URL": "http://localhost:8080/sse"`.
+> **Pruebas en desarrollo local:** Para conectar Claude Desktop con tu servidor local, cambia el valor de `"MCP_SERVER_SSE_URL"` a `"http://localhost:8080/sse"`.
 
 ---
 
