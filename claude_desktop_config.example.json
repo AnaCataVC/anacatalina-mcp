@@ -3,10 +3,10 @@
     "anacatalina-cv": {
       "command": "python",
       "args": [
-        "/path/to/anacatalina-mcp/conecta_cata.py"
+        "C:\\<TU_RUTA_AL_PROYECTO>\\conecta_cata.py"
       ],
       "env": {
-        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-xxxxx-uc.a.run.app/sse"
+        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-165536131179.us-central1.run.app/sse"
       }
     }
   }
