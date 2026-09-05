@@ -23,7 +23,7 @@
 
 ---
 
-## 🇪🇸 Descripción del Proyecto (Spanish)
+## Descripción del Proyecto (Spanish)
 
 Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)** en Python que permite a evaluadores técnicos, reclutadores y modelos LLM (como Claude o GPT) explorar de forma interactiva y estructurada la trayectoria profesional, habilidades técnicas, proyectos insignia y compatibilidad con vacantes de **Ana Catalina** (Data Scientist & Learning Engineer en SimpliRoute, ex-Fracttal).
 
@@ -35,7 +35,7 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 
 ---
 
-## 🇬🇧 Project Overview (English)
+## Project Overview (English)
 
 This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana Catalina** (Data Scientist & Learning Engineer at SimpliRoute, former Fracttal).
 
@@ -210,33 +210,6 @@ gcloud run deploy anacatalina-mcp \
 
 > [!NOTE]
 > Las opciones `--timeout 3600` y `--session-affinity` son fundamentales para mantener conexiones SSE persistentes y estables en Cloud Run.
-
----
-
-## 📂 Estructura del Proyecto / Repository Structure
-
-```text
-anacatalina-mcp/
-├── data/
-│   └── cv_data.json             # Dataset estructurado del currículum profesional
-├── models/
-│   ├── __init__.py
-│   └── cv.py                    # Modelos de datos y validación con Pydantic v2
-├── services/
-│   ├── __init__.py
-│   └── cv_service.py            # Lógica de filtrado, búsqueda y evaluación de fit
-├── tests/
-│   └── test_server.py           # Pruebas de integración del servidor MCP
-├── .gitignore                   # Exclusiones de Git
-├── .dockerignore               # Exclusiones de Docker build
-├── Dockerfile                   # Definición de contenedor lista para Cloud Run
-├── README.md                    # Documentación principal del repositorio
-├── claude_desktop_config.example.json  # Plantilla de configuración para Claude Desktop
-├── conecta_cata.py              # Script puente asíncrono stdio <-> SSE
-├── icon.png                     # Icono / Banner oficial del proyecto
-├── requirements.txt             # Dependencias del proyecto
-└── server.py                    # Servidor principal FastMCP con transporte SSE y FastAPI
-```
 
 ---
 
