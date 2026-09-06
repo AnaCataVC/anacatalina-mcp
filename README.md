@@ -18,7 +18,8 @@
 
 <div align="center">
   <h3>🟢 Live Server URL / Servidor en Vivo:</h3>
-  <code>https://anacatalina-mcp-165536131179.us-central1.run.app/</code>
+  <p><strong><a href="https://mcp.ana-catalina.com/">https://mcp.ana-catalina.com/</a></strong></p>
+  <small>(Cloud Run Mirror: <code>https://anacatalina-mcp-165536131179.us-central1.run.app/</code>)</small>
 </div>
 
 ---
@@ -28,6 +29,8 @@
 Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)** en Python que permite a evaluadores técnicos, reclutadores y modelos LLM (como Claude o GPT) explorar de forma interactiva y estructurada la trayectoria profesional, habilidades técnicas, proyectos insignia y compatibilidad con vacantes de **Ana Catalina** (Data Scientist & Learning Engineer en SimpliRoute, ex-Fracttal).
 
 ### Características Principales
+- **Web Showcase & Playground Interactivo:** Servido en la raíz (`/`) y `/demo` bajo el *Pastel-Tech Design System*. Permite a reclutadores y visitantes humanos evaluar compatibilidad con vacantes y buscar en el currículum en tiempo real sin costo de APIs ni tokens.
+- **Negociación Transparente de Contenido:** Devuelve una aplicación web responsiva si la petición proviene de un navegador (`Accept: text/html`) y el JSON de descubrimiento original si proviene de agentes o APIs.
 - **Transporte SSE Remoto:** Integrado con FastAPI y `SseServerTransport` para despliegue Serverless en Google Cloud Run. ¡El servidor ya se encuentra en producción!
 - **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
 - **Script Puente Local (`conecta_cata.py`):** Permite conectar clientes locales basados en `stdio` (como Claude Desktop) con el servidor remoto alojado en Cloud Run a través de HTTP/SSE.
@@ -40,6 +43,8 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana Catalina** (Data Scientist & Learning Engineer at SimpliRoute, former Fracttal).
 
 ### Key Features
+- **Interactive Web Showcase & Playground:** Served at `/` and `/demo` using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with zero API billing and zero hallucinations.
+- **Transparent HTTP Content Negotiation:** Serves the interactive web interface to browsers (`Accept: text/html`) while preserving the structured JSON discovery payload for programmatic agents and curl.
 - **Remote SSE Transport:** Implemented via FastAPI and `SseServerTransport`, optimized for Serverless hosting on Google Cloud Run. Live and deployed!
 - **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Local Stdio Bridge (`conecta_cata.py`):** Bi-directional async adapter connecting `stdio`-based clients (such as Claude Desktop) to remote SSE endpoints.
@@ -151,9 +156,16 @@ uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 Endpoints disponibles:
+- **Web Showcase & Playground:** `http://localhost:8080/` (en navegadores) o `http://localhost:8080/demo`
+- **Discovery JSON:** `http://localhost:8080/` (con cabecera `Accept: application/json` o agentes MCP)
 - **Health Check:** `http://localhost:8080/health`
 - **SSE Stream:** `http://localhost:8080/sse`
 - **Mensajes POST:** `http://localhost:8080/messages/`
+- **REST Helper APIs:**
+  - `POST /api/evaluate-fit` &mdash; Evaluación determinista de vacantes
+  - `GET /api/search?q={query}` &mdash; Búsqueda transversal por palabras clave
+  - `GET /api/skills` &mdash; Taxonomía de stack y niveles
+  - `GET /api/projects` &mdash; Proyectos destacados (laborales y personales)
 
 ---
 
@@ -175,7 +187,7 @@ Asegúrate de ajustar el argumento `command` o las rutas según tu sistema opera
         "conecta_cata.py" 
       ],
       "env": {
-        "MCP_SERVER_SSE_URL": "https://anacatalina-mcp-165536131179.us-central1.run.app/sse"
+        "MCP_SERVER_SSE_URL": "https://mcp.ana-catalina.com/sse"
       }
     }
   }
