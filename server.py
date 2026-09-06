@@ -14,6 +14,7 @@ from models.cv import (
     ProjectItem,
     EducationItem,
     ContactDetails,
+    PersonalInfo,
     FitEvaluationResult,
 )
 from services.cv_service import get_cv_service
@@ -96,6 +97,15 @@ async def obtener_contacto() -> ContactDetails:
 
 
 @mcp.tool(
+    name="obtener_perfil",
+    description="Devuelve el perfil general de Ana Catalina: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub)."
+)
+async def obtener_perfil() -> PersonalInfo:
+    """Obtiene la información general del perfil profesional."""
+    return cv_service.get_profile()
+
+
+@mcp.tool(
     name="obtener_resumen_ejecutivo",
     description="Devuelve el resumen ejecutivo del perfil profesional de Ana Catalina enfocado en Data Science, Machine Learning, GCP y arquitecturas MCP. Soporta idiomas 'es' o 'en'."
 )
@@ -135,8 +145,6 @@ app = mcp.sse_app()
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8080))
-    host = os.environ.get("HOST", "0.0.0.0")
     print(f"Starting MCP Server on http://{host}:{port}/sse")
     uvicorn.run(app, host=host, port=port, log_level="info")
 

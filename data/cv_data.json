@@ -4,8 +4,8 @@
     "title": "Data Scientist & Learning Engineer",
     "location": "Santiago, Chile",
     "contact": {
-      "email": "anacatalina@example.com",
-      "linkedin": "https://linkedin.com/in/anacatalinavc"
+      "email": "anacatalina@outlook.cl",
+      "linkedin": "https://linkedin.com/in/ana-catalina/"
     },
     "portfolio_links": {
       "github": "https://github.com/AnaCataVC"
@@ -139,10 +139,16 @@
   ],
   "education": [
     {
-      "institution": "Universidad",
-      "degree": "Ingeniería / Licenciatura en Ciencias",
-      "period": "Graduada",
-      "details": "Especialización en análisis de datos, modelos computacionales y estadística aplicada."
+      "institution": "Universidad de Chile",
+      "degree": "Ingeniería Civil",
+      "period": "Egresada en 2019, Titulada en 2020",
+      "details": "Mención en estructuras, construcción y geotecnia. Trabajo de título en Procesos Gaussianos para detección de fallas estructurales. Titulada con distinción máxima. Prácticas profesionales: EGIS y DOM Curicó (cálculo estructural y presupuestos)."
+    },
+    {
+      "institution": "Universidad de Chile",
+      "degree": "Licenciatura en Ciencias de la Ingeniería",
+      "period": "Finalizada en 2017",
+      "details": "Actividad destacada: Ayudante del curso Probabilidades y Estadística."
     }
   ]
 }

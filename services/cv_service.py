@@ -10,6 +10,7 @@ from models.cv import (
     CVData,
     ContactDetails,
     ExperienceItem,
+    PersonalInfo,
     SkillCategory,
     SkillItem,
     ProjectItem,
@@ -41,14 +42,20 @@ class CVService:
 
     def get_summary(self, lang: str = "es") -> str:
         """Returns executive summary in the requested language."""
+        if not self.cv.summary:
+            return ""
         lang_key = lang.lower()
         if lang_key not in self.cv.summary:
-            lang_key = "es" if "es" in self.cv.summary else list(self.cv.summary.keys())[0]
+            lang_key = "es" if "es" in self.cv.summary else next(iter(self.cv.summary))
         return self.cv.summary.get(lang_key, "")
 
     def get_contact(self) -> ContactDetails:
         """Returns direct contact details."""
         return self.cv.personal_info.contact
+
+    def get_profile(self) -> PersonalInfo:
+        """Returns the general profile: name, title, location and portfolio links."""
+        return self.cv.personal_info
 
     def get_experience(self, company: Optional[str] = None) -> List[ExperienceItem]:
         """Returns work experience, optionally filtered by company name."""
@@ -144,6 +151,43 @@ class CVService:
             "projects": matched_projects,
         }
 
+    def _build_matching_strengths(self, matched_terms: List[str]) -> List[str]:
+        """Builds strength bullets grounded in real experience/project entries whose
+        technologies overlap the terms detected in the job description."""
+        strengths: List[str] = []
+
+        scored_experiences = []
+        for exp in self.cv.experience:
+            overlap = [t for t in exp.technologies if any(term in t.lower() for term in matched_terms)]
+            if overlap:
+                scored_experiences.append((len(overlap), exp, overlap))
+        scored_experiences.sort(key=lambda item: item[0], reverse=True)
+
+        for _, exp, overlap in scored_experiences[:2]:
+            strengths.append(
+                f"Experiencia aplicada en {', '.join(overlap)} como {exp.role} en {exp.company}."
+            )
+
+        scored_projects = []
+        for proj in self.cv.projects:
+            overlap = [t for t in proj.technologies if any(term in t.lower() for term in matched_terms)]
+            if overlap:
+                scored_projects.append((len(overlap), proj, overlap))
+        scored_projects.sort(key=lambda item: item[0], reverse=True)
+
+        if scored_projects:
+            _, proj, overlap = scored_projects[0]
+            strengths.append(f'Proyecto destacado "{proj.name}" usando {", ".join(overlap)}.')
+
+        if not strengths:
+            strengths = [
+                "Experiencia real en producción optimizando modelos analíticos y pipelines en SimpliRoute y Fracttal.",
+                "Dominio profundo del stack moderno de datos en GCP (BigQuery + Vertex AI) y despliegues con Docker y FastAPI.",
+                "Capacidad probada para diseñar e implementar soluciones de IA aplicada y protocolos avanzados de agentes (MCP).",
+            ]
+
+        return strengths
+
     def evaluate_job_fit(self, job_description: str) -> FitEvaluationResult:
         """Evaluates compatibility between a job description and the candidate's profile."""
         jd_lower = job_description.lower()
@@ -173,15 +217,29 @@ class CVService:
             "ruteo": "Optimización Logística & Ruteo",
         }
 
+        matched_terms = []
         matched_techs = []
         for term, label in known_tech_keywords.items():
-            if term in jd_lower and label not in matched_techs:
-                matched_techs.append(label)
+            if term in jd_lower:
+                matched_terms.append(term)
+                if label not in matched_techs:
+                    matched_techs.append(label)
 
-        # Detect role
-        role_detected = "Data Scientist / Machine Learning Engineer / AI Engineer"
-        if "lead" in jd_lower or "senior" in jd_lower:
-            role_detected = "Senior Data Scientist / Learning Engineer"
+        # Detect seniority signal, if any
+        seniority_keywords = {
+            "senior": "Senior",
+            "sr.": "Senior",
+            "lead": "Lead",
+            "líder": "Lead",
+            "jefe": "Lead",
+            "staff": "Staff",
+            "principal": "Principal",
+            "junior": "Junior",
+            "jr.": "Junior",
+        }
+        seniority = next((label for kw, label in seniority_keywords.items() if kw in jd_lower), None)
+        base_role = "Data Scientist / Machine Learning Engineer / AI Engineer"
+        role_detected = f"{seniority} {base_role}" if seniority else base_role
 
         # Calculate fit percentage estimate
         if len(matched_techs) >= 4:
@@ -193,11 +251,7 @@ class CVService:
         else:
             fit_score = "70% (Perfil Transferible en Data/IA)"
 
-        strengths = [
-            "Experiencia real en producción optimizando modelos analíticos y pipelines en SimpliRoute y Fracttal.",
-            "Dominio profundo del stack moderno de datos en GCP (BigQuery + Vertex AI) y despliegues con Docker y FastAPI.",
-            "Capacidad probada para diseñar e implementar soluciones de IA aplicada y protocolos avanzados de agentes (MCP)."
-        ]
+        strengths = self._build_matching_strengths(matched_terms)
 
         summary = (
             f"El perfil de Ana Catalina presenta un fit sobresaliente para la posición descrita. "
