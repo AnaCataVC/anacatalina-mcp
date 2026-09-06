@@ -10,7 +10,7 @@ Official **Model Context Protocol (MCP)** server and interactive showcase for **
 
 The repository serves a dual-purpose architecture:
 1. **Programmatic / Agent Interface:** Official FastMCP server operating over Server-Sent Events (SSE) at `/sse` and `/messages/`, with JSON discovery at `/`. Enables AI agents (Claude Desktop, Cursor, Copilot, LangChain) to query Ana-Catalina's professional background, skills, and projects with structured JSON responses.
-2. **Human / Evaluator Interface:** An interactive, single-page web showcase and deterministic playground served at `/`, `/demo`, and `/playground` via transparent HTTP content negotiation (`Accept: text/html`). Allows technical recruiters and engineering managers to evaluate skill alignment and search the curriculum with sub-5ms response times.
+2. **Human / Evaluator Interface:** A single-page web showcase served at `/` and `/demo` via transparent HTTP content negotiation (`Accept: text/html`). Allows technical recruiters and engineering managers to see what the mcp offers.
 
 **Live Production URLs:**
 - Primary Custom Domain: [https://mcp.ana-catalina.com/](https://mcp.ana-catalina.com/)
@@ -130,14 +130,14 @@ In `server.py`, the Starlette application routes requests as follows:
 | Route | Method | Content-Type | Behavior |
 | :--- | :--- | :--- | :--- |
 | `/` | `GET` | `text/html` or `application/json` | **Transparent Content Negotiation:** If `Accept: text/html` is present (browsers), serves the web showcase. Otherwise serves JSON discovery metadata. |
-| `/demo`, `/playground` | `GET` | `text/html` | Direct access to the web showcase and interactive playground. |
+| `/demo` | `GET` | `text/html` | Direct access to the web showcase and interactive playground. |
 | `/sse` | `GET` | `text/event-stream` | MCP Server-Sent Events endpoint for persistent client connections. |
 | `/messages/` | `POST` | `application/json` | JSON-RPC message receiver for active SSE sessions. |
 | `/health` | `GET` | `application/json` | Cloud Run container liveness probe. |
-| `/api/evaluate-fit` | `POST` | `application/json` | REST helper endpoint for the web playground executing benchmark evaluations. |
-| `/api/search` | `GET` | `application/json` | REST helper endpoint for the search bar (`?q=...`). |
-| `/api/skills` | `GET` | `application/json` | REST helper endpoint returning skill categories and levels. |
-| `/api/projects` | `GET` | `application/json` | REST helper endpoint returning projects filtered by type or tech. |
+| `/api/evaluate-fit` | `POST` | `application/json` | Standalone REST endpoint for benchmark role fit evaluation via direct HTTP. |
+| `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
+| `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
+| `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
 
 ---
 

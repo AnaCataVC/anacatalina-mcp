@@ -161,10 +161,10 @@ Endpoints disponibles:
 - **Health Check:** `http://localhost:8080/health`
 - **SSE Stream:** `http://localhost:8080/sse`
 - **Mensajes POST:** `http://localhost:8080/messages/`
-- **REST Helper APIs:**
-  - `POST /api/evaluate-fit` &mdash; Evaluación determinista de vacantes
-  - `GET /api/search?q={query}` &mdash; Búsqueda transversal por palabras clave
-  - `GET /api/skills` &mdash; Taxonomía de stack y niveles
+- **APIs REST Auxiliares (Integraciones HTTP directas / Scripts):**
+  - `POST /api/evaluate-fit` &mdash; Evaluación determinista de vacantes vía HTTP
+  - `GET /api/search?q={query}` &mdash; Búsqueda transversal por palabras clave vía HTTP
+  - `GET /api/skills` &mdash; Taxonomía de stack y niveles técnicos
   - `GET /api/projects` &mdash; Proyectos destacados (laborales y personales)
 
 ---

@@ -166,14 +166,13 @@ def test_root_browser_content_negotiation_html():
     assert "Pastel-Tech" in response.text
 
 
-def test_demo_and_playground_endpoints():
-    """Tests direct /demo and /playground routes."""
+def test_demo_endpoint():
+    """Tests direct /demo route returns the HTML showcase."""
     client = TestClient(app)
-    for path in ["/demo", "/playground"]:
-        res = client.get(path)
-        assert res.status_code == 200
-        assert "text/html" in res.headers["content-type"]
-        assert "Alineación" in res.text or "Interactive" in res.text
+    res = client.get("/demo")
+    assert res.status_code == 200
+    assert "text/html" in res.headers["content-type"]
+    assert "Alineación" in res.text or "Interactive" in res.text
 
 
 def test_api_evaluate_fit_success():

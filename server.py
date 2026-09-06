@@ -149,7 +149,7 @@ DISCOVERY_PAYLOAD: Dict[str, Any] = {
 }
 
 
-# 4. Register Custom Routes (Web Showcase, REST APIs & Health Check)
+# 4. Register Custom Routes (Web Showcase, Standalone REST APIs & Health Check)
 @mcp.custom_route("/", methods=["GET"])
 async def root_info(request: Request):
     """Root endpoint: serves interactive showcase HTML to browsers and JSON discovery to APIs."""
@@ -165,17 +165,7 @@ async def root_info(request: Request):
 
 @mcp.custom_route("/demo", methods=["GET"])
 async def demo_page(request: Request):
-    """Direct web showcase and interactive playground endpoint."""
-    return HTMLResponse(
-        content=get_showcase_html(),
-        status_code=200,
-        headers={"Cache-Control": "no-cache, must-revalidate"},
-    )
-
-
-@mcp.custom_route("/playground", methods=["GET"])
-async def playground_page(request: Request):
-    """Alias for direct web playground."""
+    """Direct web showcase endpoint."""
     return HTMLResponse(
         content=get_showcase_html(),
         status_code=200,
@@ -214,7 +204,7 @@ async def health_check(request: Request):
 
 @mcp.custom_route("/api/evaluate-fit", methods=["POST"])
 async def api_evaluate_fit(request: Request):
-    """Evaluates benchmark role compatibility using the in-memory curriculum service."""
+    """Standalone REST endpoint: evaluates benchmark role compatibility via direct HTTP."""
     try:
         data = await request.json()
     except Exception:
@@ -236,7 +226,7 @@ async def api_evaluate_fit(request: Request):
 
 @mcp.custom_route("/api/search", methods=["GET"])
 async def api_search(request: Request):
-    """Cross-curriculum keyword search across experience, skills, and projects."""
+    """Standalone REST endpoint: cross-curriculum keyword search across experience, skills, and projects via direct HTTP."""
     query = request.query_params.get("q", "")
     res = cv_service.search(query=query)
     payload = {
@@ -252,7 +242,7 @@ async def api_search(request: Request):
 
 @mcp.custom_route("/api/skills", methods=["GET"])
 async def api_skills(request: Request):
-    """Returns technical skill taxonomy with optional category and level filters."""
+    """Standalone REST endpoint: returns technical skill taxonomy with optional category and level filters."""
     category = request.query_params.get("category")
     level = request.query_params.get("level")
     skills = cv_service.get_skills(category=category, level=level)
@@ -261,14 +251,14 @@ async def api_skills(request: Request):
 
 @mcp.custom_route("/api/projects", methods=["GET"])
 async def api_projects(request: Request):
-    """Returns featured projects with optional type and technology filters."""
+    """Standalone REST endpoint: returns featured projects with optional type and technology filters."""
     p_type = request.query_params.get("type")
     technology = request.query_params.get("technology")
     projects = cv_service.get_projects(project_type=p_type, technology=technology)
     return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
 
 
-# 4. Generate ASGI Application for SSE Transport
+# 5. Generate ASGI Application for SSE Transport
 app = mcp.sse_app()
 
 
