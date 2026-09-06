@@ -38,6 +38,7 @@ async def bridge_stdio_to_sse(sse_url: str):
                     except Exception as exc:
                         sys.stderr.write(f"[Bridge] Error sending stdio -> SSE: {exc}\n")
                         sys.stderr.flush()
+                        tg.cancel_scope.cancel()
 
                 async def pipe_sse_in_to_stdio_out():
                     try:
@@ -46,6 +47,7 @@ async def bridge_stdio_to_sse(sse_url: str):
                     except Exception as exc:
                         sys.stderr.write(f"[Bridge] Error sending SSE -> stdio: {exc}\n")
                         sys.stderr.flush()
+                        tg.cancel_scope.cancel()
 
                 tg.start_soon(pipe_stdio_in_to_sse_out)
                 tg.start_soon(pipe_sse_in_to_stdio_out)
