@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from starlette.requests import Request
-from starlette.responses import JSONResponse, HTMLResponse
+from starlette.responses import JSONResponse, HTMLResponse, FileResponse, Response
 from mcp.server.fastmcp import FastMCP
 
 from models.cv import (
@@ -23,14 +23,14 @@ from services.cv_service import get_cv_service
 # 1. Initialize FastMCP instance bound to 0.0.0.0 for Cloud Run
 port = int(os.environ.get("PORT", 8080))
 host = os.environ.get("HOST", "0.0.0.0")
-mcp = FastMCP("Ana Catalina Interactive Portfolio MCP", host=host, port=port)
+mcp = FastMCP("Ana-Catalina Interactive Portfolio MCP", host=host, port=port)
 cv_service = get_cv_service()
 
 
 # 2. Register MCP Tools
 @mcp.tool(
     name="obtener_experiencia",
-    description="Devuelve el historial laboral y experiencia profesional de Ana Catalina (SimpliRoute, Fracttal, etc.), con responsabilidades y tecnologías empleadas. Permite filtrar por empresa."
+    description="Devuelve el historial laboral y experiencia profesional de Ana-Catalina (SimpliRoute, Fracttal, etc.), con responsabilidades y tecnologías empleadas. Permite filtrar por empresa."
 )
 async def obtener_experiencia(empresa: Optional[str] = None) -> List[ExperienceItem]:
     """Obtiene la experiencia laboral filtrada opcionalmente por nombre de empresa."""
@@ -39,7 +39,7 @@ async def obtener_experiencia(empresa: Optional[str] = None) -> List[ExperienceI
 
 @mcp.tool(
     name="obtener_stack_tecnologico",
-    description="Devuelve las tecnologías, lenguajes (Python, SQL), herramientas de Cloud/GCP (BigQuery, Vertex AI), Docker y frameworks dominados por Ana Catalina, organizados por categoría y con su nivel de dominio (Avanzado, Intermedio)."
+    description="Devuelve las tecnologías, lenguajes (Python, SQL), herramientas de Cloud/GCP (BigQuery, Vertex AI), Docker y frameworks dominados por Ana-Catalina, organizados por categoría y con su nivel de dominio (Avanzado, Intermedio)."
 )
 async def obtener_stack_tecnologico(
     categoria: Optional[str] = None,
@@ -51,7 +51,7 @@ async def obtener_stack_tecnologico(
 
 @mcp.tool(
     name="obtener_proyectos_destacados",
-    description="Devuelve los proyectos insignia de Ana Catalina (laborales y personales), describiendo su objetivo, arquitectura, tecnologías utilizadas (MCP, FastAPI, Vertex AI, Docker) y enlaces a repositorios o demos."
+    description="Devuelve los proyectos insignia de Ana-Catalina (laborales y personales), describiendo su objetivo, arquitectura, tecnologías utilizadas (MCP, FastAPI, Vertex AI, Docker) y enlaces a repositorios o demos."
 )
 async def obtener_proyectos_destacados(
     tipo: Optional[str] = None,
@@ -63,16 +63,16 @@ async def obtener_proyectos_destacados(
 
 @mcp.tool(
     name="evaluar_fit_puesto",
-    description="Analiza la descripción o requerimientos de una vacante laboral y evalúa el porcentaje de compatibilidad, fortalezas técnicas coincidentes y valor agregado del perfil de Ana Catalina."
+    description="Devuelve la evaluación de alineación técnica para escenarios predefinidos o perfiles estándar de mercado (Senior Data Scientist, Especialista en Logística/Ruteo, Ingeniera en IA/Agentes MCP)."
 )
 async def evaluar_fit_puesto(descripcion_vacante: str) -> FitEvaluationResult:
-    """Evalúa la compatibilidad entre una descripción de puesto y el perfil de Ana Catalina."""
-    return cv_service.evaluate_job_fit(job_description=descripcion_vacante)
+    """Evalúa la alineación técnica entre un rol o escenario y el perfil de Ana-Catalina."""
+    return cv_service.evaluate_job_fit(scenario_or_description=descripcion_vacante)
 
 
 @mcp.tool(
     name="buscar_en_curriculum",
-    description="Realiza una búsqueda transversal por palabra clave en todo el currículum de Ana Catalina (experiencia, tecnologías, proyectos y responsabilidades)."
+    description="Realiza una búsqueda transversal por palabra clave en todo el currículum de Ana-Catalina (experiencia, tecnologías, proyectos y responsabilidades)."
 )
 async def buscar_en_curriculum(consulta: str) -> Dict[str, Any]:
     """Busca cualquier término en el historial laboral, proyectos y habilidades."""
@@ -81,7 +81,7 @@ async def buscar_en_curriculum(consulta: str) -> Dict[str, Any]:
 
 @mcp.tool(
     name="obtener_educacion",
-    description="Devuelve la formación académica formal y estudios universitarios de Ana Catalina."
+    description="Devuelve la formación académica formal y estudios universitarios de Ana-Catalina."
 )
 async def obtener_educacion() -> List[EducationItem]:
     """Obtiene el historial de formación académica formal."""
@@ -90,7 +90,7 @@ async def obtener_educacion() -> List[EducationItem]:
 
 @mcp.tool(
     name="obtener_contacto",
-    description="Devuelve los canales directos de contacto profesional de Ana Catalina (Email directo y perfil de LinkedIn)."
+    description="Devuelve los canales directos de contacto profesional de Ana-Catalina (Email directo y perfil de LinkedIn)."
 )
 async def obtener_contacto() -> ContactDetails:
     """Obtiene la información de contacto directo."""
@@ -99,7 +99,7 @@ async def obtener_contacto() -> ContactDetails:
 
 @mcp.tool(
     name="obtener_perfil",
-    description="Devuelve el perfil general de Ana Catalina: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub)."
+    description="Devuelve el perfil general de Ana-Catalina: nombre profesional ('Ana-Catalina Villalobos Contardo'), nombre de pila ('Ana-Catalina'), segundo nombre ('Alejandra'), apellidos ('Villalobos Contardo'), nombre completo oficial ('Ana-Catalina Alejandra Villalobos Contardo'), cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub)."
 )
 async def obtener_perfil() -> PersonalInfo:
     """Obtiene la información general del perfil profesional."""
@@ -108,7 +108,7 @@ async def obtener_perfil() -> PersonalInfo:
 
 @mcp.tool(
     name="obtener_resumen_ejecutivo",
-    description="Devuelve el resumen ejecutivo del perfil profesional de Ana Catalina enfocado en Data Science, Machine Learning, GCP y arquitecturas MCP. Soporta idiomas 'es' o 'en'."
+    description="Devuelve el resumen ejecutivo del perfil profesional de Ana-Catalina enfocado en Data Science, Machine Learning, GCP y arquitecturas MCP. Soporta idiomas 'es' o 'en'."
 )
 async def obtener_resumen_ejecutivo(idioma: str = "es") -> str:
     """Obtiene la síntesis ejecutiva del perfil profesional en español o inglés."""
@@ -130,15 +130,15 @@ def get_showcase_html() -> str:
         else:
             _CACHED_HTML = (
                 "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'>"
-                "<title>Ana Catalina MCP</title></head><body>"
-                "<h1>Ana Catalina Interactive Portfolio MCP</h1>"
+                "<title>Ana-Catalina MCP</title></head><body>"
+                "<h1>Ana-Catalina Interactive Portfolio MCP</h1>"
                 "<p>Showcase template not yet initialized.</p></body></html>"
             )
     return _CACHED_HTML
 
 
 DISCOVERY_PAYLOAD: Dict[str, Any] = {
-    "name": "Ana Catalina Interactive Portfolio MCP",
+    "name": "Ana-Catalina Interactive Portfolio MCP",
     "status": "healthy",
     "version": "1.0.0",
     "sse_endpoint": "/sse",
@@ -183,6 +183,24 @@ async def playground_page(request: Request):
     )
 
 
+@mcp.custom_route("/favicon.svg", methods=["GET"])
+async def favicon_svg(request: Request):
+    """Serves the official brand logo SVG."""
+    svg_path = Path(__file__).resolve().parent / "favicon.svg"
+    if svg_path.exists():
+        return FileResponse(svg_path, media_type="image/svg+xml")
+    return Response(status_code=404)
+
+
+@mcp.custom_route("/favicon.ico", methods=["GET"])
+async def favicon_ico(request: Request):
+    """Serves the favicon.ico."""
+    ico_path = Path(__file__).resolve().parent / "favicon.ico"
+    if ico_path.exists():
+        return FileResponse(ico_path, media_type="image/x-icon")
+    return Response(status_code=404)
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     """Health check endpoint for Google Cloud Run container liveness."""
@@ -196,7 +214,7 @@ async def health_check(request: Request):
 
 @mcp.custom_route("/api/evaluate-fit", methods=["POST"])
 async def api_evaluate_fit(request: Request):
-    """Evaluates job description compatibility using the in-memory curriculum service."""
+    """Evaluates benchmark role compatibility using the in-memory curriculum service."""
     try:
         data = await request.json()
     except Exception:
@@ -205,14 +223,14 @@ async def api_evaluate_fit(request: Request):
     if not isinstance(data, dict):
         return JSONResponse({"error": "Request body must be a JSON object."}, status_code=400)
 
-    job_description = data.get("job_description")
-    if not job_description or not isinstance(job_description, str) or not job_description.strip():
+    scenario = data.get("scenario") or data.get("job_description")
+    if not scenario or not isinstance(scenario, str) or not scenario.strip():
         return JSONResponse(
-            {"error": "Field 'job_description' is required and must not be empty."},
+            {"error": "Field 'scenario' or 'job_description' is required and must not be empty."},
             status_code=400,
         )
 
-    result = cv_service.evaluate_job_fit(job_description=job_description.strip())
+    result = cv_service.evaluate_job_fit(scenario_or_description=scenario.strip())
     return JSONResponse(result.model_dump(), status_code=200)
 
 

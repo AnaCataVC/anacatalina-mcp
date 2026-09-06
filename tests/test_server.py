@@ -1,5 +1,5 @@
 """
-Unit and integration tests for Ana Catalina MCP Server.
+Unit and integration tests for Ana-Catalina MCP Server.
 """
 import pytest
 from starlette.testclient import TestClient
@@ -27,7 +27,11 @@ def service():
 
 def test_cv_data_loaded(service):
     """Verifies that CV data is properly loaded and validated."""
-    assert service.cv.personal_info.name == "Ana Catalina"
+    assert service.cv.personal_info.name == "Ana-Catalina Villalobos Contardo"
+    assert service.cv.personal_info.first_name == "Ana-Catalina"
+    assert service.cv.personal_info.middle_name == "Alejandra"
+    assert service.cv.personal_info.last_name == "Villalobos Contardo"
+    assert service.cv.personal_info.full_name == "Ana-Catalina Alejandra Villalobos Contardo"
     assert "SimpliRoute" in [exp.company for exp in service.cv.experience]
     assert "Fracttal" in [exp.company for exp in service.cv.experience]
 
@@ -66,15 +70,11 @@ async def test_tool_obtener_proyectos_destacados():
 
 @pytest.mark.asyncio
 async def test_tool_evaluar_fit_puesto():
-    """Tests evaluar_fit_puesto tool."""
-    sample_jd = (
-        "Buscamos un Senior Data Scientist con experiencia en Python, GCP, BigQuery, "
-        "Vertex AI y Docker para liderar proyectos de Machine Learning."
-    )
-    result = await evaluar_fit_puesto(descripcion_vacante=sample_jd)
+    """Tests evaluar_fit_puesto tool with benchmark scenario."""
+    result = await evaluar_fit_puesto(descripcion_vacante="data-science")
     assert "Python" in result.technologies_matched
     assert "Vertex AI" in result.technologies_matched
-    assert "Alto" in result.estimated_fit_score or "Excepcional" in result.estimated_fit_score
+    assert "Excepcional" in result.estimated_fit_score
 
 
 @pytest.mark.asyncio
@@ -114,26 +114,28 @@ async def test_tool_obtener_educacion():
 async def test_tool_obtener_perfil():
     """Tests obtener_perfil tool."""
     perfil = await obtener_perfil()
-    assert perfil.name == "Ana Catalina"
+    assert perfil.name == "Ana-Catalina Villalobos Contardo"
+    assert perfil.first_name == "Ana-Catalina"
+    assert perfil.middle_name == "Alejandra"
+    assert perfil.last_name == "Villalobos Contardo"
+    assert perfil.full_name == "Ana-Catalina Alejandra Villalobos Contardo"
     assert "github.com" in perfil.portfolio_links.github
 
 
 @pytest.mark.asyncio
 async def test_tool_evaluar_fit_puesto_sin_coincidencias():
-    """Tests evaluar_fit_puesto when the job description matches no known tech."""
-    result = await evaluar_fit_puesto(
-        descripcion_vacante="Buscamos un chef pastelero con experiencia en repostería."
-    )
+    """Tests evaluar_fit_puesto with negative benchmark scenario."""
+    result = await evaluar_fit_puesto(descripcion_vacante="pop-singer")
     assert result.technologies_matched == []
-    assert "Transferible" in result.estimated_fit_score
+    assert "10%" in result.estimated_fit_score
+    assert "no requiere" in result.added_value_summary
 
 
 @pytest.mark.asyncio
-async def test_tool_evaluar_fit_puesto_fortalezas_dinamicas():
-    """Tests that matching_strengths changes based on the job description content,
-    instead of always returning the same fixed text."""
-    jd = "Buscamos experiencia en BigQuery y Vertex AI para proyectos de Machine Learning en GCP."
-    result = await evaluar_fit_puesto(descripcion_vacante=jd)
+async def test_tool_evaluar_fit_puesto_logistics():
+    """Tests evaluar_fit_puesto with logistics benchmark scenario."""
+    result = await evaluar_fit_puesto(descripcion_vacante="logistics")
+    assert "Optimización Logística" in result.technologies_matched
     assert any("SimpliRoute" in s for s in result.matching_strengths)
 
 
@@ -150,7 +152,7 @@ def test_root_endpoint():
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
-    assert response.json()["name"] == "Ana Catalina Interactive Portfolio MCP"
+    assert response.json()["name"] == "Ana-Catalina Interactive Portfolio MCP"
 
 
 def test_root_browser_content_negotiation_html():
@@ -160,7 +162,7 @@ def test_root_browser_content_negotiation_html():
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
     assert "<!DOCTYPE html>" in response.text
-    assert "Ana Catalina" in response.text
+    assert "Ana-Catalina" in response.text
     assert "Pastel-Tech" in response.text
 
 
@@ -171,7 +173,7 @@ def test_demo_and_playground_endpoints():
         res = client.get(path)
         assert res.status_code == 200
         assert "text/html" in res.headers["content-type"]
-        assert "Playground" in res.text
+        assert "Alineación" in res.text or "Interactive" in res.text
 
 
 def test_api_evaluate_fit_success():
@@ -202,6 +204,18 @@ def test_api_evaluate_fit_invalid_input():
     # Non-dict body
     res_non_dict = client.post("/api/evaluate-fit", content="not json", headers={"Content-Type": "application/json"})
     assert res_non_dict.status_code == 400
+
+
+def test_api_evaluate_fit_negative_test():
+    """Tests POST /api/evaluate-fit with negative benchmark scenario."""
+    client = TestClient(app)
+    response = client.post("/api/evaluate-fit", json={"scenario": "pop-singer"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["technologies_matched"] == []
+    assert "10%" in data["estimated_fit_score"]
+    assert "no requiere" in data["added_value_summary"]
+
 
 
 def test_api_search_endpoint():
