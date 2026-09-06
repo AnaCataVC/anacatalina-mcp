@@ -2,8 +2,11 @@
 Unit and integration tests for Ana Catalina MCP Server.
 """
 import pytest
-from services.cv_service import get_cv_service
+from starlette.testclient import TestClient
+
+from services.cv_service import CVService, get_cv_service
 from server import (
+    app,
     obtener_experiencia,
     obtener_stack_tecnologico,
     obtener_proyectos_destacados,
@@ -11,6 +14,7 @@ from server import (
     buscar_en_curriculum,
     obtener_educacion,
     obtener_contacto,
+    obtener_perfil,
     obtener_resumen_ejecutivo,
 )
 
@@ -96,3 +100,61 @@ async def test_tool_obtener_resumen_ejecutivo():
 
     resumen_en = await obtener_resumen_ejecutivo(idioma="en")
     assert "Data Scientist" in resumen_en
+
+
+@pytest.mark.asyncio
+async def test_tool_obtener_educacion():
+    """Tests obtener_educacion tool."""
+    education = await obtener_educacion()
+    assert len(education) >= 1
+    assert any("Chile" in e.institution for e in education)
+
+
+@pytest.mark.asyncio
+async def test_tool_obtener_perfil():
+    """Tests obtener_perfil tool."""
+    perfil = await obtener_perfil()
+    assert perfil.name == "Ana Catalina"
+    assert "github.com" in perfil.portfolio_links.github
+
+
+@pytest.mark.asyncio
+async def test_tool_evaluar_fit_puesto_sin_coincidencias():
+    """Tests evaluar_fit_puesto when the job description matches no known tech."""
+    result = await evaluar_fit_puesto(
+        descripcion_vacante="Buscamos un chef pastelero con experiencia en repostería."
+    )
+    assert result.technologies_matched == []
+    assert "Transferible" in result.estimated_fit_score
+
+
+@pytest.mark.asyncio
+async def test_tool_evaluar_fit_puesto_fortalezas_dinamicas():
+    """Tests that matching_strengths changes based on the job description content,
+    instead of always returning the same fixed text."""
+    jd = "Buscamos experiencia en BigQuery y Vertex AI para proyectos de Machine Learning en GCP."
+    result = await evaluar_fit_puesto(descripcion_vacante=jd)
+    assert any("SimpliRoute" in s for s in result.matching_strengths)
+
+
+def test_cv_service_missing_file(tmp_path):
+    """Tests that a missing CV data file raises FileNotFoundError."""
+    missing_path = tmp_path / "missing.json"
+    with pytest.raises(FileNotFoundError):
+        CVService(data_path=str(missing_path))
+
+
+def test_root_endpoint():
+    """Tests the root discovery route."""
+    client = TestClient(app)
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+
+def test_health_endpoint():
+    """Tests the health check route."""
+    client = TestClient(app)
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json()["service"] == "anacatalina-mcp"
