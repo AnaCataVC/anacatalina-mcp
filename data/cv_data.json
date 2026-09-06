@@ -5,7 +5,7 @@
     "middle_name": "Alejandra",
     "last_name": "Villalobos Contardo",
     "full_name": "Ana-Catalina Alejandra Villalobos Contardo",
-    "title": "Data Scientist & Learning Engineer",
+    "title": "Data Scientist & Machine Learning Engineer",
     "location": "Santiago, Chile",
     "contact": {
       "email": "anacatalina@outlook.cl",
@@ -16,84 +16,180 @@
     }
   },
   "summary": {
-    "es": "Data Scientist y Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en el ecosistema de Google Cloud Platform (BigQuery, Vertex AI), Python y containerización con Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
-    "en": "Data Scientist and Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions."
+    "es": "Data Scientist y Machine Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en el ecosistema de Google Cloud Platform (BigQuery, Vertex AI), Python y containerización con Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
+    "en": "Data Scientist and Machine Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions."
   },
   "experience": [
     {
       "company": "SimpliRoute",
-      "role": "Data Scientist & Learning Engineer",
-      "period": "2023 - Presente",
-      "location": "Santiago, Chile (Remoto/Híbrido)",
+      "role": "Learning Engineer",
+      "period": "Agosto 2025 - Presente",
+      "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Desarrollo e integración de modelos de optimización y algoritmos de ruteo vehicular aplicados a logística de última milla.",
-        "Diseño e implementación de pipelines de datos y experimentación de modelos en Google Cloud Platform usando BigQuery y Vertex AI.",
-        "Automatización de procesos analíticos y despliegue de microservicios con Python, FastAPI y Docker.",
-        "Investigación e integración de soluciones basadas en LLMs y arquitecturas de agentes para mejora de flujos internos."
+        "Diseño e implementación de soluciones para la optimización de rutas y geolocalización, con foco en mejorar la precisión de georreferencias y aumentar la exactitud de ruteo.",
+        "Diseño y desarrollo de servidores Model Context Protocol (MCP) para el motor de optimización, permitiendo a modelos de lenguaje (LLMs) y agentes interactuar de forma segura y estructurada con el solucionador logístico.",
+        "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos y datos utilizando Google Pub/Sub y Apache Airflow, asegurando alta calidad, trazabilidad y confiabilidad operativa.",
+        "Integración de LLMs y GenAI en procesos internos y productos, incorporando herramientas asistidas por IA como Claude Code para acelerar ciclos de iteración, optimizar pruebas y elevar la eficiencia operativa."
       ],
       "technologies": [
         "Python",
         "GCP",
         "BigQuery",
-        "Vertex AI",
-        "Docker",
-        "FastAPI",
-        "Scikit-learn",
-        "Pandas"
+        "Pub/Sub",
+        "Airflow",
+        "Model Context Protocol (MCP)",
+        "LLMs & GenAI",
+        "Claude Code"
       ]
     },
     {
       "company": "Fracttal",
-      "role": "Data Scientist / Data Analyst",
-      "period": "2021 - 2023",
+      "role": "Tech Lead Fracttal Hub",
+      "period": "Noviembre 2023 - Julio 2025",
       "location": "Santiago, Chile",
       "type": "laboral",
       "responsibilities": [
-        "Desarrollo de modelos predictivos para mantenimiento de activos y gestión inteligente de operaciones de mantenimiento (CMMS/EAM).",
-        "Creación de pipelines ETL para ingesta, limpieza y transformación de telemetría IoT e indicadores operacionales.",
-        "Construcción de dashboards analíticos y reportes automatizados para clientes corporativos y toma de decisiones de negocio."
+        "Liderazgo de equipo multidisciplinario de integraciones con personas en distintos países, enfocado en mentoría técnica, desarrollo profesional y un entorno colaborativo.",
+        "Planificación estratégica del roadmap de Fracttal Hub, alineando los objetivos de negocio y la entrega continua de valor a clientes.",
+        "Desarrollo en Python para librerías de procesamiento de datos y orquestación de tareas, habilitando la integración con múltiples fuentes y destinos, con más de 100 acciones posibles y capacidades avanzadas de transformación.",
+        "Supervisión y coordinación de proyectos de integración para decenas de clientes, aplicando gestión eficiente de recursos, plazos y flujos de datos confiables."
+      ],
+      "technologies": [
+        "Python",
+        "Integraciones API",
+        "ETLs",
+        "Liderazgo Técnico"
+      ]
+    },
+    {
+      "company": "Fracttal",
+      "role": "Data Scientist",
+      "period": "Agosto 2021 - Noviembre 2023",
+      "location": "Santiago, Chile",
+      "type": "laboral",
+      "responsibilities": [
+        "Diseño e implementación de procesos de ciencia de datos para las plataformas Predictto y Fracttal One, con foco en generar valor a partir de datos operacionales de maquinaria.",
+        "Desarrollo de modelos analíticos aplicados a mantenimiento predictivo, priorización de activos y predicción de fallas, combinando ML, estadística y conocimiento del dominio.",
+        "Colaboración en la creación y desarrollo de producto para gestionar integraciones entre Fracttal y otras plataformas de software empresariales.",
+        "Evaluación continua de modelos en producción, optimizando pipelines de datos para garantizar la precisión y robustez en entornos reales."
+      ],
+      "technologies": [
+        "Python",
+        "Machine Learning",
+        "Estadística",
+        "Data Pipelines"
+      ]
+    },
+    {
+      "company": "Fracttal",
+      "role": "Analista de Datos",
+      "period": "Febrero 2020 - Julio 2021",
+      "location": "Santiago, Chile",
+      "type": "laboral",
+      "responsibilities": [
+        "Desarrollo desde cero de la herramienta de mantenimiento predictivo, utilizando análisis estadístico avanzado y modelos preliminares de Machine Learning.",
+        "Diseño, manejo y optimización de bases de datos relacionales para almacenar lecturas de telemetría e historial de mantenimiento.",
+        "Apoyo en el desarrollo web frontend/backend básico de visualizaciones de datos y métricas para tomadores de decisiones."
       ],
       "technologies": [
         "Python",
         "SQL",
-        "Docker",
-        "Pandas",
-        "NumPy",
-        "Data Warehousing",
-        "Power BI"
+        "Bases de Datos Relacionales",
+        "Machine Learning"
       ]
     }
   ],
   "skills": [
     {
-      "category": "Lenguajes & Backend",
+      "category": "IA Agéntica & Machine Learning",
+      "skills": [
+        {"name": "Sistemas Multi-Agente", "level": "Avanzado"},
+        {"name": "LLMs & GenAI", "level": "Avanzado"},
+        {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
+        {"name": "Claude Code & Antigravity", "level": "Avanzado"},
+        {"name": "Prompt Engineering", "level": "Avanzado"},
+        {"name": "Monitoreo de Modelos ML", "level": "Intermedio"},
+        {"name": "Automatización CI/CD con IA", "level": "Intermedio"}
+      ]
+    },
+    {
+      "category": "Ciencia de Datos & Librerías ML",
+      "skills": [
+        {"name": "Vertex AI", "level": "Avanzado"},
+        {"name": "LangChain", "level": "Avanzado"},
+        {"name": "Analítica de Datos", "level": "Avanzado"},
+        {"name": "Estadística & Probabilidad", "level": "Avanzado"},
+        {"name": "TensorFlow", "level": "Intermedio"},
+        {"name": "Teoría de Grafos", "level": "Intermedio"}
+      ]
+    },
+    {
+      "category": "Lenguajes de Programación",
       "skills": [
         {"name": "Python", "level": "Avanzado"},
         {"name": "SQL", "level": "Avanzado"},
-        {"name": "FastAPI", "level": "Avanzado"},
-        {"name": "Starlette / AnyIO", "level": "Intermedio"}
+        {"name": "MATLAB", "level": "Intermedio"},
+        {"name": "JavaScript", "level": "Intermedio"},
+        {"name": "TypeScript", "level": "Intermedio"},
+        {"name": "Java", "level": "Intermedio"},
+        {"name": "C# (.NET)", "level": "Intermedio"}
       ]
     },
     {
-      "category": "Cloud & Infraestructura (GCP / DevOps)",
+      "category": "Frontend, Mobile & Desarrollo Web",
+      "skills": [
+        {"name": "WinUI 3 (.NET 9 / XAML)", "level": "Intermedio"},
+        {"name": "FastHTML & HTMX", "level": "Intermedio"}
+      ]
+    },
+    {
+      "category": "Backend, Bases de Datos & Big Data",
+      "skills": [
+        {"name": "BigQuery", "level": "Avanzado"},
+        {"name": "PostgreSQL", "level": "Avanzado"},
+        {"name": "ETLs", "level": "Avanzado"},
+        {"name": "Pub/Sub", "level": "Avanzado"},
+        {"name": "Django", "level": "Intermedio"},
+        {"name": "SQL Server", "level": "Intermedio"},
+        {"name": "MySQL", "level": "Intermedio"},
+        {"name": "SQLite", "level": "Intermedio"},
+        {"name": "MongoDB", "level": "Intermedio"},
+        {"name": "SQLModel", "level": "Intermedio"},
+        {"name": "Dexie.js (IndexedDB)", "level": "Básico"}
+      ]
+    },
+    {
+      "category": "Contenedores, Orquestación & Cloud",
       "skills": [
         {"name": "Google Cloud Platform (GCP)", "level": "Avanzado"},
-        {"name": "BigQuery", "level": "Avanzado"},
-        {"name": "Vertex AI", "level": "Avanzado"},
+        {"name": "Google Cloud Run & Artifact Registry", "level": "Avanzado"},
         {"name": "Docker", "level": "Avanzado"},
-        {"name": "Google Cloud Run", "level": "Avanzado"},
-        {"name": "CI/CD (GitHub Actions)", "level": "Intermedio"}
+        {"name": "Airflow", "level": "Avanzado"},
+        {"name": "Git", "level": "Avanzado"},
+        {"name": "GitHub", "level": "Avanzado"},
+        {"name": "Kubernetes", "level": "Intermedio"},
+        {"name": "Bitbucket", "level": "Intermedio"},
+        {"name": "Vercel", "level": "Intermedio"}
       ]
     },
     {
-      "category": "Data Science & Machine Learning",
+      "category": "Metodologías & Gestión de Producto",
       "skills": [
-        {"name": "Machine Learning (Scikit-Learn, XGBoost)", "level": "Avanzado"},
-        {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
-        {"name": "LLMs & Agent Architectures", "level": "Avanzado"},
-        {"name": "Data Processing (Pandas, NumPy)", "level": "Avanzado"},
-        {"name": "Optimización & Ruteo Logístico", "level": "Avanzado"}
+        {"name": "Metodologías Ágiles", "level": "Avanzado"},
+        {"name": "Planificación de Roadmaps", "level": "Avanzado"},
+        {"name": "Diseño de Sistemas", "level": "Avanzado"},
+        {"name": "Test-Driven Development (TDD)", "level": "Avanzado"}
+      ]
+    },
+    {
+      "category": "Liderazgo & Habilidades Blandas",
+      "skills": [
+        {"name": "Liderazgo Técnico", "level": "Avanzado"},
+        {"name": "Team Building", "level": "Avanzado"},
+        {"name": "Colaboración Cross-functional", "level": "Avanzado"},
+        {"name": "Comunicación Efectiva", "level": "Avanzado"},
+        {"name": "Resolución de Problemas", "level": "Avanzado"}
       ]
     }
   ],
