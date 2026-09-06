@@ -1,6 +1,10 @@
 {
   "personal_info": {
-    "name": "Ana Catalina",
+    "name": "Ana-Catalina Villalobos Contardo",
+    "first_name": "Ana-Catalina",
+    "middle_name": "Alejandra",
+    "last_name": "Villalobos Contardo",
+    "full_name": "Ana-Catalina Alejandra Villalobos Contardo",
     "title": "Data Scientist & Learning Engineer",
     "location": "Santiago, Chile",
     "contact": {

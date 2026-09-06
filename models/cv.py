@@ -18,7 +18,14 @@ class PortfolioLinks(BaseModel):
 
 class PersonalInfo(BaseModel):
     """General personal and headline information."""
-    name: str = Field(description="Full name")
+    name: str = Field(description="Display/CV name used professionally (Ana-Catalina Villalobos Contardo)")
+    first_name: str = Field(default="Ana-Catalina", description="Nombre de pila / First name")
+    middle_name: Optional[str] = Field(default="Alejandra", description="Segundo nombre / Middle name")
+    last_name: str = Field(default="Villalobos Contardo", description="Apellidos / Last names")
+    full_name: str = Field(
+        default="Ana-Catalina Alejandra Villalobos Contardo",
+        description="Nombre completo oficial / Full legal name"
+    )
     title: str = Field(description="Professional headline / Current role")
     location: str = Field(description="Current location")
     contact: ContactDetails

@@ -1,5 +1,5 @@
 """
-Models package for Ana Catalina MCP Server.
+Models package for Ana-Catalina MCP Server.
 """
 from .cv import (
     ContactDetails,
