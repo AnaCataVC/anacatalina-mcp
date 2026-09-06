@@ -149,7 +149,6 @@ When modifying `templates/index.html`:
    - **Card 1 (Top Priority):** Conectar con Asistentes de IA (MCP) &mdash; tabs for Cursor (`mcp.json`), Claude Desktop (`conecta_cata.py`), and cURL.
    - **Card 2:** Catálogo Oficial de 9 Herramientas MCP.
    - **Card 3:** Escenarios de Alineación Técnica (Ejemplos Fijos: Data Science, Ruteo/Logística, Agentes MCP, Test Negativo).
-   - **Card 4:** Búsqueda Rápida en Currículum (chips + live input).
 2. **Zero Flags Rule (STRICT INVARIANT):**
    - **NEVER** use country flag emojis (`🇺🇸`, `🇬🇧`, `🇪🇸`, `🇲🇽`, etc.) or flag graphics anywhere in the UI or documentation.
    - Flags represent sovereign states, not languages or technologies. Terminal emulators, Windows consoles, and various web browsers render them as broken letter pairs (`[U][S]`) or monochrome squares (`□□`).

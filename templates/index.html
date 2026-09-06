@@ -552,53 +552,6 @@
       line-height: 1;
     }
 
-    /* Search Section */
-    .search-input-group {
-      position: relative;
-      margin-bottom: 16px;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      width: 18px;
-      height: 18px;
-    }
-
-    .search-input {
-      width: 100%;
-      background: var(--bg-input);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 14px 16px 14px 44px;
-      color: var(--text-primary);
-      font-size: 0.95rem;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .search-input:focus {
-      border-color: var(--color-pastel-accent);
-      box-shadow: 0 0 0 3px rgba(143, 111, 255, 0.2);
-    }
-
-    .search-results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 16px;
-      margin-top: 16px;
-    }
-
-    .result-subcard {
-      background: var(--bg-surface-elevated);
-      border: 1px solid var(--border-subtle);
-      border-radius: 16px;
-      padding: 16px;
-    }
-
     .result-subcard-title {
       font-size: 0.9375rem;
       font-weight: 600;
@@ -723,9 +676,7 @@
       .tools-grid {
         grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       }
-      .search-results-grid {
-        grid-template-columns: 1fr;
-      }
+
     }
 
     @media (max-width: 640px) {
@@ -849,14 +800,7 @@
         padding: 6px 10px;
         font-size: 0.8rem;
       }
-      .search-results-grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      .result-subcard {
-        padding: 14px 12px;
-        border-radius: 14px;
-      }
+
       .poppy-watermark {
         width: 320px;
         height: 320px;
@@ -1512,33 +1456,6 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </div>
     </section>
 
-    <!-- Card 4: Cross-Curriculum Keyword Search -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">
-          <span class="card-title-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </span>
-          <span id="txt-search-title">Búsqueda Rápida en Currículum</span>
-        </h2>
-      </div>
-
-      <div class="preset-chips">
-        <button class="preset-chip" onclick="quickSearch('Python')">Python</button>
-        <button class="preset-chip" onclick="quickSearch('BigQuery')">BigQuery</button>
-        <button class="preset-chip" onclick="quickSearch('Vertex AI')">Vertex AI</button>
-        <button class="preset-chip" onclick="quickSearch('Docker')">Docker</button>
-        <button class="preset-chip" onclick="quickSearch('SimpliRoute')">SimpliRoute</button>
-        <button class="preset-chip" onclick="quickSearch('MCP')">MCP</button>
-      </div>
-
-      <div class="search-input-group">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Escribe cualquier tecnología, empresa o competencia..." oninput="handleSearch(this.value)">
-      </div>
-
-      <div id="search-results" class="search-results-grid" aria-live="polite"></div>
-    </section>
   </div>
 
   <script>
@@ -1551,7 +1468,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         summary: "Data Scientist y Machine Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en Google Cloud Platform (BigQuery, Vertex AI), Python y Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
         fitTitle: "Escenarios de Alineación Técnica (Ejemplos Fijos)",
         fitDesc: "Selecciona un perfil de mercado predefinido para inspeccionar la alineación técnica y fortalezas comprobadas en la trayectoria de Ana-Catalina:",
-        searchTitle: "Búsqueda Rápida en Currículum",
+
         connectTitle: "Conectar con Asistentes de IA (MCP)",
         connectDesc: "Configura tu cliente MCP favorito para que explore interactivamente el currículum de Ana-Catalina:",
         toolsTitle: "Catálogo Oficial de 9 Herramientas MCP"
@@ -1561,7 +1478,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         summary: "Data Scientist and Machine Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions.",
         fitTitle: "Technical Alignment Scenarios (Fixed Benchmarks)",
         fitDesc: "Select a predefined market role to inspect the verified technical alignment and proven track record of Ana-Catalina:",
-        searchTitle: "Cross-Curriculum Instant Search",
+
         connectTitle: "Connect to AI Assistants (MCP)",
         connectDesc: "Configure your favorite MCP client to interactively explore Ana-Catalina's curriculum:",
         toolsTitle: "Official 9 MCP Tools Catalog"
@@ -1637,7 +1554,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
 
     let currentLang = 'es';
     let currentTab = 'cursor';
-    let searchDebounceTimer = null;
+
 
     /* ==========================================================================
        Language & Theme Handlers
@@ -1652,7 +1569,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       document.getElementById('hero-summary').textContent = t.summary;
       document.getElementById('txt-fit-title').textContent = t.fitTitle;
       document.getElementById('txt-fit-desc').textContent = t.fitDesc;
-      document.getElementById('txt-search-title').textContent = t.searchTitle;
+
       document.getElementById('txt-connect-title').textContent = t.connectTitle;
       document.getElementById('txt-connect-desc').textContent = t.connectDesc;
       document.getElementById('txt-tools-title').textContent = t.toolsTitle;
@@ -1755,114 +1672,10 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       summary.textContent = data.summary;
     }
 
-    /* ==========================================================================
-       Cross-Curriculum Search
-       ========================================================================== */
-    function quickSearch(term) {
-      document.getElementById('search-input').value = term;
-      handleSearch(term);
-    }
-
-    function handleSearch(query) {
-      clearTimeout(searchDebounceTimer);
-      searchDebounceTimer = setTimeout(() => {
-        executeSearch(query.trim());
-      }, 220);
-    }
-
-    async function executeSearch(q) {
-      const container = document.getElementById('search-results');
-      if (!q) {
-        container.innerHTML = '';
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-        if (!res.ok) throw new Error('Search failed');
-        const data = await res.json();
-        renderSearchResults(data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    function renderSearchResults(data) {
-      const container = document.getElementById('search-results');
-      container.innerHTML = '';
-
-      const totalMatches = (data.matched_experiences_count || 0) +
-                           (data.matched_skills ? data.matched_skills.length : 0) +
-                           (data.matched_projects_count || 0);
-
-      if (totalMatches === 0) {
-        container.innerHTML = `<div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--text-muted);">Sin coincidencias directas para "${data.query}".</div>`;
-        return;
-      }
-
-      // 1. Experiences card
-      if (data.experiences && data.experiences.length > 0) {
-        const expCard = document.createElement('div');
-        expCard.className = 'result-subcard';
-        expCard.innerHTML = `
-          <div class="result-subcard-title">
-            <span>Experiencia Laboral</span>
-            <span class="tag-pill">${data.experiences.length}</span>
-          </div>
-          ${data.experiences.map(e => `
-            <div style="margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
-              <strong style="color: var(--text-primary); font-size: 0.875rem;">${e.role} &bull; ${e.company}</strong>
-              <div style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 4px;">${e.period} &bull; ${e.location}</div>
-              <div>${e.technologies.slice(0, 5).map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
-            </div>
-          `).join('')}
-        `;
-        container.appendChild(expCard);
-      }
-
-      // 2. Skills card
-      if (data.matched_skills && data.matched_skills.length > 0) {
-        const skillCard = document.createElement('div');
-        skillCard.className = 'result-subcard';
-        skillCard.innerHTML = `
-          <div class="result-subcard-title">
-            <span>Habilidades Técnicas</span>
-            <span class="tag-pill">${data.matched_skills.length}</span>
-          </div>
-          <div style="margin-top: 8px;">
-            ${data.matched_skills.map(s => `<div style="margin-bottom: 6px; font-size: 0.8125rem; color: var(--text-secondary);">&bull; ${s}</div>`).join('')}
-          </div>
-        `;
-        container.appendChild(skillCard);
-      }
-
-      // 3. Projects card
-      if (data.projects && data.projects.length > 0) {
-        const projCard = document.createElement('div');
-        projCard.className = 'result-subcard';
-        projCard.innerHTML = `
-          <div class="result-subcard-title">
-            <span>Proyectos</span>
-            <span class="tag-pill">${data.projects.length}</span>
-          </div>
-          ${data.projects.map(p => `
-            <div style="margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
-              <strong style="color: var(--text-primary); font-size: 0.875rem;">${p.name}</strong>
-              <p style="font-size: 0.8125rem; color: var(--text-secondary); margin: 4px 0;">${p.description}</p>
-              <div>${p.technologies.slice(0, 4).map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
-            </div>
-          `).join('')}
-        `;
-        container.appendChild(projCard);
-      }
-    }
-
     // Initialize Default View
     setTab('cursor');
     // Pre-fill default benchmark scenario
     selectScenario('data-science');
-    // Pre-fill initial search for Python to give immediate visual life
-    quickSearch('Python');
   </script>
 </body>
 </html>
