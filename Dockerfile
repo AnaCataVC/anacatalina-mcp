@@ -12,11 +12,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install minimal system utilities for health check if needed
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy dependency definition and install packages
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
