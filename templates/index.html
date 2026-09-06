@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ana Catalina &mdash; Interactive Curriculum MCP Server</title>
+  <meta name="description" content="Official Model Context Protocol (MCP) Server and Interactive Showcase for Ana Catalina, Data Scientist & Learning Engineer.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       Pastel-Tech Design System Tokens & Base Styles
+       ========================================================================== */
+    :root {
+      --color-pastel-lilac: #C7B8EA;
+      --color-pastel-lilac-hover: #D8CCF5;
+      --color-pastel-accent: #8F6FFF;
+      --color-pastel-mint: #C8F3E0;
+      --color-pastel-mint-text: #065F46;
+      --color-pastel-pink: #F7C6D9;
+      --color-pastel-blue: #BCDFFB;
+      
+      /* Dark Theme (Noche Lavanda) Default */
+      --bg-canvas: #1E1A2B;
+      --bg-surface: #2A243D;
+      --bg-surface-elevated: #352E4D;
+      --bg-input: #231E33;
+      --border-subtle: #3D3559;
+      --border-focus: #8F6FFF;
+      --text-primary: #FDFBFF;
+      --text-secondary: #B2ABC7;
+      --text-muted: #82799C;
+      --shadow-glow: 0 0 20px rgba(192, 132, 252, 0.28);
+      --shadow-soft: 0 8px 24px rgba(14, 11, 24, 0.40);
+    }
+
+    [data-theme="light"] {
+      --bg-canvas: #F8F6FD;
+      --bg-surface: #FFFFFF;
+      --bg-surface-elevated: #F2EEFB;
+      --bg-input: #FFFFFF;
+      --border-subtle: #E2DCF0;
+      --border-focus: #8F6FFF;
+      --text-primary: #3A3550;
+      --text-secondary: #6A6480;
+      --text-muted: #958EA6;
+      --shadow-glow: 0 0 20px rgba(192, 132, 252, 0.22);
+      --shadow-soft: 0 8px 24px rgba(143, 111, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      letter-spacing: 0.01em;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+      color: var(--text-primary);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-canvas);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--color-pastel-accent);
+    }
+
+    /* Poppy Watermark (Fondo Botánico Fijo) */
+    .poppy-watermark {
+      position: fixed;
+      bottom: -40px;
+      right: -40px;
+      width: 550px;
+      height: 550px;
+      opacity: 0.045;
+      pointer-events: none;
+      z-index: 0;
+      color: var(--color-pastel-lilac);
+      transition: opacity 0.3s ease;
+    }
+
+    /* Layout Containers */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 20px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Nav */
+    .header-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0 32px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 40px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--color-pastel-lilac), var(--color-pastel-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+      color: #1E1A2B;
+      font-weight: 700;
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .brand-tag {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Semantic Language & Theme Pickers (Zero Flags Rule) */
+    .pill-group {
+      display: inline-flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.04em;
+    }
+
+    .pill-btn.active {
+      background: var(--bg-surface-elevated);
+      color: var(--color-pastel-lilac);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .theme-toggle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--color-pastel-lilac);
+      color: var(--color-pastel-lilac);
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* Hero Section */
+    .hero-section {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(200, 243, 224, 0.12);
+      border: 1px solid var(--color-pastel-mint);
+      border-radius: 9999px;
+      color: #34D399;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    [data-theme="light"] .status-badge {
+      color: var(--color-pastel-mint-text);
+      background: rgba(200, 243, 224, 0.45);
+    }
+
+    .ping-box {
+      position: relative;
+      display: inline-flex;
+      width: 8px;
+      height: 8px;
+    }
+
+    .ping-ring {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 9999px;
+      background-color: #34D399;
+      opacity: 0.75;
+      animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .ping-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background-color: #10B981;
+    }
+
+    @keyframes ping {
+      75%, 100% {
+        transform: scale(2.2);
+        opacity: 0;
+      }
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--text-primary) 30%, var(--color-pastel-lilac) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+      color: var(--color-pastel-accent);
+      font-weight: 500;
+      margin-bottom: 20px;
+    }
+
+    .hero-summary {
+      max-width: 780px;
+      margin: 0 auto 32px;
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+
+    /* 56px Circular Social / Action Buttons */
+    .social-dock {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .dock-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 9999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dock-btn:hover {
+      transform: translateY(-4px);
+      border-color: var(--color-pastel-lilac);
+      color: var(--color-pastel-lilac);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .dock-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.75;
+    }
+
+    /* Cards & Containers */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 32px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(199, 184, 234, 0.35);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title-icon {
+      color: var(--color-pastel-lilac);
+      display: flex;
+      align-items: center;
+    }
+
+    .card-desc {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+      margin-bottom: 20px;
+    }
+
+    /* Forma 1: Fit Tester Chips & Form */
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .preset-chip {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 9999px;
+      padding: 7px 14px;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--color-pastel-lilac);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+
+    .textarea-box {
+      width: 100%;
+      min-height: 120px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+      resize: vertical;
+      margin-bottom: 16px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .textarea-box:focus {
+      border-color: var(--color-pastel-accent);
+      box-shadow: 0 0 0 3px rgba(143, 111, 255, 0.2);
+    }
+
+    .action-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Primary Gradient Button */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--color-pastel-lilac), var(--color-pastel-accent));
+      color: #1A1528;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      border: none;
+      cursor: pointer;
+      box-shadow: var(--shadow-glow);
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(192, 132, 252, 0.45);
+      background: linear-gradient(135deg, var(--color-pastel-lilac-hover), #9C7EFE);
+    }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 16px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9375rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      color: var(--text-primary);
+      border-color: var(--color-pastel-lilac);
+    }
+
+    /* Result Card */
+    .result-box {
+      margin-top: 24px;
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 12px;
+      background: rgba(200, 243, 224, 0.18);
+      border: 1px solid var(--color-pastel-mint);
+      color: #34D399;
+    }
+
+    .tag-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      background: rgba(199, 184, 234, 0.15);
+      border: 1px solid rgba(199, 184, 234, 0.35);
+      color: var(--color-pastel-lilac);
+      margin: 3px 4px 3px 0;
+    }
+
+    .bullet-list {
+      list-style: none;
+      margin: 12px 0;
+    }
+
+    .bullet-list li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+    }
+
+    .bullet-list li::before {
+      content: "•";
+      position: absolute;
+      left: 6px;
+      color: var(--color-pastel-accent);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    /* Search Section */
+    .search-input-group {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 18px;
+      height: 18px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 14px 16px 14px 44px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-pastel-accent);
+      box-shadow: 0 0 0 3px rgba(143, 111, 255, 0.2);
+    }
+
+    .search-results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .result-subcard {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .result-subcard-title {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--color-pastel-lilac);
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* MCP Config Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface-elevated);
+      color: var(--color-pastel-lilac);
+      font-weight: 600;
+    }
+
+    .code-container {
+      position: relative;
+      background: #14111E;
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 18px 20px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+      color: #D8CCF5;
+      line-height: 1.5;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(42, 36, 61, 0.85);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--color-pastel-lilac);
+      color: var(--color-pastel-lilac);
+      box-shadow: var(--shadow-glow);
+    }
+
+    /* MCP Tools Accordion */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .tool-item {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tool-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--color-pastel-lilac);
+    }
+
+    .tool-name {
+      font-family: ui-monospace, monospace;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: var(--color-pastel-lilac);
+      margin-bottom: 6px;
+    }
+
+    .tool-desc {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    .page-footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 640px) {
+      .header-nav {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Poppy Botanical Line Art Watermark (Fixed Background) -->
+  <svg class="poppy-watermark" aria-hidden="true" role="presentation" viewBox="0 0 1024 1024" fill="none" stroke="currentColor">
+    <path d="M512 850 C512 850 480 620 420 520 C360 420 200 380 200 280 C200 180 300 120 420 180 C480 210 512 280 512 280 C512 280 544 210 604 180 C724 120 824 180 824 280 C824 380 664 420 604 520 C544 620 512 850 512 850 Z" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M512 280 C512 280 440 260 400 320 C360 380 400 460 460 480 C512 497 512 280 512 280 Z" stroke-width="10"/>
+    <path d="M512 280 C512 280 584 260 624 320 C664 380 624 460 564 480 C512 497 512 280 512 280 Z" stroke-width="10"/>
+    <path d="M512 520 Q510 700 512 920" stroke-width="16" stroke-linecap="round"/>
+    <path d="M512 680 Q430 650 380 580" stroke-width="12" stroke-linecap="round"/>
+    <path d="M512 750 Q590 710 640 640" stroke-width="12" stroke-linecap="round"/>
+  </svg>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header-nav">
+      <div class="brand-group">
+        <div class="brand-icon">AC</div>
+        <div>
+          <div class="brand-name">Ana Catalina</div>
+          <div class="brand-tag">Interactive MCP Server</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Language Switcher (Zero Flags Rule) -->
+        <div class="pill-group" aria-label="Language Selector">
+          <button id="lang-es" class="pill-btn active" onclick="setLanguage('es')">ES</button>
+          <button id="lang-en" class="pill-btn" onclick="setLanguage('en')">EN</button>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema">
+          <svg id="theme-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="status-badge">
+        <span class="ping-box">
+          <span class="ping-ring"></span>
+          <span class="ping-dot"></span>
+        </span>
+        <span id="txt-status">Live en Google Cloud Run &bull; Transporte SSE Activo</span>
+      </div>
+
+      <h1 class="hero-title">Ana Catalina</h1>
+      <div class="hero-subtitle">Data Scientist &amp; Learning Engineer</div>
+      
+      <p id="hero-summary" class="hero-summary">
+        Data Scientist y Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en Google Cloud Platform (BigQuery, Vertex AI), Python y Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.
+      </p>
+
+      <!-- 56px Social Dock -->
+      <div class="social-dock">
+        <a href="https://linkedin.com/in/ana-catalina/" target="_blank" rel="noopener noreferrer" class="dock-btn" title="LinkedIn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+        </a>
+        <a href="https://github.com/AnaCataVC" target="_blank" rel="noopener noreferrer" class="dock-btn" title="GitHub">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        </a>
+        <a href="mailto:anacatalina@outlook.cl" class="dock-btn" title="Email">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- Card 1: Interactive Fit Tester (Forma 1 Deterministic Playground) -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </span>
+          <span id="txt-fit-title">Playground: Evaluador Determinista de Vacantes</span>
+        </h2>
+        <span class="tag-pill">Costo $0.00 &bull; Cero Alucinaciones &bull; &lt; 5ms</span>
+      </div>
+
+      <p id="txt-fit-desc" class="card-desc">
+        Evalúa en tiempo real cómo encaja el perfil de Ana Catalina con cualquier vacante laboral usando algoritmos de coincidencia semántica e historial verificable en memoria. Selecciona un escenario o pega tu propia descripción:
+      </p>
+
+      <!-- Preset Chips -->
+      <div class="preset-chips">
+        <button class="preset-chip" onclick="loadPreset('data-science')">Senior Data Scientist (GCP + Vertex AI)</button>
+        <button class="preset-chip" onclick="loadPreset('logistics')">Especialista en Ruteo &amp; Logística</button>
+        <button class="preset-chip" onclick="loadPreset('agents')">Ingeniera en IA &amp; Agentes (MCP + FastAPI)</button>
+        <button class="preset-chip" onclick="loadPreset('negative')">Chef Pastelero (Test Negativo)</button>
+      </div>
+
+      <textarea id="job-input" class="textarea-box" placeholder="Pega los requerimientos o descripción del puesto aquí..."></textarea>
+
+      <div class="action-row">
+        <button class="btn-secondary" onclick="clearFit()">Limpiar</button>
+        <button id="btn-evaluate" class="btn-primary" onclick="evaluateFit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <span id="txt-btn-analyze">Analizar Compatibilidad</span>
+        </button>
+      </div>
+
+      <!-- Result Container -->
+      <div id="fit-result" class="result-box" aria-live="polite">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div id="fit-score" class="result-score-badge">95% (Alineación Excepcional)</div>
+          <div id="fit-role" style="font-size: 0.85rem; color: var(--text-muted);">Data Scientist</div>
+        </div>
+
+        <div style="margin: 12px 0;">
+          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Tecnologías Coincidentes:</div>
+          <div id="fit-tags"></div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Fortalezas Comprobadas en Trayectoria:</div>
+          <ul id="fit-strengths" class="bullet-list"></ul>
+        </div>
+
+        <p id="fit-summary" style="margin-top: 12px; font-size: 0.9375rem; color: var(--text-primary);"></p>
+      </div>
+    </section>
+
+    <!-- Card 2: Cross-Curriculum Keyword Search -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <span id="txt-search-title">Búsqueda Rápida en Currículum</span>
+        </h2>
+      </div>
+
+      <div class="preset-chips">
+        <button class="preset-chip" onclick="quickSearch('Python')">Python</button>
+        <button class="preset-chip" onclick="quickSearch('BigQuery')">BigQuery</button>
+        <button class="preset-chip" onclick="quickSearch('Vertex AI')">Vertex AI</button>
+        <button class="preset-chip" onclick="quickSearch('Docker')">Docker</button>
+        <button class="preset-chip" onclick="quickSearch('SimpliRoute')">SimpliRoute</button>
+        <button class="preset-chip" onclick="quickSearch('MCP')">MCP</button>
+      </div>
+
+      <div class="search-input-group">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Escribe cualquier tecnología, empresa o competencia..." oninput="handleSearch(this.value)">
+      </div>
+
+      <div id="search-results" class="search-results-grid" aria-live="polite"></div>
+    </section>
+
+    <!-- Card 3: MCP Client Configurator (Zero Broken Mockups) -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          </span>
+          <span id="txt-connect-title">Conectar con Asistentes de IA (MCP)</span>
+        </h2>
+      </div>
+
+      <p id="txt-connect-desc" class="card-desc">
+        Configura tu cliente MCP favorito para que explore interactivamente el currículum de Ana Catalina:
+      </p>
+
+      <div class="tab-bar">
+        <button id="tab-cursor" class="tab-btn active" onclick="setTab('cursor')">Cursor (mcp.json &bull; SSE Directo)</button>
+        <button id="tab-claude" class="tab-btn" onclick="setTab('claude')">Claude Desktop (Puente stdio)</button>
+        <button id="tab-cli" class="tab-btn" onclick="setTab('cli')">cURL / CLI Health</button>
+      </div>
+
+      <div class="code-container">
+        <button class="copy-btn" onclick="copyConfig()">
+          <svg id="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          <span id="copy-label">Copiar</span>
+        </button>
+        <pre><code id="code-content"></code></pre>
+      </div>
+    </section>
+
+    <!-- Card 4: Official MCP 9 Tools Catalog -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          </span>
+          <span id="txt-tools-title">Catálogo Oficial de 9 Herramientas MCP</span>
+        </h2>
+      </div>
+
+      <div class="tools-grid">
+        <div class="tool-item">
+          <div class="tool-name">obtener_experiencia</div>
+          <div class="tool-desc">Historial laboral detallado en SimpliRoute y Fracttal, con responsabilidades y stack. Permite filtrar por empresa.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_stack_tecnologico</div>
+          <div class="tool-desc">Taxonomía de habilidades y niveles de dominio (Avanzado, Intermedio) en Python, SQL, GCP, Docker y ML.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_proyectos_destacados</div>
+          <div class="tool-desc">Proyectos insignia laborales y personales (MCP Server, modelos predictivos, ruteo) con links y arquitectura.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">evaluar_fit_puesto</div>
+          <div class="tool-desc">Analiza una vacante laboral y calcula el % de compatibilidad y fortalezas técnicas coincidentes.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">buscar_en_curriculum</div>
+          <div class="tool-desc">Búsqueda transversal por palabra clave en todo el currículum (experiencia, tecnologías y proyectos).</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_educacion</div>
+          <div class="tool-desc">Formación académica formal, pregrado y especializaciones universitarias.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_contacto</div>
+          <div class="tool-desc">Canales directos de contacto profesional (Email directo y perfil de LinkedIn).</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_perfil</div>
+          <div class="tool-desc">Datos generales del perfil: nombre, cargo actual, ubicación y enlaces de portafolio y GitHub.</div>
+        </div>
+        <div class="tool-item">
+          <div class="tool-name">obtener_resumen_ejecutivo</div>
+          <div class="tool-desc">Síntesis ejecutiva del perfil en español (es) o inglés (en) enfocado en Data Science, ML y GCP.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="page-footer">
+      <div>Ana Catalina &mdash; Interactive Portfolio MCP Server &bull; Desplegado en Google Cloud Run &bull; Licencia MIT</div>
+      <div style="margin-top: 6px; font-size: 0.75rem; color: var(--text-muted);">Diseñado bajo el Pastel-Tech Design System</div>
+    </footer>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       State & Content Dictionary
+       ========================================================================== */
+    const I18N = {
+      es: {
+        status: "Live en Google Cloud Run • Transporte SSE Activo",
+        summary: "Data Scientist y Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en Google Cloud Platform (BigQuery, Vertex AI), Python y Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
+        fitTitle: "Playground: Evaluador Determinista de Vacantes",
+        fitDesc: "Evalúa en tiempo real cómo encaja el perfil de Ana Catalina con cualquier vacante laboral usando algoritmos de coincidencia semántica e historial verificable en memoria. Selecciona un escenario o pega tu propia descripción:",
+        btnAnalyze: "Analizar Compatibilidad",
+        searchTitle: "Búsqueda Rápida en Currículum",
+        connectTitle: "Conectar con Asistentes de IA (MCP)",
+        connectDesc: "Configura tu cliente MCP favorito para que explore interactivamente el currículum de Ana Catalina:",
+        toolsTitle: "Catálogo Oficial de 9 Herramientas MCP"
+      },
+      en: {
+        status: "Live on Google Cloud Run • SSE Transport Active",
+        summary: "Data Scientist and Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions.",
+        fitTitle: "Playground: Deterministic Job Fit Evaluator",
+        fitDesc: "Evaluate in real time how Ana Catalina's profile matches any job opening using in-memory semantic matching algorithms and verified career history. Pick a scenario or paste your own job description:",
+        btnAnalyze: "Analyze Fit",
+        searchTitle: "Cross-Curriculum Instant Search",
+        connectTitle: "Connect to AI Assistants (MCP)",
+        connectDesc: "Configure your favorite MCP client to interactively explore Ana Catalina's curriculum:",
+        toolsTitle: "Official 9 MCP Tools Catalog"
+      }
+    };
+
+    const PRESETS = {
+      "data-science": "Buscamos un Senior Data Scientist con experiencia sólida en Python, Google Cloud Platform (GCP), BigQuery y Vertex AI para liderar modelos predictivos de Machine Learning y optimización algorítmica.",
+      "logistics": "Se requiere especialista en analítica de datos aplicada a logística de última milla, algoritmos de ruteo vehicular, procesamiento de telemetría y despliegue de microservicios con Docker y FastAPI.",
+      "agents": "Buscamos Ingeniero de IA con experiencia en arquitecturas de agentes autónomos, Model Context Protocol (MCP), APIs asíncronas con FastAPI y pipelines modernos de LLMs.",
+      "negative": "Buscamos un Chef Pastelero profesional con experiencia en repostería artesanal francesa, horneado y decoración de eventos gastronómicos."
+    };
+
+    const CONFIGS = {
+      cursor: JSON.stringify({
+        "mcpServers": {
+          "anacatalina-cv": {
+            "url": "https://mcp.ana-catalina.com/sse"
+          }
+        }
+      }, null, 2),
+      claude: JSON.stringify({
+        "mcpServers": {
+          "anacatalina-cv": {
+            "command": "python",
+            "args": ["conecta_cata.py"],
+            "env": {
+              "MCP_SERVER_SSE_URL": "https://mcp.ana-catalina.com/sse"
+            }
+          }
+        }
+      }, null, 2),
+      cli: `curl -N -H "Accept: text/event-stream" \\\n  https://mcp.ana-catalina.com/sse`
+    };
+
+    let currentLang = 'es';
+    let currentTab = 'cursor';
+    let searchDebounceTimer = null;
+
+    /* ==========================================================================
+       Language & Theme Handlers
+       ========================================================================== */
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+      
+      const t = I18N[lang];
+      document.getElementById('txt-status').textContent = t.status;
+      document.getElementById('hero-summary').textContent = t.summary;
+      document.getElementById('txt-fit-title').textContent = t.fitTitle;
+      document.getElementById('txt-fit-desc').textContent = t.fitDesc;
+      document.getElementById('txt-btn-analyze').textContent = t.btnAnalyze;
+      document.getElementById('txt-search-title').textContent = t.searchTitle;
+      document.getElementById('txt-connect-title').textContent = t.connectTitle;
+      document.getElementById('txt-connect-desc').textContent = t.connectDesc;
+      document.getElementById('txt-tools-title').textContent = t.toolsTitle;
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.contains('dark');
+      if (isDark) {
+        html.classList.remove('dark');
+        html.setAttribute('data-theme', 'light');
+      } else {
+        html.classList.add('dark');
+        html.removeAttribute('data-theme');
+      }
+    }
+
+    /* ==========================================================================
+       MCP Tabs & Copy
+       ========================================================================== */
+    function setTab(tab) {
+      currentTab = tab;
+      document.getElementById('tab-cursor').classList.toggle('active', tab === 'cursor');
+      document.getElementById('tab-claude').classList.toggle('active', tab === 'claude');
+      document.getElementById('tab-cli').classList.toggle('active', tab === 'cli');
+      document.getElementById('code-content').textContent = CONFIGS[tab];
+    }
+
+    async function copyConfig() {
+      const text = CONFIGS[currentTab];
+      try {
+        await navigator.clipboard.writeText(text);
+        const label = document.getElementById('copy-label');
+        label.textContent = "¡Copiado!";
+        setTimeout(() => { label.textContent = "Copiar"; }, 2000);
+      } catch (err) {
+        console.error("Clipboard copy failed", err);
+      }
+    }
+
+    /* ==========================================================================
+       Forma 1: Fit Tester
+       ========================================================================== */
+    function loadPreset(key) {
+      const input = document.getElementById('job-input');
+      input.value = PRESETS[key] || '';
+      evaluateFit();
+    }
+
+    function clearFit() {
+      document.getElementById('job-input').value = '';
+      document.getElementById('fit-result').style.display = 'none';
+    }
+
+    async function evaluateFit() {
+      const desc = document.getElementById('job-input').value.trim();
+      if (!desc) {
+        alert(currentLang === 'es' ? 'Por favor escribe o selecciona una vacante.' : 'Please enter or select a job description.');
+        return;
+      }
+
+      const btn = document.getElementById('btn-evaluate');
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+
+      try {
+        const response = await fetch('/api/evaluate-fit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ job_description: desc })
+        });
+
+        if (!response.ok) {
+          throw new Error('Error en el servidor al evaluar fit');
+        }
+
+        const data = await response.json();
+        renderFitResult(data);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }
+    }
+
+    function renderFitResult(data) {
+      const box = document.getElementById('fit-result');
+      const scoreBadge = document.getElementById('fit-score');
+      const role = document.getElementById('fit-role');
+      const tagsContainer = document.getElementById('fit-tags');
+      const strengthsList = document.getElementById('fit-strengths');
+      const summary = document.getElementById('fit-summary');
+
+      scoreBadge.textContent = data.estimated_fit_score;
+      role.textContent = data.target_role_detected || '';
+
+      tagsContainer.innerHTML = '';
+      if (data.technologies_matched && data.technologies_matched.length > 0) {
+        data.technologies_matched.forEach(tech => {
+          const pill = document.createElement('span');
+          pill.className = 'tag-pill';
+          pill.textContent = tech;
+          tagsContainer.appendChild(pill);
+        });
+      } else {
+        const noTech = document.createElement('span');
+        noTech.style.color = 'var(--text-muted)';
+        noTech.style.fontSize = '0.85rem';
+        noTech.textContent = currentLang === 'es' ? 'Ninguna tecnología técnica directa requerida' : 'No direct tech stack required';
+        tagsContainer.appendChild(noTech);
+      }
+
+      strengthsList.innerHTML = '';
+      if (data.matching_strengths && data.matching_strengths.length > 0) {
+        data.matching_strengths.forEach(s => {
+          const li = document.createElement('li');
+          li.textContent = s;
+          strengthsList.appendChild(li);
+        });
+      }
+
+      summary.textContent = data.added_value_summary || '';
+      box.style.display = 'block';
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    /* ==========================================================================
+       Cross-Curriculum Search
+       ========================================================================== */
+    function quickSearch(term) {
+      document.getElementById('search-input').value = term;
+      handleSearch(term);
+    }
+
+    function handleSearch(query) {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        executeSearch(query.trim());
+      }, 220);
+    }
+
+    async function executeSearch(q) {
+      const container = document.getElementById('search-results');
+      if (!q) {
+        container.innerHTML = '';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        if (!res.ok) throw new Error('Search failed');
+        const data = await res.json();
+        renderSearchResults(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderSearchResults(data) {
+      const container = document.getElementById('search-results');
+      container.innerHTML = '';
+
+      const totalMatches = (data.matched_experiences_count || 0) +
+                           (data.matched_skills ? data.matched_skills.length : 0) +
+                           (data.matched_projects_count || 0);
+
+      if (totalMatches === 0) {
+        container.innerHTML = `<div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: var(--text-muted);">Sin coincidencias directas para "${data.query}".</div>`;
+        return;
+      }
+
+      // 1. Experiences card
+      if (data.experiences && data.experiences.length > 0) {
+        const expCard = document.createElement('div');
+        expCard.className = 'result-subcard';
+        expCard.innerHTML = `
+          <div class="result-subcard-title">
+            <span>Experiencia Laboral</span>
+            <span class="tag-pill">${data.experiences.length}</span>
+          </div>
+          ${data.experiences.map(e => `
+            <div style="margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+              <strong style="color: var(--text-primary); font-size: 0.875rem;">${e.role} &bull; ${e.company}</strong>
+              <div style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 4px;">${e.period} &bull; ${e.location}</div>
+              <div>${e.technologies.slice(0, 5).map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
+            </div>
+          `).join('')}
+        `;
+        container.appendChild(expCard);
+      }
+
+      // 2. Skills card
+      if (data.matched_skills && data.matched_skills.length > 0) {
+        const skillCard = document.createElement('div');
+        skillCard.className = 'result-subcard';
+        skillCard.innerHTML = `
+          <div class="result-subcard-title">
+            <span>Habilidades Técnicas</span>
+            <span class="tag-pill">${data.matched_skills.length}</span>
+          </div>
+          <div style="margin-top: 8px;">
+            ${data.matched_skills.map(s => `<div style="margin-bottom: 6px; font-size: 0.8125rem; color: var(--text-secondary);">&bull; ${s}</div>`).join('')}
+          </div>
+        `;
+        container.appendChild(skillCard);
+      }
+
+      // 3. Projects card
+      if (data.projects && data.projects.length > 0) {
+        const projCard = document.createElement('div');
+        projCard.className = 'result-subcard';
+        projCard.innerHTML = `
+          <div class="result-subcard-title">
+            <span>Proyectos</span>
+            <span class="tag-pill">${data.projects.length}</span>
+          </div>
+          ${data.projects.map(p => `
+            <div style="margin-bottom: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">
+              <strong style="color: var(--text-primary); font-size: 0.875rem;">${p.name}</strong>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); margin: 4px 0;">${p.description}</p>
+              <div>${p.technologies.slice(0, 4).map(t => `<span class="tag-pill">${t}</span>`).join('')}</div>
+            </div>
+          `).join('')}
+        `;
+        container.appendChild(projCard);
+      }
+    }
+
+    // Initialize Default View
+    setTab('cursor');
+    // Pre-fill initial search for Python to give immediate visual life
+    quickSearch('Python');
+  </script>
+</body>
+</html>

@@ -3,9 +3,10 @@ server.py - Interactive Curriculum MCP Server with SSE Transport.
 Configured for Google Cloud Run deployment and local inspection.
 """
 import os
+from pathlib import Path
 from typing import List, Optional, Dict, Any
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, HTMLResponse
 from mcp.server.fastmcp import FastMCP
 
 from models.cv import (
@@ -114,18 +115,72 @@ async def obtener_resumen_ejecutivo(idioma: str = "es") -> str:
     return cv_service.get_summary(lang=idioma)
 
 
-# 3. Register Custom Routes (Health Check & Info)
+# 3. Template Cache & Content Negotiation
+_TEMPLATE_PATH = Path(__file__).resolve().parent / "templates" / "index.html"
+_CACHED_HTML: Optional[str] = None
+
+
+def get_showcase_html() -> str:
+    """Returns the cached showcase HTML template, reloading on debug."""
+    global _CACHED_HTML
+    if _CACHED_HTML is None or os.environ.get("DEBUG") == "1":
+        if _TEMPLATE_PATH.exists():
+            with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+                _CACHED_HTML = f.read()
+        else:
+            _CACHED_HTML = (
+                "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'>"
+                "<title>Ana Catalina MCP</title></head><body>"
+                "<h1>Ana Catalina Interactive Portfolio MCP</h1>"
+                "<p>Showcase template not yet initialized.</p></body></html>"
+            )
+    return _CACHED_HTML
+
+
+DISCOVERY_PAYLOAD: Dict[str, Any] = {
+    "name": "Ana Catalina Interactive Portfolio MCP",
+    "status": "healthy",
+    "version": "1.0.0",
+    "sse_endpoint": "/sse",
+    "messages_endpoint": "/messages/",
+    "health_endpoint": "/health",
+    "web_showcase": "/",
+    "demo_endpoint": "/demo",
+}
+
+
+# 4. Register Custom Routes (Web Showcase, REST APIs & Health Check)
 @mcp.custom_route("/", methods=["GET"])
 async def root_info(request: Request):
-    """Root endpoint for Cloud Run default probe and server discovery."""
-    return JSONResponse({
-        "name": "Ana Catalina Interactive Portfolio MCP",
-        "status": "healthy",
-        "version": "1.0.0",
-        "sse_endpoint": "/sse",
-        "messages_endpoint": "/messages/",
-        "health_endpoint": "/health"
-    })
+    """Root endpoint: serves interactive showcase HTML to browsers and JSON discovery to APIs."""
+    accept_header = request.headers.get("accept", "").lower()
+    if "text/html" in accept_header:
+        return HTMLResponse(
+            content=get_showcase_html(),
+            status_code=200,
+            headers={"Cache-Control": "no-cache, must-revalidate"},
+        )
+    return JSONResponse(DISCOVERY_PAYLOAD)
+
+
+@mcp.custom_route("/demo", methods=["GET"])
+async def demo_page(request: Request):
+    """Direct web showcase and interactive playground endpoint."""
+    return HTMLResponse(
+        content=get_showcase_html(),
+        status_code=200,
+        headers={"Cache-Control": "no-cache, must-revalidate"},
+    )
+
+
+@mcp.custom_route("/playground", methods=["GET"])
+async def playground_page(request: Request):
+    """Alias for direct web playground."""
+    return HTMLResponse(
+        content=get_showcase_html(),
+        status_code=200,
+        headers={"Cache-Control": "no-cache, must-revalidate"},
+    )
 
 
 @mcp.custom_route("/health", methods=["GET"])
@@ -135,8 +190,64 @@ async def health_check(request: Request):
         "status": "healthy",
         "service": "anacatalina-mcp",
         "version": "1.0.0",
-        "transports": ["SSE (/sse)", "POST (/messages/)"]
+        "transports": ["SSE (/sse)", "POST (/messages/)"],
     })
+
+
+@mcp.custom_route("/api/evaluate-fit", methods=["POST"])
+async def api_evaluate_fit(request: Request):
+    """Evaluates job description compatibility using the in-memory curriculum service."""
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body."}, status_code=400)
+
+    if not isinstance(data, dict):
+        return JSONResponse({"error": "Request body must be a JSON object."}, status_code=400)
+
+    job_description = data.get("job_description")
+    if not job_description or not isinstance(job_description, str) or not job_description.strip():
+        return JSONResponse(
+            {"error": "Field 'job_description' is required and must not be empty."},
+            status_code=400,
+        )
+
+    result = cv_service.evaluate_job_fit(job_description=job_description.strip())
+    return JSONResponse(result.model_dump(), status_code=200)
+
+
+@mcp.custom_route("/api/search", methods=["GET"])
+async def api_search(request: Request):
+    """Cross-curriculum keyword search across experience, skills, and projects."""
+    query = request.query_params.get("q", "")
+    res = cv_service.search(query=query)
+    payload = {
+        "query": res["query"],
+        "matched_experiences_count": res["matched_experiences_count"],
+        "experiences": [e.model_dump() for e in res["experiences"]],
+        "matched_skills": res["matched_skills"],
+        "matched_projects_count": res["matched_projects_count"],
+        "projects": [p.model_dump() for p in res["projects"]],
+    }
+    return JSONResponse(payload, status_code=200)
+
+
+@mcp.custom_route("/api/skills", methods=["GET"])
+async def api_skills(request: Request):
+    """Returns technical skill taxonomy with optional category and level filters."""
+    category = request.query_params.get("category")
+    level = request.query_params.get("level")
+    skills = cv_service.get_skills(category=category, level=level)
+    return JSONResponse([cat.model_dump() for cat in skills], status_code=200)
+
+
+@mcp.custom_route("/api/projects", methods=["GET"])
+async def api_projects(request: Request):
+    """Returns featured projects with optional type and technology filters."""
+    p_type = request.query_params.get("type")
+    technology = request.query_params.get("technology")
+    projects = cv_service.get_projects(project_type=p_type, technology=technology)
+    return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
 
 
 # 4. Generate ASGI Application for SSE Transport

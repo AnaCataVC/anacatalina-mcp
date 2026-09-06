@@ -145,11 +145,93 @@ def test_cv_service_missing_file(tmp_path):
 
 
 def test_root_endpoint():
-    """Tests the root discovery route."""
+    """Tests the root discovery route with default client (preserves JSON compatibility)."""
     client = TestClient(app)
     response = client.get("/")
     assert response.status_code == 200
     assert response.json()["status"] == "healthy"
+    assert response.json()["name"] == "Ana Catalina Interactive Portfolio MCP"
+
+
+def test_root_browser_content_negotiation_html():
+    """Tests that browser requests with text/html in Accept header receive the showcase HTML."""
+    client = TestClient(app)
+    response = client.get("/", headers={"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"})
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "<!DOCTYPE html>" in response.text
+    assert "Ana Catalina" in response.text
+    assert "Pastel-Tech" in response.text
+
+
+def test_demo_and_playground_endpoints():
+    """Tests direct /demo and /playground routes."""
+    client = TestClient(app)
+    for path in ["/demo", "/playground"]:
+        res = client.get(path)
+        assert res.status_code == 200
+        assert "text/html" in res.headers["content-type"]
+        assert "Playground" in res.text
+
+
+def test_api_evaluate_fit_success():
+    """Tests POST /api/evaluate-fit with valid tech vacancy."""
+    client = TestClient(app)
+    jd = "Buscamos Data Scientist con experiencia en Python, GCP, BigQuery y Vertex AI."
+    response = client.post("/api/evaluate-fit", json={"job_description": jd})
+    assert response.status_code == 200
+    data = response.json()
+    assert "technologies_matched" in data
+    assert "Python" in data["technologies_matched"]
+    assert "BigQuery" in data["technologies_matched"]
+    assert "estimated_fit_score" in data
+
+
+def test_api_evaluate_fit_invalid_input():
+    """Tests POST /api/evaluate-fit validation errors."""
+    client = TestClient(app)
+    # Empty string
+    res_empty = client.post("/api/evaluate-fit", json={"job_description": "   "})
+    assert res_empty.status_code == 400
+    assert "error" in res_empty.json()
+
+    # Missing field
+    res_missing = client.post("/api/evaluate-fit", json={})
+    assert res_missing.status_code == 400
+
+    # Non-dict body
+    res_non_dict = client.post("/api/evaluate-fit", content="not json", headers={"Content-Type": "application/json"})
+    assert res_non_dict.status_code == 400
+
+
+def test_api_search_endpoint():
+    """Tests GET /api/search."""
+    client = TestClient(app)
+    res = client.get("/api/search?q=BigQuery")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["query"] == "BigQuery"
+    assert data["matched_experiences_count"] > 0 or len(data["matched_skills"]) > 0
+
+
+def test_api_skills_endpoint():
+    """Tests GET /api/skills."""
+    client = TestClient(app)
+    res = client.get("/api/skills?category=Cloud")
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data) >= 1
+    assert any("Cloud" in cat["category"] for cat in data)
+
+
+def test_api_projects_endpoint():
+    """Tests GET /api/projects."""
+    client = TestClient(app)
+    res = client.get("/api/projects?type=personal")
+    assert res.status_code == 200
+    data = res.json()
+    assert len(data) >= 1
+    assert all(p["type"] == "personal" for p in data)
 
 
 def test_health_endpoint():
@@ -158,3 +240,4 @@ def test_health_endpoint():
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["service"] == "anacatalina-mcp"
+
