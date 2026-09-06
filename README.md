@@ -29,7 +29,7 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 
 ### Características Principales
 - **Transporte SSE Remoto:** Integrado con FastAPI y `SseServerTransport` para despliegue Serverless en Google Cloud Run. ¡El servidor ya se encuentra en producción!
-- **8 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación y contacto.
+- **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
 - **Script Puente Local (`conecta_cata.py`):** Permite conectar clientes locales basados en `stdio` (como Claude Desktop) con el servidor remoto alojado en Cloud Run a través de HTTP/SSE.
 - **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
 
@@ -41,7 +41,7 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 
 ### Key Features
 - **Remote SSE Transport:** Implemented via FastAPI and `SseServerTransport`, optimized for Serverless hosting on Google Cloud Run. Live and deployed!
-- **8 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, and contact details.
+- **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Local Stdio Bridge (`conecta_cata.py`):** Bi-directional async adapter connecting `stdio`-based clients (such as Claude Desktop) to remote SSE endpoints.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
 
@@ -61,7 +61,7 @@ flowchart TD
 
     subgraph CloudLayer["Google Cloud Run / Serverless Host"]
         C["FastAPI App (:8080)<br/>/sse & /messages/"]
-        D["FastMCP Server Core<br/>(8 MCP Tools)"]
+        D["FastMCP Server Core<br/>(9 MCP Tools)"]
         E["CV Service & Pydantic Engine<br/>(models/cv.py)"]
         F[("data/cv_data.json<br/>(In-Memory Dataset)")]
     end
@@ -77,7 +77,7 @@ flowchart TD
 
 ## 🧰 Catálogo de Herramientas MCP / MCP Tools Catalog
 
-El servidor expone **8 herramientas oficiales** registradas a través del protocolo MCP:
+El servidor expone **9 herramientas oficiales** registradas a través del protocolo MCP:
 
 | Herramienta / Tool | Parámetros / Parameters | Tipo Retorno / Return Type | Descripción / Description |
 | :--- | :--- | :--- | :--- |
@@ -88,6 +88,7 @@ El servidor expone **8 herramientas oficiales** registradas a través del protoc
 | `buscar_en_curriculum` | `consulta` *(str, requerido)* | `Dict[str, Any]` | Búsqueda transversal por palabra clave en todo el currículum (experiencia, habilidades, proyectos y educación). |
 | `obtener_educacion` | *Ninguno* | `List[EducationItem]` | Formación académica formal, grado obtenido, institución y especialización. |
 | `obtener_contacto` | *Ninguno* | `ContactDetails` | Canales directos de contacto profesional (Email y perfil de LinkedIn). |
+| `obtener_perfil` | *Ninguno* | `PersonalInfo` | Perfil general: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub). |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Síntesis ejecutiva del perfil profesional enfocada en Data Science, ML, GCP y arquitecturas MCP en español (`es`) o inglés (`en`). |
 
 ---
@@ -98,6 +99,7 @@ El servidor expone **8 herramientas oficiales** registradas a través del protoc
    - Los clientes locales de escritorio como Claude Desktop operan mediante subprocesos y canales `stdin`/`stdout`.
    - Los entornos de producción serverless (Google Cloud Run) requieren streaming HTTP mediante Server-Sent Events (`/sse` y `/messages/`).
    - El script `conecta_cata.py` actúa como un puente asíncrono bidireccional construido sobre `anyio`, traduciendo eventos entre ambos mundos con latencia nula.
+   - Esta necesidad no es pareja entre clientes MCP: `claude_desktop_config.json` (Claude Desktop) solo acepta servidores locales vía `command`/`args` (`stdio`) — un campo `url` ahí se ignora silenciosamente o rompe la config, por eso el puente es obligatorio para conectarlo. Otros clientes, como `mcp.json` de Cursor, sí aceptan un `url` remoto de forma nativa (HTTP/SSE) y no necesitan ningún puente.
 
 2. **Higiene Estricta de Streams en `stdio`:**
    - Cualquier mensaje o log emitido a `stdout` corrompe el flujo JSON-RPC del protocolo MCP.
@@ -129,8 +131,11 @@ python -m venv .venv
 # Linux / macOS
 source .venv/bin/activate
 
-# Instalar dependencias
+# Instalar dependencias (producción)
 pip install -r requirements.txt
+
+# Instalar dependencias de desarrollo (incluye pytest, para correr la suite de pruebas)
+pip install -r requirements-dev.txt
 ```
 
 ### 2. Ejecutar la Suite de Pruebas
