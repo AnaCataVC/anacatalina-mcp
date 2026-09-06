@@ -6,7 +6,7 @@
 
 ## Project Description
 
-Official **Model Context Protocol (MCP)** server and interactive showcase for **Ana-Catalina Alejandra Villalobos Contardo**, Civil Engineer and Data Scientist & Learning Engineer (SimpliRoute, ex-Fracttal).
+Official **Model Context Protocol (MCP)** server and interactive showcase for **Ana-Catalina Alejandra Villalobos Contardo**, Civil Engineer and Data Scientist & Machine Learning Engineer (Learning Engineer at SimpliRoute, ex-Fracttal).
 
 The repository serves a dual-purpose architecture:
 1. **Programmatic / Agent Interface:** Official FastMCP server operating over Server-Sent Events (SSE) at `/sse` and `/messages/`, with JSON discovery at `/`. Enables AI agents (Claude Desktop, Cursor, Copilot, LangChain) to query Ana-Catalina's professional background, skills, and projects with structured JSON responses.
@@ -46,7 +46,7 @@ When generating, modifying, or querying data concerning the candidate, coding ag
 | **Middle Name** | `Alejandra` | Second given name. |
 | **Last Names** | `Villalobos Contardo` | Paternal + maternal Chilean surnames. |
 | **GitHub Handle** | `AnaCataVC` | Official GitHub username. |
-| **Current Headline** | `Data Scientist & Learning Engineer` | Active professional role (SimpliRoute). |
+| **Current Headline** | `Data Scientist & Machine Learning Engineer` | Public professional headline (current SimpliRoute role title: `Learning Engineer`, since Aug 2025). |
 | **Location** | `Santiago, Chile` | Base location. |
 | **Contact Email** | `anacatalina@outlook.cl` | Primary contact channel. |
 | **LinkedIn** | `https://linkedin.com/in/ana-catalina/` | Official LinkedIn profile. |
@@ -198,14 +198,16 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
    - Any architectural modification, schema adjustment (`models/cv.py`), tool signature change (`server.py`), dataset update (`data/cv_data.json`), UI layout reordering (`templates/index.html`), or technical dependency adjustment must be immediately documented in this file without waiting for explicit user prompting.
 
 2. **Canonical Baseline Data Source (`anacatalina-cv`):**
-   - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` (located at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/pages/index.astro` and `src/i18n.js`).
+   - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` ([github.com/AnaCataVC/anacatalina-cv](https://github.com/AnaCataVC/anacatalina-cv) or locally at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/pages/index.astro` and `src/i18n.js`).
+   - `anacatalina-mcp` packages its own verified in-memory dataset in `data/cv_data.json` and operates fully standalone without hard external build-time dependencies.
    - When updating or auditing `data/cv_data.json` or curriculum benchmarks in this repository, agents can inspect and pull verified baseline data directly from `anacatalina-cv` to maintain 100% cross-portfolio ecosystem consistency.
+   - Known gap: `anacatalina-cv` also has Publications and Courses & Certifications sections with no equivalent in `models/cv.py` (`CVData`). Adding them is a schema change (new Pydantic models, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task.
 
 ---
 
-## Architectural Notes & Pending Items ("Pendientes")
+## Operational Constraints & Architectural Decisions
 
-These items document deliberate architectural choices or pending external verifications:
+These items document deliberate architectural choices and operational boundaries:
 
 1. **`mcp` SDK Pinning (`mcp>=1.3.0,<2`):**
    - In `requirements.txt`, the official `mcp` dependency is explicitly pinned below `2.0.0`.
