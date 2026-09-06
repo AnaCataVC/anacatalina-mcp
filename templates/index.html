@@ -1386,80 +1386,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </div>
     </section>
 
-    <!-- Card 1: Fixed Benchmark Scenarios (Ejemplos Fijos) -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">
-          <span class="card-title-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          </span>
-          <span id="txt-fit-title">Escenarios de Alineación Técnica (Ejemplos Fijos)</span>
-        </h2>
-        <span class="tag-pill">Benchmarks Curados &bull; Verificables en Memoria</span>
-      </div>
-
-      <p id="txt-fit-desc" class="card-desc">
-        Selecciona un perfil de mercado predefinido para inspeccionar la alineación técnica y fortalezas comprobadas en la trayectoria de Ana-Catalina:
-      </p>
-
-      <!-- Preset Chips (Fixed Examples Only) -->
-      <div class="preset-chips">
-        <button id="chip-data-science" class="preset-chip active" onclick="selectScenario('data-science')">Senior Data Scientist (GCP + Vertex AI)</button>
-        <button id="chip-logistics" class="preset-chip" onclick="selectScenario('logistics')">Especialista en Ruteo &amp; Logística</button>
-        <button id="chip-agents" class="preset-chip" onclick="selectScenario('agents')">Ingeniera en IA &amp; Agentes (MCP + FastAPI)</button>
-        <button id="chip-pop-singer" class="preset-chip" onclick="selectScenario('pop-singer')">Cantante Pop (Test Negativo)</button>
-      </div>
-
-      <!-- Result Container (Directly visible for the active fixed example) -->
-      <div id="fit-result" class="result-box" style="display: block;" aria-live="polite">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div id="fit-score" class="result-score-badge">95% (Alineación Excepcional)</div>
-          <div id="fit-role" style="font-size: 0.85rem; color: var(--text-muted);">Senior Data Scientist / Machine Learning Engineer</div>
-        </div>
-
-        <div style="margin: 12px 0;">
-          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Tecnologías Coincidentes:</div>
-          <div id="fit-tags"></div>
-        </div>
-
-        <div style="margin-top: 14px;">
-          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Fortalezas Comprobadas en Trayectoria:</div>
-          <ul id="fit-strengths" class="bullet-list"></ul>
-        </div>
-
-        <p id="fit-summary" style="margin-top: 12px; font-size: 0.9375rem; color: var(--text-primary);"></p>
-      </div>
-    </section>
-
-    <!-- Card 2: Cross-Curriculum Keyword Search -->
-    <section class="card">
-      <div class="card-header">
-        <h2 class="card-title">
-          <span class="card-title-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </span>
-          <span id="txt-search-title">Búsqueda Rápida en Currículum</span>
-        </h2>
-      </div>
-
-      <div class="preset-chips">
-        <button class="preset-chip" onclick="quickSearch('Python')">Python</button>
-        <button class="preset-chip" onclick="quickSearch('BigQuery')">BigQuery</button>
-        <button class="preset-chip" onclick="quickSearch('Vertex AI')">Vertex AI</button>
-        <button class="preset-chip" onclick="quickSearch('Docker')">Docker</button>
-        <button class="preset-chip" onclick="quickSearch('SimpliRoute')">SimpliRoute</button>
-        <button class="preset-chip" onclick="quickSearch('MCP')">MCP</button>
-      </div>
-
-      <div class="search-input-group">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="search-input" class="search-input" placeholder="Escribe cualquier tecnología, empresa o competencia..." oninput="handleSearch(this.value)">
-      </div>
-
-      <div id="search-results" class="search-results-grid" aria-live="polite"></div>
-    </section>
-
-    <!-- Card 3: MCP Client Configurator (Zero Broken Mockups) -->
+    <!-- Card 1: MCP Client Configurator (Zero Broken Mockups) -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">
@@ -1489,7 +1416,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </div>
     </section>
 
-    <!-- Card 4: Official MCP 9 Tools Catalog -->
+    <!-- Card 2: Official MCP 9 Tools Catalog -->
     <section class="card">
       <div class="card-header">
         <h2 class="card-title">
@@ -1540,11 +1467,78 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="page-footer">
-      <div>Ana-Catalina Villalobos Contardo &mdash; Interactive Portfolio MCP Server &bull; Desplegado en Google Cloud Run &bull; Licencia MIT</div>
-      <div style="margin-top: 6px; font-size: 0.75rem; color: var(--text-muted);">Diseñado bajo el Pastel-Tech Design System</div>
-    </footer>
+    <!-- Card 3: Fixed Benchmark Scenarios (Ejemplos Fijos) -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </span>
+          <span id="txt-fit-title">Escenarios de Alineación Técnica (Ejemplos Fijos)</span>
+        </h2>
+        <span class="tag-pill">Benchmarks Curados &bull; Verificables en Memoria</span>
+      </div>
+
+      <p id="txt-fit-desc" class="card-desc">
+        Selecciona un perfil de mercado predefinido para inspeccionar la alineación técnica y fortalezas comprobadas en la trayectoria de Ana-Catalina:
+      </p>
+
+      <!-- Preset Chips (Fixed Examples Only) -->
+      <div class="preset-chips">
+        <button id="chip-data-science" class="preset-chip active" onclick="selectScenario('data-science')">Senior Data Scientist (GCP + Vertex AI)</button>
+        <button id="chip-logistics" class="preset-chip" onclick="selectScenario('logistics')">Especialista en Ruteo &amp; Logística</button>
+        <button id="chip-agents" class="preset-chip" onclick="selectScenario('agents')">Ingeniera en IA &amp; Agentes (MCP + FastAPI)</button>
+        <button id="chip-pop-singer" class="preset-chip" onclick="selectScenario('pop-singer')">Cantante Pop (Test Negativo)</button>
+      </div>
+
+      <!-- Result Container (Directly visible for the active fixed example) -->
+      <div id="fit-result" class="result-box" style="display: block;" aria-live="polite">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div id="fit-score" class="result-score-badge">95% (Alineación Excepcional)</div>
+          <div id="fit-role" style="font-size: 0.85rem; color: var(--text-muted);">Senior Data Scientist / Machine Learning Engineer</div>
+        </div>
+
+        <div style="margin: 12px 0;">
+          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Tecnologías Coincidentes:</div>
+          <div id="fit-tags"></div>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <div style="font-size: 0.8125rem; color: var(--text-muted); margin-bottom: 6px;">Fortalezas Comprobadas en Trayectoria:</div>
+          <ul id="fit-strengths" class="bullet-list"></ul>
+        </div>
+
+        <p id="fit-summary" style="margin-top: 12px; font-size: 0.9375rem; color: var(--text-primary);"></p>
+      </div>
+    </section>
+
+    <!-- Card 4: Cross-Curriculum Keyword Search -->
+    <section class="card">
+      <div class="card-header">
+        <h2 class="card-title">
+          <span class="card-title-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <span id="txt-search-title">Búsqueda Rápida en Currículum</span>
+        </h2>
+      </div>
+
+      <div class="preset-chips">
+        <button class="preset-chip" onclick="quickSearch('Python')">Python</button>
+        <button class="preset-chip" onclick="quickSearch('BigQuery')">BigQuery</button>
+        <button class="preset-chip" onclick="quickSearch('Vertex AI')">Vertex AI</button>
+        <button class="preset-chip" onclick="quickSearch('Docker')">Docker</button>
+        <button class="preset-chip" onclick="quickSearch('SimpliRoute')">SimpliRoute</button>
+        <button class="preset-chip" onclick="quickSearch('MCP')">MCP</button>
+      </div>
+
+      <div class="search-input-group">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="search-input" class="search-input" placeholder="Escribe cualquier tecnología, empresa o competencia..." oninput="handleSearch(this.value)">
+      </div>
+
+      <div id="search-results" class="search-results-grid" aria-live="polite"></div>
+    </section>
   </div>
 
   <script>
