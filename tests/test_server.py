@@ -248,9 +248,54 @@ def test_api_projects_endpoint():
 
 
 def test_health_endpoint():
-    """Tests the health check route."""
+    """Tests the health check route and verifies Streamable HTTP is the active transport."""
     client = TestClient(app)
     response = client.get("/health")
     assert response.status_code == 200
-    assert response.json()["service"] == "anacatalina-mcp"
+    data = response.json()
+    assert data["service"] == "anacatalina-mcp"
+    transports = data.get("transports", [])
+    assert any("Streamable HTTP" in t for t in transports), "Streamable HTTP transport must be listed"
 
+
+def test_mcp_streamable_http_endpoint_accepts_post():
+    """Tests that POST /mcp with proper Accept headers returns 200 (Streamable HTTP transport)."""
+    with TestClient(app) as client:
+        response = client.post(
+            "/mcp",
+            json={
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "initialize",
+                "params": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {},
+                    "clientInfo": {"name": "pytest", "version": "1"},
+                },
+            },
+            headers={"Accept": "application/json, text/event-stream"},
+        )
+        assert response.status_code == 200
+        assert "mcp-session-id" in response.headers
+        assert "protocolVersion" in response.text
+        assert "serverInfo" in response.text
+
+
+def test_mcp_endpoint_route_registered():
+    """Verifies /mcp route is registered in the Streamable HTTP app."""
+    from starlette.routing import Route
+    mcp_routes = [
+        r for r in app.routes
+        if isinstance(r, Route) and getattr(r, "path", "") == "/mcp"
+    ]
+    assert len(mcp_routes) == 1, "/mcp route must be registered"
+
+
+def test_discovery_json_exposes_mcp_endpoint():
+    """Tests that the JSON discovery payload exposes the mcp_endpoint field."""
+    client = TestClient(app)
+    response = client.get("/", headers={"Accept": "application/json"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "mcp_endpoint" in data
+    assert data["mcp_endpoint"] == "/mcp"

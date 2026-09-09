@@ -9,13 +9,13 @@
 Official **Model Context Protocol (MCP)** server and interactive showcase for **Ana-Catalina Alejandra Villalobos Contardo**, Civil Engineer and Data Scientist & Machine Learning Engineer (Learning Engineer at SimpliRoute, ex-Fracttal).
 
 The repository serves a dual-purpose architecture:
-1. **Programmatic / Agent Interface:** Official FastMCP server operating over Server-Sent Events (SSE) at `/sse` and `/messages/`, with JSON discovery at `/`. Enables AI agents (Claude Desktop, Cursor, Copilot, LangChain) to query Ana-Catalina's professional background, skills, and projects with structured JSON responses.
+1. **Programmatic / Agent Interface:** Official FastMCP server operating over modern **Streamable HTTP** at `/mcp`, with JSON discovery at `/`. Enables AI agents (Claude.ai Custom Connectors, Cursor, Windsurf) to query Ana-Catalina's professional background, skills, and projects with structured JSON responses.
 2. **Human / Evaluator Interface:** A single-page web showcase served at `/` and `/demo` via transparent HTTP content negotiation (`Accept: text/html`). Allows technical recruiters and engineering managers to see what the mcp offers.
 
 **Live Production URLs:**
 - Primary Custom Domain: [https://mcp.ana-catalina.com/](https://mcp.ana-catalina.com/)
 - Google Cloud Run Mirror: `https://anacatalina-mcp-165536131179.us-central1.run.app/`
-- Local Stdio Bridge: `conecta_cata.py` (stdio adapter for desktop clients)
+- MCP Streamable HTTP Endpoint: `https://mcp.ana-catalina.com/mcp`
 
 ---
 
@@ -75,13 +75,12 @@ anacatalina-mcp/
 │   ├── index.html              # Single-page Pastel-Tech showcase & deterministic playground
 │   └── poppy.svg               # Botanical poppy SVG watermark for UI background
 ├── tests/
-│   └── test_server.py          # 23 automated tests (MCP tools, content negotiation, REST APIs)
+│   └── test_server.py          # 26 automated tests (Streamable HTTP, MCP tools, REST APIs)
 ├── Dockerfile                  # Container definition for Google Cloud Run
 ├── pytest.ini                  # Pytest configuration (asyncio mode)
 ├── requirements.txt            # Production runtime dependencies (pinned mcp<2)
 ├── requirements-dev.txt        # Development dependencies (pytest, pytest-asyncio, httpx)
-├── server.py                   # Main entrypoint: FastMCP server, route handlers, SSE transport
-├── conecta_cata.py             # Bi-directional stdio-to-SSE adapter for Claude Desktop
+├── server.py                   # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
 ├── favicon.svg                 # Official ACVC geometric monogram SVG
 ├── favicon.ico                 # Fallback favicon
 ├── icon.png                    # Repository and client avatar
@@ -99,7 +98,7 @@ The showcase playground and job fit evaluator run on **Forma 1** architecture:
 - **Curated Benchmark Scenarios (`FIXED_BENCHMARK_SCENARIOS` in `services/cv_service.py`):**
   1. `data-science`: *Senior Data Scientist / Machine Learning Engineer* &rarr; **95% (Alineación Excepcional)**. Highlights GCP, BigQuery, Vertex AI, and predictive modeling.
   2. `logistics`: *Data Scientist Especialista en Ruteo & Logística* &rarr; **90% (Alta Compatibilidad)**. Highlights last-mile telemetry, routing algorithms, and dispatch optimization at SimpliRoute.
-  3. `agents`: *Ingeniera en IA & Agentes Autónomos (MCP)* &rarr; **90% (Alta Compatibilidad)**. Highlights production MCP servers, SSE transport, and LLM tool engineering.
+  3. `agents`: *Ingeniera en IA & Agentes Autónomos (MCP)* &rarr; **90% (Alta Compatibilidad)**. Highlights production MCP servers, Streamable HTTP transport, and LLM tool engineering.
   4. `pop-singer`: *Cantante Pop (Test Negativo)* &rarr; **10% (Sin Alineación / Fuera de Especialidad)**. Serves as a transparent control scenario proving zero false positives.
 - **Invariant:** Open-ended, fuzzy free-text parsing heuristics were intentionally removed to keep the server reliable and predictable. Any incoming request either directly selects a benchmark or cleanly falls back to the primary Data Science archetype.
 
@@ -131,8 +130,7 @@ In `server.py`, the Starlette application routes requests as follows:
 | :--- | :--- | :--- | :--- |
 | `/` | `GET` | `text/html` or `application/json` | **Transparent Content Negotiation:** If `Accept: text/html` is present (browsers), serves the web showcase. Otherwise serves JSON discovery metadata. |
 | `/demo` | `GET` | `text/html` | Direct access to the web showcase and interactive playground. |
-| `/sse` | `GET` | `text/event-stream` | MCP Server-Sent Events endpoint for persistent client connections. |
-| `/messages/` | `POST` | `application/json` | JSON-RPC message receiver for active SSE sessions. |
+| `/mcp` | `POST` | `application/json` or `text/event-stream` | **Streamable HTTP MCP Endpoint:** Unified MCP transport for Claude.ai, Cursor, and modern AI clients. |
 | `/health` | `GET` | `application/json` | Cloud Run container liveness probe. |
 | `/api/evaluate-fit` | `POST` | `application/json` | Standalone REST endpoint for benchmark role fit evaluation via direct HTTP. |
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
@@ -178,14 +176,11 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (23 tests)
+# Run full test suite (26 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Run local development server (with hot reload)
 .venv\Scripts\uvicorn.exe server:app --reload --port 8080
-
-# Test stdio bridge locally
-.venv\Scripts\python.exe conecta_cata.py
 ```
 
 ---
@@ -220,4 +215,8 @@ These items document deliberate architectural choices and operational boundaries
 3. **Deterministic Evaluation vs. In-Memory Search:**
    - Free-text heuristic role detection was replaced with the 4 curated Forma 1 benchmarks to ensure 100% verifiable scoring and eliminate non-deterministic parsing bugs.
    - Cross-curriculum search (`buscar_en_curriculum`) performs fast, safe in-memory substring filtering across ~10 items. Because Cloud Run already caps HTTP request body sizes and memory usage is trivial (<100KB), artificial input length capping was evaluated and deemed unnecessary complexity.
+
+4. **Streamable HTTP Migration (Zero Legacy SSE / Zero Stdio):**
+   - In accordance with the March 2025 MCP specification update deprecating HTTP+SSE, the server operates exclusively via **Streamable HTTP** (`/mcp`).
+   - Legacy SSE endpoints (`/sse`, `/messages/`) and the local stdio bridge (`conecta_cata.py`) were eliminated to keep the architecture clean, high-performance, and directly cloud-native for Claude.ai Custom Connectors, Cursor, and modern MCP clients.
 

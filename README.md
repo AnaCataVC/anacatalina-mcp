@@ -14,7 +14,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat" alt="License MIT" /></a>
 </p>
 
-> **Official Model Context Protocol (MCP) Server** with Server-Sent Events (SSE) transport over FastAPI, exposing an interactive CV and portfolio for AI assistants and LLM clients. Includes a local `stdio` bridge for Claude Desktop and a production-ready container for Google Cloud Run.
+> **Official Model Context Protocol (MCP) Server** with **Streamable HTTP** transport over FastMCP, exposing an interactive CV and portfolio for AI assistants (Claude.ai, Cursor, Windsurf) and LLM clients. Includes a self-contained web showcase and a production-ready container for Google Cloud Run.
 
 <div align="center">
   <h3>🟢 Live Server URL / Servidor en Vivo:</h3>
@@ -31,9 +31,8 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 ### Características Principales
 - **Web Showcase & Playground Interactivo:** Servido en la raíz (`/`) y `/demo` bajo el *Pastel-Tech Design System*. Permite a reclutadores y visitantes humanos evaluar compatibilidad con vacantes y buscar en el currículum en tiempo real con latencia inferior a 5ms y resultados 100% verificables en memoria.
 - **Negociación Transparente de Contenido:** Devuelve una aplicación web responsiva si la petición proviene de un navegador (`Accept: text/html`) y el JSON de descubrimiento original si proviene de agentes o APIs.
-- **Transporte SSE Remoto:** Integrado con FastAPI y `SseServerTransport` para despliegue Serverless en Google Cloud Run. ¡El servidor ya se encuentra en producción!
+- **Transporte Moderno Streamable HTTP (`/mcp`):** Transporte nativo recomendado por la especificación MCP para conexiones directas desde **Claude.ai** (conectores personalizados) y **Cursor / Windsurf** (`mcp.json`).
 - **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
-- **Script Puente Local (`conecta_cata.py`):** Permite conectar clientes locales basados en `stdio` (como Claude Desktop) con el servidor remoto alojado en Cloud Run a través de HTTP/SSE.
 - **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
 
 ---
@@ -45,9 +44,8 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 ### Key Features
 - **Interactive Web Showcase & Playground:** Served at `/` and `/demo` using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
 - **Transparent HTTP Content Negotiation:** Serves the interactive web interface to browsers (`Accept: text/html`) while preserving the structured JSON discovery payload for programmatic agents and curl.
-- **Remote SSE Transport:** Implemented via FastAPI and `SseServerTransport`, optimized for Serverless hosting on Google Cloud Run. Live and deployed!
+- **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Claude.ai** (custom connectors) and **Cursor / Windsurf** (`mcp.json`).
 - **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
-- **Local Stdio Bridge (`conecta_cata.py`):** Bi-directional async adapter connecting `stdio`-based clients (such as Claude Desktop) to remote SSE endpoints.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
 
 ---
@@ -56,23 +54,20 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["Cliente MCP / Client Layer"]
-        A["Claude Desktop / IDE Client<br/>(stdio: stdin / stdout)"]
-    end
-
-    subgraph BridgeLayer["Puente Local / Local Bridge"]
-        B["conecta_cata.py<br/>(stdio_server ⇄ sse_client)"]
+    subgraph ClientLayer["Clientes MCP / AI Clients"]
+        A["Claude.ai (Custom Connector)<br/>Streamable HTTP (POST /mcp)"]
+        B["Cursor / Windsurf (mcp.json)<br/>Streamable HTTP (POST /mcp)"]
     end
 
     subgraph CloudLayer["Google Cloud Run / Serverless Host"]
-        C["FastAPI App (:8080)<br/>/sse & /messages/"]
-        D["FastMCP Server Core<br/>(9 MCP Tools)"]
+        C["FastMCP App (:8080)<br/>/mcp & Custom Routes"]
+        D["9 Herramientas MCP / Tools"]
         E["CV Service & Pydantic Engine<br/>(models/cv.py)"]
         F[("data/cv_data.json<br/>(In-Memory Dataset)")]
     end
 
-    A <-->|"JSON-RPC (stdio)"| B
-    B <-->|"SSE Stream & HTTP POST"| C
+    A <-->|"JSON-RPC Streamable HTTP"| C
+    B <-->|"JSON-RPC Streamable HTTP"| C
     C <--> D
     D <--> E
     E <--> F
@@ -100,20 +95,15 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 
 ## 💡 Aprendizajes Clave & Decisiones de Diseño
 
-1. **Dualidad de Transporte en MCP (`stdio` vs `SSE`):**
-   - Los clientes locales de escritorio como Claude Desktop operan mediante subprocesos y canales `stdin`/`stdout`.
-   - Los entornos de producción serverless (Google Cloud Run) requieren streaming HTTP mediante Server-Sent Events (`/sse` y `/messages/`).
-   - El script `conecta_cata.py` actúa como un puente asíncrono bidireccional construido sobre `anyio`, traduciendo eventos entre ambos mundos con latencia nula.
-   - Esta necesidad no es pareja entre clientes MCP: `claude_desktop_config.json` (Claude Desktop) solo acepta servidores locales vía `command`/`args` (`stdio`) — un campo `url` ahí se ignora silenciosamente o rompe la config, por eso el puente es obligatorio para conectarlo. Otros clientes, como `mcp.json` de Cursor, sí aceptan un `url` remoto de forma nativa (HTTP/SSE) y no necesitan ningún puente.
+1. **Evolución del Transporte MCP (Migración a Streamable HTTP):**
+   - Inicialmente, los servidores MCP remotos dependían de combinaciones multi-endpoint basadas en Server-Sent Events (`/sse` y `/messages/`).
+   - La especificación moderna de MCP estandarizó **Streamable HTTP** (`/mcp`) mediante un único endpoint unificado sobre HTTP POST que admite respuestas JSON y flujos en tiempo real (`Accept: application/json, text/event-stream`).
+   - Esta arquitectura simplifica drásticamente el despliegue serverless, elimina la necesidad de mantener puentes locales (`stdio`) para clientes remotos y garantiza compatibilidad nativa directa con **Claude.ai** (conectores personalizados) y **Cursor / Windsurf** (`mcp.json`).
 
-2. **Higiene Estricta de Streams en `stdio`:**
-   - Cualquier mensaje o log emitido a `stdout` corrompe el flujo JSON-RPC del protocolo MCP.
-   - Toda la telemetría, logs informativos y errores en `conecta_cata.py` se canalizan explícitamente hacia `stderr`.
-
-3. **Desacoplamiento y Validación de Datos:**
+2. **Desacoplamiento y Validación de Datos:**
    - La separación entre la capa de datos (`data/cv_data.json`), los contratos de interfaz (`models/cv.py`) y la lógica de negocio (`services/cv_service.py`) permite actualizar el contenido del currículum sin modificar el servidor MCP ni arriesgar la compatibilidad de tipos.
 
-4. **Compatibilidad y Cambios de API en `mcp 2.x`:**
+3. **Compatibilidad y Cambios de API en `mcp 2.x`:**
    - Recientemente, la versión `2.0.0` del SDK oficial de MCP introdujo cambios que renombraron `FastMCP`. Para mantener la estabilidad del despliegue en Cloud Run y garantizar que nuestro código `FastMCP` v1 continúe funcionando correctamente sin refactorización inmediata, fijamos la dependencia en `requirements.txt` a `mcp>=1.3.0,<2`.
 
 ---
@@ -159,8 +149,7 @@ Endpoints disponibles:
 - **Web Showcase & Playground:** `http://localhost:8080/` (en navegadores) o `http://localhost:8080/demo`
 - **Discovery JSON:** `http://localhost:8080/` (con cabecera `Accept: application/json` o agentes MCP)
 - **Health Check:** `http://localhost:8080/health`
-- **SSE Stream:** `http://localhost:8080/sse`
-- **Mensajes POST:** `http://localhost:8080/messages/`
+- **Streamable HTTP (MCP Endpoint):** `http://localhost:8080/mcp` &mdash; para Claude.ai, Cursor y Windsurf
 - **APIs REST Auxiliares (Integraciones HTTP directas / Scripts):**
   - `POST /api/evaluate-fit` &mdash; Evaluación determinista de vacantes vía HTTP
   - `GET /api/search?q={query}` &mdash; Búsqueda transversal por palabras clave vía HTTP
@@ -169,33 +158,32 @@ Endpoints disponibles:
 
 ---
 
-## 🔌 Configuración en Claude Desktop
+## 🤖 Conectar Asistentes de IA / AI Clients Setup
 
-Para conectar Claude Desktop con el servidor remoto desplegado en Cloud Run usando el puente local, puedes basarte en el archivo [`claude_desktop_config.example.json`](claude_desktop_config.example.json) incluido en este repositorio. Añade o reemplaza la configuración en tu archivo `claude_desktop_config.json`:
+### 1. Claude.ai (Conector Personalizado)
+1. En Claude.ai: **Ajustes → Conectores → Agregar conector personalizado**
+2. Nombre: `Ana-Catalina MCP`
+3. URL del servidor:
+```
+https://mcp.ana-catalina.com/mcp
+```
+4. Autenticación: **Ninguna** (servidor de portafolio público)
 
-- **Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
-- **macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+> [!TIP]
+> **En desarrollo local:** usa `http://localhost:8080/mcp` como URL del conector.
 
-Asegúrate de ajustar el argumento `command` o las rutas según tu sistema operativo. Usa rutas relativas de entorno o tu ruta local al script puente `conecta_cata.py`, pero **nunca compartas rutas absolutas locales en repositorios públicos**.
+### 2. Cursor & Windsurf (`mcp.json`)
+Agrega el servidor en tu configuración de MCP (`~/.cursor/mcp.json` o settings de Cursor):
 
 ```json
 {
   "mcpServers": {
     "anacatalina-cv": {
-      "command": "python",
-      "args": [
-        "conecta_cata.py" 
-      ],
-      "env": {
-        "MCP_SERVER_SSE_URL": "https://mcp.ana-catalina.com/sse"
-      }
+      "url": "https://mcp.ana-catalina.com/mcp"
     }
   }
 }
 ```
-
-> [!TIP]
-> **Pruebas en desarrollo local:** Para conectar Claude Desktop con tu servidor local, cambia el valor de `"MCP_SERVER_SSE_URL"` a `"http://localhost:8080/sse"`.
 
 ---
 
@@ -221,8 +209,7 @@ gcloud run deploy anacatalina-mcp \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
-  --timeout 3600 \
-  --session-affinity
+  --timeout 3600
 ```
 
 > [!NOTE]

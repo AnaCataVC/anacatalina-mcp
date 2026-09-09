@@ -1,5 +1,5 @@
 """
-server.py - Interactive Curriculum MCP Server with SSE Transport.
+server.py - Interactive Curriculum MCP Server with Streamable HTTP Transport.
 Configured for Google Cloud Run deployment and local inspection.
 """
 import os
@@ -141,8 +141,7 @@ DISCOVERY_PAYLOAD: Dict[str, Any] = {
     "name": "Ana-Catalina Interactive Portfolio MCP",
     "status": "healthy",
     "version": "1.0.0",
-    "sse_endpoint": "/sse",
-    "messages_endpoint": "/messages/",
+    "mcp_endpoint": "/mcp",
     "health_endpoint": "/health",
     "web_showcase": "/",
     "demo_endpoint": "/demo",
@@ -198,7 +197,7 @@ async def health_check(request: Request):
         "status": "healthy",
         "service": "anacatalina-mcp",
         "version": "1.0.0",
-        "transports": ["SSE (/sse)", "POST (/messages/)"],
+        "transports": ["Streamable HTTP (/mcp)"],
     })
 
 
@@ -258,12 +257,11 @@ async def api_projects(request: Request):
     return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
 
 
-# 5. Generate ASGI Application for SSE Transport
-app = mcp.sse_app()
+# 5. Generate ASGI Application — Streamable HTTP Transport (/mcp)
+app = mcp.streamable_http_app()
 
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"Starting MCP Server on http://{host}:{port}/sse")
+    print(f"Starting MCP Server on http://{host}:{port}/mcp")
     uvicorn.run(app, host=host, port=port, log_level="info")
-

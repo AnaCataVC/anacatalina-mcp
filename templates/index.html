@@ -1306,7 +1306,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
           <span class="ping-ring"></span>
           <span class="ping-dot"></span>
         </span>
-        <span id="txt-status">Live en Google Cloud Run &bull; Transporte SSE Activo</span>
+        <span id="txt-status">Live en Google Cloud Run &bull; Streamable HTTP Activo</span>
       </div>
 
       <h1 class="hero-title">Ana-Catalina Villalobos Contardo</h1>
@@ -1346,8 +1346,8 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </p>
 
       <div class="tab-bar">
-        <button id="tab-cursor" class="tab-btn active" onclick="setTab('cursor')">Cursor (mcp.json &bull; SSE Directo)</button>
-        <button id="tab-claude" class="tab-btn" onclick="setTab('claude')">Claude Desktop (Puente stdio)</button>
+        <button id="tab-cursor" class="tab-btn active" onclick="setTab('cursor')">Cursor &amp; Windsurf (mcp.json)</button>
+        <button id="tab-claude-web" class="tab-btn" onclick="setTab('claude-web')">Claude.ai (Conector Web)</button>
         <button id="tab-cli" class="tab-btn" onclick="setTab('cli')">cURL / CLI Health</button>
       </div>
 
@@ -1464,7 +1464,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
        ========================================================================== */
     const I18N = {
       es: {
-        status: "Live en Google Cloud Run • Transporte SSE Activo",
+        status: "Live en Google Cloud Run • Streamable HTTP Activo",
         summary: "Data Scientist y Machine Learning Engineer con sólida experiencia en diseño e implementación de modelos de Machine Learning, pipelines analíticos escalables y arquitecturas basadas en agentes con Model Context Protocol (MCP). Especializada en Google Cloud Platform (BigQuery, Vertex AI), Python y Docker para optimización logística y soluciones de Inteligencia Artificial aplicada.",
         fitTitle: "Escenarios de Alineación Técnica (Ejemplos Fijos)",
         fitDesc: "Selecciona un perfil de mercado predefinido para inspeccionar la alineación técnica y fortalezas comprobadas en la trayectoria de Ana-Catalina:",
@@ -1474,7 +1474,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         toolsTitle: "Catálogo Oficial de 9 Herramientas MCP"
       },
       en: {
-        status: "Live on Google Cloud Run • SSE Transport Active",
+        status: "Live on Google Cloud Run • Streamable HTTP Active",
         summary: "Data Scientist and Machine Learning Engineer with solid experience in designing and deploying Machine Learning models, scalable analytical pipelines, and agentic architectures with Model Context Protocol (MCP). Specialized in Google Cloud Platform (BigQuery, Vertex AI), Python, and Docker containerization for logistics optimization and applied AI solutions.",
         fitTitle: "Technical Alignment Scenarios (Fixed Benchmarks)",
         fitDesc: "Select a predefined market role to inspect the verified technical alignment and proven track record of Ana-Catalina:",
@@ -1534,22 +1534,12 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       cursor: JSON.stringify({
         "mcpServers": {
           "anacatalina-cv": {
-            "url": "https://mcp.ana-catalina.com/sse"
+            "url": "https://mcp.ana-catalina.com/mcp"
           }
         }
       }, null, 2),
-      claude: JSON.stringify({
-        "mcpServers": {
-          "anacatalina-cv": {
-            "command": "python",
-            "args": ["conecta_cata.py"],
-            "env": {
-              "MCP_SERVER_SSE_URL": "https://mcp.ana-catalina.com/sse"
-            }
-          }
-        }
-      }, null, 2),
-      cli: `curl -N -H "Accept: text/event-stream" \\\n  https://mcp.ana-catalina.com/sse`
+      "claude-web": `// En Claude.ai -> Ajustes -> Conectores -> Agregar conector personalizado\n// URL del servidor (sin autenticación):\nhttps://mcp.ana-catalina.com/mcp`,
+      cli: `curl -X POST https://mcp.ana-catalina.com/mcp \\\n  -H "Content-Type: application/json" \\\n  -H "Accept: application/json, text/event-stream" \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'`
     };
 
     let currentLang = 'es';
@@ -1593,7 +1583,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
     function setTab(tab) {
       currentTab = tab;
       document.getElementById('tab-cursor').classList.toggle('active', tab === 'cursor');
-      document.getElementById('tab-claude').classList.toggle('active', tab === 'claude');
+      document.getElementById('tab-claude-web').classList.toggle('active', tab === 'claude-web');
       document.getElementById('tab-cli').classList.toggle('active', tab === 'cli');
       document.getElementById('code-content').textContent = CONFIGS[tab];
     }
