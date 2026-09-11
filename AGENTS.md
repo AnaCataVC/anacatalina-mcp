@@ -63,29 +63,38 @@ When generating, modifying, or querying data concerning the candidate, coding ag
 
 ```
 anacatalina-mcp/
+├── .agents/
+│   ├── agents/
+│   │   └── mcp-sync-auditor.md   # Master MCP Data Synchronization & Ecosystem Auditor Agent
+│   └── skills/
+│       └── sync-mcp-data/
+│           └── SKILL.md          # Cross-repository data audit & sync workflow instructions
 ├── data/
-│   └── cv_data.json            # In-memory single source of truth for the CV dataset
+│   └── cv_data.json              # In-memory single source of truth for the CV dataset
 ├── models/
 │   ├── __init__.py
-│   └── cv.py                   # Pydantic v2 models (PersonalInfo, ExperienceItem, Skills, etc.)
+│   └── cv.py                     # Pydantic v2 models (PersonalInfo, ExperienceItem, Skills, etc.)
+├── scripts/
+│   └── sync_mcp_data.py          # Native Python data audit and synchronization utility
 ├── services/
 │   ├── __init__.py
-│   └── cv_service.py           # In-memory CVService singleton, search, and benchmark engine
+│   └── cv_service.py             # In-memory CVService singleton, search, and benchmark engine
 ├── templates/
-│   ├── index.html              # Single-page Pastel-Tech showcase & deterministic playground
-│   └── poppy.svg               # Botanical poppy SVG watermark for UI background
+│   ├── index.html                # Single-page Pastel-Tech showcase & deterministic playground
+│   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
-│   └── test_server.py          # 27 automated tests (Streamable HTTP, MCP tools, REST APIs)
-├── Dockerfile                  # Container definition for Google Cloud Run
-├── pytest.ini                  # Pytest configuration (asyncio mode)
-├── requirements.txt            # Production runtime dependencies (pinned mcp<2)
-├── requirements-dev.txt        # Development dependencies (pytest, pytest-asyncio, httpx)
-├── server.py                   # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
-├── favicon.svg                 # Official ACVC geometric monogram SVG
-├── favicon.ico                 # Fallback favicon
-├── icon.png                    # Repository and client avatar
-├── AGENTS.md                   # This file
-└── README.md                   # Bilingual portfolio README
+│   ├── test_server.py            # 27 automated tests (Streamable HTTP, MCP tools, REST APIs)
+│   └── test_sync_script.py       # 6 automated tests for cross-repo synchronization engine
+├── Dockerfile                    # Container definition for Google Cloud Run
+├── pytest.ini                    # Pytest configuration (asyncio mode)
+├── requirements.txt              # Production runtime dependencies (pinned mcp<2)
+├── requirements-dev.txt          # Development dependencies (pytest, pytest-asyncio, httpx)
+├── server.py                     # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
+├── favicon.svg                   # Official ACVC geometric monogram SVG
+├── favicon.ico                   # Fallback favicon
+├── icon.png                      # Repository and client avatar
+├── AGENTS.md                     # This file
+└── README.md                     # Bilingual portfolio README
 ```
 
 ---
@@ -191,8 +200,14 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (27 tests)
+# Run full test suite (33 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
+
+# Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
+.venv\Scripts\python.exe scripts/sync_mcp_data.py --audit
+
+# Synchronize data/cv_data.json with sibling repositories
+.venv\Scripts\python.exe scripts/sync_mcp_data.py --sync
 
 # Run local development server (with hot reload)
 .venv\Scripts\uvicorn.exe server:app --reload --port 8080

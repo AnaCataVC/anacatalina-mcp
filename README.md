@@ -141,7 +141,17 @@ pip install -r requirements-dev.txt
 pytest tests/ -v
 ```
 
-### 3. Iniciar el Servidor MCP Local
+### 3. Sincronización y Auditoría de Datos (`anacatalina-cv` y `projects-hub`)
+
+```bash
+# Auditar consistencia con los repositorios hermanos
+python scripts/sync_mcp_data.py --audit
+
+# Sincronizar data/cv_data.json con las últimas actualizaciones
+python scripts/sync_mcp_data.py --sync
+```
+
+### 4. Iniciar el Servidor MCP Local
 
 ```bash
 uvicorn server:app --host 0.0.0.0 --port 8080 --reload
