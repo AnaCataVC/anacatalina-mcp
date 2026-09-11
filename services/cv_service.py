@@ -3,8 +3,9 @@ Curriculum service providing business logic, search, and filtering for structure
 """
 import json
 import os
+import re
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set, Tuple
 
 from models.cv import (
     CVData,
@@ -152,77 +153,144 @@ class CVService:
         }
 
     def evaluate_job_fit(self, scenario_or_description: str) -> FitEvaluationResult:
-        """Returns benchmark fit evaluation for predefined scenarios or matches to closest benchmark."""
-        key = scenario_or_description.lower().strip()
-        if key in FIXED_BENCHMARK_SCENARIOS:
-            return FIXED_BENCHMARK_SCENARIOS[key]
+        """Dynamically evaluates fit against candidate's real CV skills, technologies, and experience."""
+        text = scenario_or_description.strip()
+        lower_text = text.lower()
 
-        # Map by keyword if full scenario text is provided
-        if any(w in key for w in ["cantante", "pop", "chef", "pastelero", "música", "repostería"]):
-            return FIXED_BENCHMARK_SCENARIOS["pop-singer"]
-        if any(w in key for w in ["ruteo", "logística", "logistica", "flota", "vehicular", "transporte"]):
-            return FIXED_BENCHMARK_SCENARIOS["logistics"]
-        if any(w in key for w in ["mcp", "agente", "agent", "llm", "asistente"]):
-            return FIXED_BENCHMARK_SCENARIOS["agents"]
+        # Handle canonical preset aliases for seamless integration
+        if lower_text in ["data-science", "datascience"]:
+            query_text = "data science machine learning python gcp bigquery vertex ai docker analitica"
+        elif lower_text in ["logistics", "logistica", "logística"]:
+            query_text = "ruteo logistica optimizacion routing python docker sql telemetria flotas"
+        elif lower_text in ["agents", "agentes", "mcp-agents"]:
+            query_text = "mcp model context protocol agentes llm genai fastapi docker vertex ai python"
+        else:
+            query_text = lower_text
 
-        # Default benchmark: Senior Data Scientist
-        return FIXED_BENCHMARK_SCENARIOS["data-science"]
+        # 1. Detect matching technologies against CV skills catalog
+        matched_technologies: List[str] = []
+        seen_canonical: Set[str] = set()
+
+        for pattern, canonical_name in TECH_ALIAS_MAP:
+            if re.search(pattern, query_text, re.IGNORECASE):
+                if canonical_name not in seen_canonical:
+                    seen_canonical.add(canonical_name)
+                    matched_technologies.append(canonical_name)
+
+        # 2. Case: Zero technical matches (Non-technical or completely unrelated roles)
+        if not matched_technologies:
+            return FitEvaluationResult(
+                target_role_detected="Vacante Fuera de Especialidad / Sin Coincidencias Técnicas",
+                estimated_fit_score="0% (Sin Coincidencias Técnicas / Fuera de Especialidad)",
+                technologies_matched=[],
+                matching_strengths=[
+                    "La descripción analizada no presenta requerimientos técnicos coincidentes con las competencias centrales de Ana-Catalina (Data Science, Machine Learning, GCP, Python, MCP)."
+                ],
+                added_value_summary=(
+                    "No se detectó afinidad técnica directa entre el perfil solicitado y la trayectoria de Ana-Catalina. "
+                    "El agente evaluador puede confirmar con certeza objetiva que esta posición queda fuera de su especialidad técnica."
+                )
+            )
+
+        # 3. Calculate dynamic fit score based on matched tech density
+        count = len(matched_technologies)
+        if count >= 5:
+            score_str = f"{min(95, 80 + count * 3)}% (Alineación Excepcional)"
+        elif count >= 3:
+            score_str = f"{65 + count * 5}% (Alta Compatibilidad)"
+        else:
+            score_str = f"{min(50, count * 25)}% (Coincidencia Parcial)"
+
+        # 4. Generate contextual matching strengths from real career history
+        strengths: List[str] = []
+
+        simpliroute_techs = {"Python", "Google Cloud Platform (GCP)", "BigQuery", "Google Pub/Sub", "Apache Airflow", "Model Context Protocol (MCP)", "LLMs & GenAI", "Algoritmos de Ruteo & Logística", "Optimización Logística"}
+        matched_simpliroute = [t for t in matched_technologies if t in simpliroute_techs]
+        if matched_simpliroute:
+            strengths.append(
+                f"Experiencia en producción en SimpliRoute aplicando {', '.join(matched_simpliroute[:3])} en optimización logística y servidores MCP."
+            )
+
+        fracttal_techs = {"Python", "Machine Learning", "Estadística & Probabilidad", "ETLs & Pipelines de Datos", "PostgreSQL", "SQL", "Liderazgo Técnico"}
+        matched_fracttal = [t for t in matched_technologies if t in fracttal_techs]
+        if matched_fracttal:
+            strengths.append(
+                f"Trayectoria en Fracttal liderando pipelines analíticos, mantenimiento predictivo y despliegues con {', '.join(matched_fracttal[:3])}."
+            )
+
+        gcp_techs = {"Google Cloud Platform (GCP)", "BigQuery", "Vertex AI", "Google Cloud Run"}
+        matched_gcp = [t for t in matched_technologies if t in gcp_techs]
+        if matched_gcp:
+            strengths.append(
+                f"Dominio profundo del ecosistema de datos y cloud en Google Cloud ({', '.join(matched_gcp)})."
+            )
+
+        if not strengths:
+            strengths.append(
+                f"Competencias comprobadas en el stack técnico identificado: {', '.join(matched_technologies[:4])}."
+            )
+
+        # 5. Infer role classification
+        if any(t in matched_technologies for t in ["Model Context Protocol (MCP)", "Sistemas Multi-Agente"]):
+            role_detected = "Ingeniera en IA & Agentes Autónomos / Machine Learning Engineer"
+        elif any(t in matched_technologies for t in ["Algoritmos de Ruteo & Logística", "Optimización Logística"]):
+            role_detected = "Data Scientist Especialista en Ruteo & Logística"
+        elif any(t in matched_technologies for t in ["Vertex AI", "BigQuery", "Machine Learning", "Data Science & Modelamiento Predictivo"]):
+            role_detected = "Senior Data Scientist / Machine Learning Engineer"
+        else:
+            role_detected = "Especialista en Datos & Software / Machine Learning"
+
+        # 6. Synthesize added value
+        tech_list_str = ", ".join(matched_technologies[:4])
+        added_value = (
+            f"El perfil de Ana-Catalina ofrece alta sinergia en {tech_list_str}, combinando experiencia real en producción "
+            "en startups tecnológicas de alto crecimiento con sólida formación en ingeniería civil, analítica avanzada y modelamiento predictivo."
+        )
+
+        return FitEvaluationResult(
+            target_role_detected=role_detected,
+            estimated_fit_score=score_str,
+            technologies_matched=matched_technologies,
+            matching_strengths=strengths,
+            added_value_summary=added_value
+        )
 
 
-FIXED_BENCHMARK_SCENARIOS: Dict[str, FitEvaluationResult] = {
-    "data-science": FitEvaluationResult(
-        target_role_detected="Senior Data Scientist / Machine Learning Engineer",
-        estimated_fit_score="95% (Alineación Excepcional)",
-        technologies_matched=["Python", "Google Cloud Platform (GCP)", "BigQuery", "Vertex AI", "Docker"],
-        matching_strengths=[
-            "Experiencia real en producción optimizando modelos analíticos y pipelines en SimpliRoute y Fracttal.",
-            "Dominio profundo del stack moderno de datos en GCP (BigQuery + Vertex AI) y despliegues con Docker y FastAPI.",
-            "Capacidad probada para diseñar e implementar soluciones de IA aplicada y protocolos avanzados de agentes (MCP)."
-        ],
-        added_value_summary=(
-            "El perfil de Ana-Catalina presenta una alineación excepcional para roles de Senior Data Science y Machine Learning. "
-            "Aporta sólida experiencia directa en analítica predictiva sobre GCP y entrega en entornos de alta exigencia."
-        )
-    ),
-    "logistics": FitEvaluationResult(
-        target_role_detected="Data Scientist Especialista en Ruteo & Logística",
-        estimated_fit_score="90% (Alta Compatibilidad)",
-        technologies_matched=["Python", "Docker", "Optimización Logística", "Algoritmos de Ruteo", "SQL"],
-        matching_strengths=[
-            "Desarrollo y mantenimiento de algoritmos analíticos aplicados a logística de última milla en SimpliRoute.",
-            "Optimización de modelos sobre telemetría y operaciones vehiculares a escala regional en Latinoamérica.",
-            "Empaquetamiento y despliegue de microservicios con Docker y FastAPI."
-        ],
-        added_value_summary=(
-            "Experiencia comprobada en el sector logístico SaaS, combinando modelamiento matemático, ruteo y ciencia de datos aplicada a operaciones en tiempo real."
-        )
-    ),
-    "agents": FitEvaluationResult(
-        target_role_detected="Ingeniera en IA & Agentes Autónomos (MCP)",
-        estimated_fit_score="90% (Alta Compatibilidad)",
-        technologies_matched=["Model Context Protocol (MCP)", "Python", "FastAPI", "Docker", "Vertex AI"],
-        matching_strengths=[
-            "Implementación de servidores de Model Context Protocol (MCP) en producción con transporte Server-Sent Events (SSE).",
-            "Diseño de herramientas para LLMs y asistentes cognitivos (Claude Desktop, Cursor, APIs asíncronas).",
-            "Despliegues serverless conteinerizados en Google Cloud Run."
-        ],
-        added_value_summary=(
-            "Pionera en adopción de arquitecturas basadas en agentes con el estándar abierto MCP, integrando modelos de lenguaje con herramientas de producción."
-        )
-    ),
-    "pop-singer": FitEvaluationResult(
-        target_role_detected="Cantante Pop (Fuera de Especialidad Data/IA)",
-        estimated_fit_score="10% (Sin Alineación / Fuera de Especialidad)",
-        technologies_matched=[],
-        matching_strengths=[
-            "La vacante no presenta requerimientos técnicos compatibles con la especialización de Ana-Catalina."
-        ],
-        added_value_summary=(
-            "La posición descrita no requiere competencias de Data Science, Machine Learning ni desarrollo en Cloud. "
-            "El perfil de Ana-Catalina está enfocado exclusivamente en analítica avanzada, GCP y arquitecturas de IA."
-        )
-    )
-}
+# Mapping of regex search patterns to canonical CV technologies
+TECH_ALIAS_MAP: List[Tuple[str, str]] = [
+    (r"\bpython\b", "Python"),
+    (r"\bsql\b", "SQL"),
+    (r"\bbigquery\b", "BigQuery"),
+    (r"\bvertex\s*ai\b", "Vertex AI"),
+    (r"\bmcp\b|\bmodel\s+context\s+protocol\b", "Model Context Protocol (MCP)"),
+    (r"\bgcp\b|\bgoogle\s+cloud(\s+platform)?\b", "Google Cloud Platform (GCP)"),
+    (r"\bdocker\b", "Docker"),
+    (r"\bfastapi\b", "FastAPI"),
+    (r"\bairflow\b|\bapache\s+airflow\b", "Apache Airflow"),
+    (r"\bpub/?sub\b", "Google Pub/Sub"),
+    (r"\bpostgres(ql)?\b", "PostgreSQL"),
+    (r"\bmachine\s+learning\b|\bml\b", "Machine Learning"),
+    (r"\bdata\s+science\b|\bciencia\s+de\s+datos\b", "Data Science & Modelamiento Predictivo"),
+    (r"\bllms?\b|\bgenai\b|\bia\s+generativa\b|\bgenerative\s+ai\b", "LLMs & GenAI"),
+    (r"\bagentes?\b|\bmulti-?agent\b|\bsistemas\s+multi-?agente\b", "Sistemas Multi-Agente"),
+    (r"\bruteo\b|\brouting\b", "Algoritmos de Ruteo & Logística"),
+    (r"\blog[ií]stica\b|\blast\s+mile\b|\b[uú]ltima\s+milla\b|\bflotas?\b", "Optimización Logística"),
+    (r"\betls?\b|\bdata\s+pipelines?\b|\bpipelines?\s+de\s+datos\b", "ETLs & Pipelines de Datos"),
+    (r"\blangchain\b", "LangChain"),
+    (r"\btensorflow\b", "TensorFlow"),
+    (r"\bcloud\s+run\b", "Google Cloud Run"),
+    (r"\bprompt\s+engineering\b", "Prompt Engineering"),
+    (r"\bclaude(\s+code)?\b", "Claude Code"),
+    (r"\bestad[ií]stica\b", "Estadística & Probabilidad"),
+    (r"\bpredictiv[oa]\b", "Mantenimiento & Modelado Predictivo"),
+    (r"\btelemetr[ií]a\b", "Telemetría & IoT"),
+    (r"\bwinui\s*3?\b|\bxaml\b", "WinUI 3 (.NET 9 / XAML)"),
+    (r"\bc#\b|\b\.net\b", "C# (.NET)"),
+    (r"\btypescript\b", "TypeScript"),
+    (r"\bjavascript\b", "JavaScript"),
+    (r"\bgit\b|\bgithub\b", "Git & GitHub"),
+    (r"\bliderazgo(\s+t[eé]cnico)?\b|\bleadership\b", "Liderazgo Técnico"),
+]
 
 
 # Singleton instance

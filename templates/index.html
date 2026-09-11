@@ -1348,6 +1348,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       <div class="tab-bar">
         <button id="tab-cursor" class="tab-btn active" onclick="setTab('cursor')">Cursor &amp; Windsurf (mcp.json)</button>
         <button id="tab-claude-web" class="tab-btn" onclick="setTab('claude-web')">Claude.ai (Conector Web)</button>
+        <button id="tab-gemini" class="tab-btn" onclick="setTab('gemini')">Gemini (gemini.com)</button>
         <button id="tab-cli" class="tab-btn" onclick="setTab('cli')">cURL / CLI Health</button>
       </div>
 
@@ -1427,7 +1428,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         Selecciona un perfil de mercado predefinido para inspeccionar la alineación técnica y fortalezas comprobadas en la trayectoria de Ana-Catalina:
       </p>
 
-      <!-- Preset Chips (Fixed Examples Only) -->
+      <!-- Preset Chips (Curated Examples) -->
       <div class="preset-chips">
         <button id="chip-data-science" class="preset-chip active" onclick="selectScenario('data-science')">Senior Data Scientist (GCP + Vertex AI)</button>
         <button id="chip-logistics" class="preset-chip" onclick="selectScenario('logistics')">Especialista en Ruteo &amp; Logística</button>
@@ -1513,8 +1514,8 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         score: "90% (Alta Compatibilidad)",
         tags: ["Model Context Protocol (MCP)", "Python", "FastAPI", "Docker", "Vertex AI"],
         strengths: [
-          "Implementación de servidores de Model Context Protocol (MCP) en producción con transporte Server-Sent Events (SSE).",
-          "Diseño de herramientas para LLMs y asistentes cognitivos (Claude Desktop, Cursor, APIs asíncronas).",
+          "Implementación de servidores de Model Context Protocol (MCP) en producción con transporte Streamable HTTP.",
+          "Diseño de herramientas para LLMs y asistentes cognitivos (Claude.ai, Gemini, Cursor, APIs asíncronas).",
           "Despliegues serverless conteinerizados en Google Cloud Run."
         ],
         summary: "Pionera en adopción de arquitecturas basadas en agentes con el estándar abierto MCP, integrando modelos de lenguaje con herramientas de producción."
@@ -1539,6 +1540,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         }
       }, null, 2),
       "claude-web": `// En Claude.ai -> Ajustes -> Conectores -> Agregar conector personalizado\n// URL del servidor (sin autenticación):\nhttps://mcp.ana-catalina.com/mcp`,
+      gemini: `// En gemini.google.com -> Settings & help -> Connected Apps -> Custom apps for Spark -> Add a custom app\n// Requiere cuenta personal de Google, 18+, EE.UU. (función Gemini Spark)\n// URL del servidor:\nhttps://mcp.ana-catalina.com/mcp`,
       cli: `curl -X POST https://mcp.ana-catalina.com/mcp \\\n  -H "Content-Type: application/json" \\\n  -H "Accept: application/json, text/event-stream" \\\n  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'`
     };
 
@@ -1584,6 +1586,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       currentTab = tab;
       document.getElementById('tab-cursor').classList.toggle('active', tab === 'cursor');
       document.getElementById('tab-claude-web').classList.toggle('active', tab === 'claude-web');
+      document.getElementById('tab-gemini').classList.toggle('active', tab === 'gemini');
       document.getElementById('tab-cli').classList.toggle('active', tab === 'cli');
       document.getElementById('code-content').textContent = CONFIGS[tab];
     }

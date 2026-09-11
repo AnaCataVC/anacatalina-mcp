@@ -63,10 +63,10 @@ async def obtener_proyectos_destacados(
 
 @mcp.tool(
     name="evaluar_fit_puesto",
-    description="Devuelve la evaluación de alineación técnica para escenarios predefinidos o perfiles estándar de mercado (Senior Data Scientist, Especialista en Logística/Ruteo, Ingeniera en IA/Agentes MCP)."
+    description="Evalúa dinámicamente la afinidad técnica entre cualquier descripción de vacante o rol y el currículum de Ana-Catalina, identificando tecnologías coincidentes, nivel de compatibilidad objetivo (0% a 95%) y fortalezas laborales en SimpliRoute y Fracttal."
 )
 async def evaluar_fit_puesto(descripcion_vacante: str) -> FitEvaluationResult:
-    """Evalúa la alineación técnica entre un rol o escenario y el perfil de Ana-Catalina."""
+    """Evalúa la alineación técnica entre una vacante y el perfil de Ana-Catalina."""
     return cv_service.evaluate_job_fit(scenario_or_description=descripcion_vacante)
 
 

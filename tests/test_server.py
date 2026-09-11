@@ -124,11 +124,11 @@ async def test_tool_obtener_perfil():
 
 @pytest.mark.asyncio
 async def test_tool_evaluar_fit_puesto_sin_coincidencias():
-    """Tests evaluar_fit_puesto with negative benchmark scenario."""
-    result = await evaluar_fit_puesto(descripcion_vacante="pop-singer")
+    """Tests evaluar_fit_puesto with non-matching / unrelated job description."""
+    result = await evaluar_fit_puesto(descripcion_vacante="Buscamos cantante lírico para recitales y conciertos musicales.")
     assert result.technologies_matched == []
-    assert "10%" in result.estimated_fit_score
-    assert "no requiere" in result.added_value_summary
+    assert "0%" in result.estimated_fit_score
+    assert "No se detectó afinidad técnica" in result.added_value_summary
 
 
 @pytest.mark.asyncio
@@ -137,6 +137,18 @@ async def test_tool_evaluar_fit_puesto_logistics():
     result = await evaluar_fit_puesto(descripcion_vacante="logistics")
     assert "Optimización Logística" in result.technologies_matched
     assert any("SimpliRoute" in s for s in result.matching_strengths)
+
+
+@pytest.mark.asyncio
+async def test_tool_evaluar_fit_puesto_freeform_text():
+    """Tests evaluar_fit_puesto with arbitrary freeform job description."""
+    jd = "Requerimos profesional para desarrollo de agentes autónomos con MCP, FastAPI y Docker sobre Google Cloud."
+    result = await evaluar_fit_puesto(descripcion_vacante=jd)
+    assert "Model Context Protocol (MCP)" in result.technologies_matched
+    assert "FastAPI" in result.technologies_matched
+    assert "Docker" in result.technologies_matched
+    assert "Google Cloud Platform (GCP)" in result.technologies_matched
+    assert ("Alta" in result.estimated_fit_score or "Excepcional" in result.estimated_fit_score)
 
 
 def test_cv_service_missing_file(tmp_path):
@@ -206,14 +218,14 @@ def test_api_evaluate_fit_invalid_input():
 
 
 def test_api_evaluate_fit_negative_test():
-    """Tests POST /api/evaluate-fit with negative benchmark scenario."""
+    """Tests POST /api/evaluate-fit with non-matching / unrelated job description."""
     client = TestClient(app)
-    response = client.post("/api/evaluate-fit", json={"scenario": "pop-singer"})
+    response = client.post("/api/evaluate-fit", json={"job_description": "Chef de cocina internacional y repostería artesanal"})
     assert response.status_code == 200
     data = response.json()
     assert data["technologies_matched"] == []
-    assert "10%" in data["estimated_fit_score"]
-    assert "no requiere" in data["added_value_summary"]
+    assert "0%" in data["estimated_fit_score"]
+    assert "No se detectó afinidad técnica" in data["added_value_summary"]
 
 
 
