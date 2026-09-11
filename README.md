@@ -31,7 +31,7 @@ Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)**
 ### Características Principales
 - **Web Showcase & Playground Interactivo:** Servido en la raíz (`/`) y `/demo` bajo el *Pastel-Tech Design System*. Permite a reclutadores y visitantes humanos evaluar compatibilidad con vacantes y buscar en el currículum en tiempo real con latencia inferior a 5ms y resultados 100% verificables en memoria.
 - **Negociación Transparente de Contenido:** Devuelve una aplicación web responsiva si la petición proviene de un navegador (`Accept: text/html`) y el JSON de descubrimiento original si proviene de agentes o APIs.
-- **Transporte Moderno Streamable HTTP (`/mcp`):** Transporte nativo recomendado por la especificación MCP para conexiones directas desde **Claude.ai** (conectores personalizados) y **Cursor / Windsurf** (`mcp.json`).
+- **Transporte Moderno Streamable HTTP (`/mcp`):** Transporte nativo recomendado por la especificación MCP para conexiones directas desde **Claude.ai** (conectores personalizados), **Gemini** (gemini.com Connected Apps) y **Cursor / Windsurf** (`mcp.json`).
 - **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
 - **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
 
@@ -44,7 +44,7 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 ### Key Features
 - **Interactive Web Showcase & Playground:** Served at `/` and `/demo` using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
 - **Transparent HTTP Content Negotiation:** Serves the interactive web interface to browsers (`Accept: text/html`) while preserving the structured JSON discovery payload for programmatic agents and curl.
-- **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Claude.ai** (custom connectors) and **Cursor / Windsurf** (`mcp.json`).
+- **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Claude.ai** (custom connectors), **Gemini** (gemini.com Connected Apps) and **Cursor / Windsurf** (`mcp.json`).
 - **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
 
@@ -57,6 +57,7 @@ flowchart TD
     subgraph ClientLayer["Clientes MCP / AI Clients"]
         A["Claude.ai (Custom Connector)<br/>Streamable HTTP (POST /mcp)"]
         B["Cursor / Windsurf (mcp.json)<br/>Streamable HTTP (POST /mcp)"]
+        G["Gemini (gemini.com Connected Apps)<br/>Streamable HTTP (POST /mcp)"]
     end
 
     subgraph CloudLayer["Google Cloud Run / Serverless Host"]
@@ -68,6 +69,7 @@ flowchart TD
 
     A <-->|"JSON-RPC Streamable HTTP"| C
     B <-->|"JSON-RPC Streamable HTTP"| C
+    G <-->|"JSON-RPC Streamable HTTP"| C
     C <--> D
     D <--> E
     E <--> F
@@ -172,7 +174,19 @@ https://mcp.ana-catalina.com/mcp
 > [!TIP]
 > **En desarrollo local:** usa `http://localhost:8080/mcp` como URL del conector.
 
-### 2. Cursor & Windsurf (`mcp.json`)
+### 2. Gemini (gemini.com &mdash; Connected Apps)
+1. En [gemini.google.com](https://gemini.google.com): **Settings & help → Connected Apps** (si no aparece, entra primero a **Personal Intelligence → Connected Apps**).
+2. En "Custom apps for Spark", haz clic en **Add a custom app**.
+3. Pega la URL del servidor:
+```
+https://mcp.ana-catalina.com/mcp
+```
+4. Haz clic en **Next** y sigue las instrucciones en pantalla. Una vez conectado, invócalo escribiendo `@` en el chat.
+
+> [!NOTE]
+> Esta función (**Gemini Spark**) requiere cuenta personal de Google, 18+ años, ubicación en EE.UU. y "Keep Activity" habilitado — todavía no está disponible para todas las cuentas ni regiones.
+
+### 3. Cursor & Windsurf (`mcp.json`)
 Agrega el servidor en tu configuración de MCP (`~/.cursor/mcp.json` o settings de Cursor):
 
 ```json
@@ -213,7 +227,7 @@ gcloud run deploy anacatalina-mcp \
 ```
 
 > [!NOTE]
-> Las opciones `--timeout 3600` y `--session-affinity` son fundamentales para mantener conexiones SSE persistentes y estables en Cloud Run.
+> La opción `--timeout 3600` es fundamental para mantener estables las conexiones Streamable HTTP de larga duración en Cloud Run.
 
 ---
 

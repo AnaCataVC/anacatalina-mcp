@@ -197,12 +197,12 @@
     {
       "name": "Interactive MCP Curriculum & Agent Server",
       "type": "personal",
-      "description": "Servidor MCP oficial con transporte SSE montado sobre FastAPI para consulta interactiva de trayectoria profesional por parte de LLMs, preparado para despliegue Serverless en Google Cloud Run y puente local stdio.",
+      "description": "Servidor MCP oficial con transporte Streamable HTTP montado sobre FastAPI para consulta interactiva de trayectoria profesional por parte de LLMs (Claude.ai, Gemini, Cursor), preparado para despliegue Serverless en Google Cloud Run.",
       "technologies": [
         "Python",
         "Model Context Protocol (MCP)",
         "FastAPI",
-        "Server-Sent Events (SSE)",
+        "Streamable HTTP",
         "Docker",
         "Google Cloud Run"
       ],
