@@ -27,10 +27,10 @@
       "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Diseño e implementación de soluciones para la optimización de rutas y geolocalización, con foco en mejorar la precisión de georreferencias y aumentar la exactitud de ruteo.",
-        "Diseño y desarrollo de servidores Model Context Protocol (MCP) para el motor de optimización, permitiendo a modelos de lenguaje (LLMs) y agentes interactuar de forma segura y estructurada con el solucionador logístico.",
+        "Diseño e implementación de una arquitectura de geolocalización y geocodificación multi-proveedor, construyendo pipelines asíncronos con ejecución paralela de limpiadores y proveedores, políticas de fallback y timeout, estandarización de endpoints en microservicios y redacción automatizada de credenciales en logs.",
+        "Diseño y despliegue en producción de servidores Model Context Protocol (MCP) y consolas agénticas para motores logísticos, implementando control estricto de acceso a herramientas (tool-permission boundaries), mitigación de llamadas destructivas no confirmadas y persistencia de estado con Redis en Kubernetes.",
         "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos y datos utilizando Google Pub/Sub y Apache Airflow, asegurando alta calidad, trazabilidad y confiabilidad operativa.",
-        "Integración de LLMs y GenAI en procesos internos y productos, incorporando herramientas asistidas por IA como Claude Code para acelerar ciclos de iteración, optimizar pruebas y elevar la eficiencia operativa."
+        "Integración de LLMs y GenAI en procesos internos y productos, incorporando herramientas asistidas por IA como Claude Code y Antigravity para acelerar ciclos de iteración, optimizar pruebas y elevar la eficiencia operativa."
       ],
       "technologies": [
         "Python",
@@ -40,7 +40,10 @@
         "Airflow",
         "Model Context Protocol (MCP)",
         "LLMs & GenAI",
-        "Claude Code"
+        "Claude Code & Antigravity",
+        "FastAPI",
+        "Redis",
+        "Kubernetes"
       ]
     },
     {
@@ -70,7 +73,7 @@
       "type": "laboral",
       "responsibilities": [
         "Diseño e implementación de procesos de ciencia de datos para las plataformas Predictto y Fracttal One, con foco en generar valor a partir de datos operacionales de maquinaria.",
-        "Desarrollo de modelos analíticos aplicados a mantenimiento predictivo, priorización de activos y predicción de fallas, combinando ML, estadística y conocimiento del dominio.",
+        "Desarrollo de modelos analíticos aplicados a mantenimiento predictivo, priorización de activos y predicción de fallas combinando ML, estadística y conocimiento del dominio.",
         "Colaboración en la creación y desarrollo de producto para gestionar integraciones entre Fracttal y otras plataformas de software empresariales.",
         "Evaluación continua de modelos en producción, optimizando pipelines de datos para garantizar la precisión y robustez en entornos reales."
       ],
@@ -104,96 +107,339 @@
     {
       "category": "IA Agéntica & Machine Learning",
       "skills": [
-        {"name": "Sistemas Multi-Agente", "level": "Avanzado"},
-        {"name": "LLMs & GenAI", "level": "Avanzado"},
-        {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
-        {"name": "Claude Code & Antigravity", "level": "Avanzado"},
-        {"name": "Prompt Engineering", "level": "Avanzado"},
-        {"name": "Monitoreo de Modelos ML", "level": "Intermedio"},
-        {"name": "Automatización CI/CD con IA", "level": "Intermedio"}
+        {
+          "name": "Sistemas Multi-Agente",
+          "level": "Avanzado"
+        },
+        {
+          "name": "LLMs & GenAI",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Model Context Protocol (MCP)",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Claude Code & Antigravity",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Prompt Engineering",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Monitoreo de Modelos ML",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Automatización CI/CD con IA",
+          "level": "Intermedio"
+        }
       ]
     },
     {
       "category": "Ciencia de Datos & Librerías ML",
       "skills": [
-        {"name": "Vertex AI", "level": "Avanzado"},
-        {"name": "LangChain", "level": "Avanzado"},
-        {"name": "Analítica de Datos", "level": "Avanzado"},
-        {"name": "Estadística & Probabilidad", "level": "Avanzado"},
-        {"name": "TensorFlow", "level": "Intermedio"},
-        {"name": "Teoría de Grafos", "level": "Intermedio"}
+        {
+          "name": "Vertex AI",
+          "level": "Avanzado"
+        },
+        {
+          "name": "LangChain",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Analítica de Datos",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Estadística & Probabilidad",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Pandas & NumPy",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Scikit-learn",
+          "level": "Avanzado"
+        },
+        {
+          "name": "TensorFlow",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Teoría de Grafos",
+          "level": "Intermedio"
+        }
       ]
     },
     {
       "category": "Lenguajes de Programación",
       "skills": [
-        {"name": "Python", "level": "Avanzado"},
-        {"name": "SQL", "level": "Avanzado"},
-        {"name": "MATLAB", "level": "Intermedio"},
-        {"name": "JavaScript", "level": "Intermedio"},
-        {"name": "TypeScript", "level": "Intermedio"},
-        {"name": "Java", "level": "Intermedio"},
-        {"name": "C# (.NET)", "level": "Intermedio"}
+        {
+          "name": "Python",
+          "level": "Avanzado"
+        },
+        {
+          "name": "SQL",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Rust",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Kotlin",
+          "level": "Intermedio"
+        },
+        {
+          "name": "TypeScript",
+          "level": "Intermedio"
+        },
+        {
+          "name": "JavaScript",
+          "level": "Intermedio"
+        },
+        {
+          "name": "C# (.NET)",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Java",
+          "level": "Intermedio"
+        },
+        {
+          "name": "MATLAB",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Bash / Shell",
+          "level": "Intermedio"
+        }
       ]
     },
     {
       "category": "Frontend, Mobile & Desarrollo Web",
       "skills": [
-        {"name": "WinUI 3 (.NET 9 / XAML)", "level": "Intermedio"},
-        {"name": "FastHTML & HTMX", "level": "Intermedio"}
+        {
+          "name": ".NET 9 (WPF / WinUI 3)",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Android & Jetpack Compose",
+          "level": "Intermedio"
+        },
+        {
+          "name": "FastHTML & HTMX",
+          "level": "Intermedio"
+        },
+        {
+          "name": "React JS",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Astro",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Tailwind CSS",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Vite",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Streamlit",
+          "level": "Intermedio"
+        }
       ]
     },
     {
       "category": "Backend, Bases de Datos & Big Data",
       "skills": [
-        {"name": "BigQuery", "level": "Avanzado"},
-        {"name": "PostgreSQL", "level": "Avanzado"},
-        {"name": "ETLs", "level": "Avanzado"},
-        {"name": "Pub/Sub", "level": "Avanzado"},
-        {"name": "Django", "level": "Intermedio"},
-        {"name": "SQL Server", "level": "Intermedio"},
-        {"name": "MySQL", "level": "Intermedio"},
-        {"name": "SQLite", "level": "Intermedio"},
-        {"name": "MongoDB", "level": "Intermedio"},
-        {"name": "SQLModel", "level": "Intermedio"},
-        {"name": "Dexie.js (IndexedDB)", "level": "Básico"}
+        {
+          "name": "FastAPI",
+          "level": "Avanzado"
+        },
+        {
+          "name": "BigQuery",
+          "level": "Avanzado"
+        },
+        {
+          "name": "PostgreSQL",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Pub/Sub",
+          "level": "Avanzado"
+        },
+        {
+          "name": "ETLs",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Redis",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Pydantic",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Django",
+          "level": "Intermedio"
+        },
+        {
+          "name": "SQL Server",
+          "level": "Intermedio"
+        },
+        {
+          "name": "MySQL",
+          "level": "Intermedio"
+        },
+        {
+          "name": "SQLite",
+          "level": "Intermedio"
+        },
+        {
+          "name": "MongoDB",
+          "level": "Intermedio"
+        },
+        {
+          "name": "SQLModel",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Dexie.js (IndexedDB)",
+          "level": "Básico"
+        }
       ]
     },
     {
       "category": "Contenedores, Orquestación & Cloud",
       "skills": [
-        {"name": "Google Cloud Platform (GCP)", "level": "Avanzado"},
-        {"name": "Google Cloud Run & Artifact Registry", "level": "Avanzado"},
-        {"name": "Docker", "level": "Avanzado"},
-        {"name": "Airflow", "level": "Avanzado"},
-        {"name": "Git", "level": "Avanzado"},
-        {"name": "GitHub", "level": "Avanzado"},
-        {"name": "Kubernetes", "level": "Intermedio"},
-        {"name": "Bitbucket", "level": "Intermedio"},
-        {"name": "Vercel", "level": "Intermedio"}
+        {
+          "name": "Google Cloud Platform (GCP)",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Google Cloud Run & Artifact Registry",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Docker",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Airflow",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Git",
+          "level": "Avanzado"
+        },
+        {
+          "name": "GitHub",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Kubernetes",
+          "level": "Intermedio"
+        },
+        {
+          "name": "ArgoCD",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Bitbucket",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Vercel",
+          "level": "Intermedio"
+        }
       ]
     },
     {
       "category": "Metodologías & Gestión de Producto",
       "skills": [
-        {"name": "Metodologías Ágiles", "level": "Avanzado"},
-        {"name": "Planificación de Roadmaps", "level": "Avanzado"},
-        {"name": "Diseño de Sistemas", "level": "Avanzado"},
-        {"name": "Test-Driven Development (TDD)", "level": "Avanzado"}
+        {
+          "name": "Metodologías Ágiles",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Planificación de Roadmaps",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Diseño de Sistemas",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Test-Driven Development (TDD)",
+          "level": "Avanzado"
+        }
       ]
     },
     {
       "category": "Liderazgo & Habilidades Blandas",
       "skills": [
-        {"name": "Liderazgo Técnico", "level": "Avanzado"},
-        {"name": "Team Building", "level": "Avanzado"},
-        {"name": "Colaboración Cross-functional", "level": "Avanzado"},
-        {"name": "Comunicación Efectiva", "level": "Avanzado"},
-        {"name": "Resolución de Problemas", "level": "Avanzado"}
+        {
+          "name": "Liderazgo Técnico",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Team Building",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Colaboración Cross-functional",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Comunicación Efectiva",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Resolución de Problemas",
+          "level": "Avanzado"
+        }
       ]
     }
   ],
   "projects": [
+    {
+      "name": "Cute Agents Desk",
+      "type": "personal",
+      "description": "Panel de control y despacho de escritorio en Electron para coordinar agentes de IA CLI (Claude Code y Antigravity) en paralelo con aislamiento estricto por Git Worktrees y buzón interactivo PTY.",
+      "technologies": [
+        "Electron",
+        "Node.js",
+        "Claude Code",
+        "Antigravity CLI",
+        "Git Worktrees",
+        "ES Modules"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/cute-agents-desk",
+      "demo_url": null
+    },
+    {
+      "name": "Work Activity Panel",
+      "type": "personal",
+      "description": "Aplicación de escritorio nativa para Windows 11 en WinUI 3 y .NET 9 que optimiza la jornada laboral: auto-inicia herramientas, sincroniza Google Calendar con soporte RRULE, emite alertas emergentes con unión directa y conmuta cuentas GitHub CLI.",
+      "technologies": [
+        "WinUI 3",
+        ".NET 9",
+        "C#",
+        "Windows App SDK",
+        "Google Calendar API",
+        "GitHub CLI"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/work-activity-panel",
+      "demo_url": "https://work-activity-panel.ana-catalina.com"
+    },
     {
       "name": "Interactive MCP Curriculum & Agent Server",
       "type": "personal",
