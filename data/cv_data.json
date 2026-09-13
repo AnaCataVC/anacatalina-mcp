@@ -27,10 +27,10 @@
       "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Diseño e implementación de una arquitectura de geolocalización y geocodificación multi-proveedor, construyendo pipelines asíncronos con ejecución paralela de limpiadores y proveedores, políticas de fallback y timeout, estandarización de endpoints en microservicios y redacción automatizada de credenciales en logs.",
-        "Diseño y despliegue en producción de servidores Model Context Protocol (MCP) y consolas agénticas para motores logísticos, implementando control estricto de acceso a herramientas (tool-permission boundaries), mitigación de llamadas destructivas no confirmadas y persistencia de estado con Redis en Kubernetes.",
-        "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos y datos utilizando Google Pub/Sub y Apache Airflow, asegurando alta calidad, trazabilidad y confiabilidad operativa.",
-        "Integración de LLMs y GenAI en procesos internos y productos, incorporando herramientas asistidas por IA como Claude Code y Antigravity para acelerar ciclos de iteración, optimizar pruebas y elevar la eficiencia operativa."
+        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos.",
+        "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes.",
+        "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica.",
+        "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa."
       ],
       "technologies": [
         "Python",
@@ -214,6 +214,10 @@
           "level": "Intermedio"
         },
         {
+          "name": "Node.js",
+          "level": "Intermedio"
+        },
+        {
           "name": "Bash / Shell",
           "level": "Intermedio"
         }
@@ -252,6 +256,18 @@
         },
         {
           "name": "Streamlit",
+          "level": "Intermedio"
+        },
+        {
+          "name": "HTML & CSS",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Plotly / Dash",
+          "level": "Intermedio"
+        },
+        {
+          "name": "Figma",
           "level": "Intermedio"
         }
       ]
@@ -379,6 +395,14 @@
         },
         {
           "name": "Test-Driven Development (TDD)",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Jira",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Notion",
           "level": "Avanzado"
         }
       ]

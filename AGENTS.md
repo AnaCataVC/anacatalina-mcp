@@ -84,7 +84,7 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_server.py            # 28 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets)
-│   └── test_sync_script.py       # 6 automated tests for cross-repo synchronization engine
+│   └── test_sync_script.py       # 9 automated tests for cross-repo synchronization engine
 ├── Dockerfile                    # Container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
 ├── requirements.txt              # Production runtime dependencies (pinned mcp<2)
@@ -203,7 +203,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (34 tests)
+# Run full test suite (37 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)

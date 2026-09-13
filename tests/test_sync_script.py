@@ -7,7 +7,10 @@ from models.cv import CVData
 from scripts.sync_mcp_data import (
     clean_html,
     parse_i18n_js,
+    parse_cv_ts,
     parse_project_markdown,
+    normalize_skill,
+    parse_skills_from_cv_astro,
     DataAuditor
 )
 
@@ -97,3 +100,70 @@ def test_auditor_audit_executes_cleanly():
     assert "stats" in report
     assert "discrepancies" in report
     assert isinstance(report["in_sync"], bool)
+
+
+def test_normalize_skill():
+    assert normalize_skill("Google Cloud (GCP)") == "google cloud platform (gcp)"
+    assert normalize_skill("NodeJS") == "node.js"
+    assert normalize_skill("Plotly/Dash") == "plotly / dash"
+    assert normalize_skill("Python") == "python"
+
+
+def test_parse_skills_from_cv_astro(tmp_path: Path):
+    astro_file = tmp_path / "index.astro"
+    astro_file.write_text(
+        '<section id="skills">\n'
+        '  <div class="skill-group reveal">\n'
+        '    <h3>Category 1</h3>\n'
+        '    <span class="rounded-lg">Skill Alpha</span>\n'
+        '    <span class="rounded-lg"><span data-i18n="test">Skill Beta</span></span>\n'
+        '  </div>\n'
+        '  <div data-category="test" class="skill-group reveal">\n'
+        '    <h3>Category 2</h3>\n'
+        '    <span class="rounded-lg">Skill Gamma</span>\n'
+        '  </div>\n'
+        '</section>\n',
+        encoding="utf-8"
+    )
+    parsed = parse_skills_from_cv_astro(astro_file)
+    assert "Category 1" in parsed
+    assert "Skill Alpha" in parsed["Category 1"]
+    assert "Skill Beta" in parsed["Category 1"]
+    assert "Category 2" in parsed
+    assert "Skill Gamma" in parsed["Category 2"]
+
+
+def test_parse_cv_ts(tmp_path: Path):
+    ts_file = tmp_path / "cv.ts"
+    ts_file.write_text(
+        'export const cvData = {\n'
+        '  basics: {\n'
+        '    contact: {\n'
+        '      title: { es: "Data Scientist", en: "Data Scientist" },\n'
+        '      location: { es: "Chile", en: "Chile" }\n'
+        '    }\n'
+        '  },\n'
+        '  experience: [\n'
+        '    {\n'
+        '      id: "simpliroute",\n'
+        '      company: "SimpliRoute",\n'
+        '      role: { es: "Learning Engineer", en: "Learning Engineer" },\n'
+        '      date: { es: "Agosto 2025 - Presente", en: "August 2025 - Present" },\n'
+        '      location: { es: "Santiago (Remoto)", en: "Santiago (Remote)" },\n'
+        '      bullets: [\n'
+        '        { es: "<strong>Arquitectura</strong> multi-proveedor.", en: "Multi-provider architecture." }\n'
+        '      ],\n'
+        '      pdfBullets: []\n'
+        '    }\n'
+        '  ]\n'
+        '};\n',
+        encoding="utf-8"
+    )
+    res = parse_cv_ts(ts_file)
+    assert res["hero.subtitle"]["es"] == "Data Scientist"
+    assert res["exp.simpliroute.title"]["es"] == "Learning Engineer"
+    assert res["exp.simpliroute.date"]["es"] == "Agosto 2025 - Presente"
+    assert "Arquitectura multi-proveedor." in res["exp.simpliroute.b1"]["es"]
+    assert "<strong>" not in res["exp.simpliroute.b1"]["es"]
+
+

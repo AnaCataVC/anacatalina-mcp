@@ -47,43 +47,112 @@ def clean_html(raw_html: str) -> str:
     return clean.strip()
 
 
+def parse_cv_ts(cv_ts_path: Path) -> Dict[str, Dict[str, str]]:
+    """
+    Extract structured text from anacatalina-cv/src/data/cv.ts SSOT file.
+    Maps hero keys and experience keys (e.g. 'exp.simpliroute.b1', 'exp.simpliroute.date').
+    """
+    if not cv_ts_path.exists():
+        return {}
+
+    content = cv_ts_path.read_text(encoding="utf-8")
+    trans: Dict[str, Dict[str, str]] = {}
+
+    title_m = re.search(r'title:\s*\{\s*es:\s*[\'"]([^\'"]+)[\'"],\s*en:\s*[\'"]([^\'"]+)[\'"]', content)
+    if title_m:
+        trans["hero.subtitle"] = {"es": clean_html(title_m.group(1)), "en": clean_html(title_m.group(2))}
+
+    loc_m = re.search(r'location:\s*\{\s*es:\s*[\'"]([^\'"]+)[\'"],\s*en:\s*[\'"]([^\'"]+)[\'"]', content)
+    if loc_m:
+        trans["hero.location"] = {"es": clean_html(loc_m.group(1)), "en": clean_html(loc_m.group(2))}
+
+    exp_pattern = re.compile(
+        r'\{\s*id:\s*[\'"]([^\'"]+)[\'"].*?company:\s*[\'"]([^\'"]+)[\'"].*?role:\s*\{([^}]+)\}.*?date:\s*\{([^}]+)\}.*?location:\s*\{([^}]+)\}.*?bullets:\s*\[(.*?)\]\s*,\s*pdfBullets',
+        re.DOTALL
+    )
+    for m in exp_pattern.finditer(content):
+        exp_id = m.group(1)
+        role_body, date_body, loc_body, bullets_raw = m.group(3), m.group(4), m.group(5), m.group(6)
+
+        for key_suffix, body in [("title", role_body), ("date", date_body), ("location", loc_body)]:
+            es_m = re.search(r'es\s*:\s*[\'"`](.*?)[\'"`]', body)
+            en_m = re.search(r'en\s*:\s*[\'"`](.*?)[\'"`]', body)
+            trans[f"exp.{exp_id}.{key_suffix}"] = {
+                "es": clean_html(es_m.group(1)) if es_m else "",
+                "en": clean_html(en_m.group(1)) if en_m else ""
+            }
+
+        bullet_items = re.findall(r'\{\s*es:\s*([\'"`].*?[\'"`])\s*,\s*en:\s*([\'"`].*?[\'"`])\s*\}', bullets_raw, re.DOTALL)
+        for idx, (es, en) in enumerate(bullet_items):
+            trans[f"exp.{exp_id}.b{idx+1}"] = {
+                "es": clean_html(es[1:-1]),
+                "en": clean_html(en[1:-1])
+            }
+
+    return trans
+
+
 def parse_i18n_js(file_path: Path) -> Dict[str, Dict[str, str]]:
     """
     Parse export const translations = { ... } from anacatalina-cv/src/i18n.js
+    Also parses and merges structured data from anacatalina-cv/src/data/cv.ts if present.
     Returns a dictionary mapping string keys to {'es': '...', 'en': '...'}.
     """
-    if not file_path.exists():
-        return {}
-
-    content = file_path.read_text(encoding="utf-8")
     translations: Dict[str, Dict[str, str]] = {}
 
-    block_pattern = re.compile(
-        r'["\']([^"\']+)["\']\s*:\s*\{([^}]+)\}',
-        re.DOTALL
-    )
+    if file_path.exists():
+        content = file_path.read_text(encoding="utf-8")
+        block_pattern = re.compile(
+            r'["\']([^"\']+)["\']\s*:\s*\{([^}]+)\}',
+            re.DOTALL
+        )
 
-    for match in block_pattern.finditer(content):
-        key = match.group(1)
-        body = match.group(2)
+        for match in block_pattern.finditer(content):
+            key = match.group(1)
+            body = match.group(2)
 
-        es_match = re.search(r'es\s*:\s*["\'`](.*?)["\'`]\s*(?:,|$)', body, re.DOTALL)
-        en_match = re.search(r'en\s*:\s*["\'`](.*?)["\'`]\s*(?:,|$)', body, re.DOTALL)
+            es_match = re.search(r'es\s*:\s*["\'`](.*?)["\'`]\s*(?:,|$)', body, re.DOTALL)
+            en_match = re.search(r'en\s*:\s*["\'`](.*?)["\'`]\s*(?:,|$)', body, re.DOTALL)
 
-        es_val = clean_html(es_match.group(1)) if es_match else ""
-        en_val = clean_html(en_match.group(1)) if en_match else ""
+            es_val = clean_html(es_match.group(1)) if es_match else ""
+            en_val = clean_html(en_match.group(1)) if en_match else ""
 
-        translations[key] = {
-            "es": es_val,
-            "en": en_val
-        }
+            translations[key] = {
+                "es": es_val,
+                "en": en_val
+            }
+
+    # If sibling SSOT cv.ts exists, merge it so keys referencing cvData are fully resolved
+    cv_ts_path = file_path.parent / "data" / "cv.ts"
+    if cv_ts_path.exists():
+        translations.update(parse_cv_ts(cv_ts_path))
 
     return translations
+
+
+SKILL_ALIASES: Dict[str, str] = {
+    "google cloud (gcp)": "google cloud platform (gcp)",
+    "gcp": "google cloud platform (gcp)",
+    "google cloud": "google cloud platform (gcp)",
+    "node": "node.js",
+    "nodejs": "node.js",
+    "html & css": "html & css",
+    "html/css": "html & css",
+    "plotly / dash": "plotly / dash",
+    "plotly/dash": "plotly / dash",
+}
+
+
+def normalize_skill(name: str) -> str:
+    """Normalize skill name for comparison and alias resolution."""
+    cleaned = re.sub(r"\s+", " ", name).strip().lower()
+    return SKILL_ALIASES.get(cleaned, cleaned)
 
 
 def parse_skills_from_cv_astro(astro_path: Path) -> Dict[str, List[str]]:
     """
     Extract skill badge names grouped by category from anacatalina-cv/src/pages/index.astro.
+    Captures all skill-group containers regardless of whether data-category is present.
     """
     if not astro_path.exists():
         return {}
@@ -91,26 +160,32 @@ def parse_skills_from_cv_astro(astro_path: Path) -> Dict[str, List[str]]:
     content = astro_path.read_text(encoding="utf-8")
     categories: Dict[str, List[str]] = {}
 
-    # Category mappings based on data-category or headings
-    category_regex = re.compile(
-        r'<div[^>]*data-category=["\']([^"\']+)["\'][^>]*>(.*?)</div>\s*(?:<!--|\s*<div)',
+    skills_sec_match = re.search(
+        r'<section[^>]*id=["\']skills["\'][^>]*>(.*?)</section>',
+        content,
         re.DOTALL
     )
+    search_text = skills_sec_match.group(1) if skills_sec_match else content
 
-    for match in category_regex.finditer(content):
-        cat_id = match.group(1)
-        cat_html = match.group(2)
+    group_splits = re.split(r'<div[^>]*class=["\'][^"\']*skill-group[^"\']*["\'][^>]*>', search_text)
+    badge_regex = re.compile(
+        r'<span[^>]*class=["\'][^"\']*rounded-lg[^"\']*["\'][^>]*>(.*?)</span>',
+        re.DOTALL
+    )
+    title_regex = re.compile(r'<h3[^>]*>(.*?)</h3>', re.DOTALL)
 
-        # Extract text from spans with badge classes
-        badge_regex = re.compile(r'<span[^>]*class=["\'][^"\']*rounded-lg[^"\']*["\'][^>]*>(.*?)</span>', re.DOTALL)
-        skills = []
-        for b in badge_regex.finditer(cat_html):
-            badge_content = clean_html(b.group(1))
-            if badge_content and not badge_content.startswith("<"):
-                skills.append(badge_content)
+    for block in group_splits[1:]:
+        h3_match = title_regex.search(block)
+        category_name = clean_html(h3_match.group(1)) if h3_match else "General"
+
+        skills: List[str] = []
+        for b in badge_regex.finditer(block):
+            badge_text = clean_html(b.group(1))
+            if badge_text and not badge_text.startswith("<"):
+                skills.append(badge_text)
 
         if skills:
-            categories[cat_id] = skills
+            categories[category_name] = skills
 
     return categories
 
@@ -257,25 +332,22 @@ class DataAuditor:
             experiences = current_data.get("experience", [])
             simpli_item = next((e for e in experiences if e.get("company") == "SimpliRoute"), None)
             if simpli_item:
-                target_b1 = cv_translations.get("exp.simpliroute.b1", {}).get("es")
-                if target_b1 and target_b1 not in simpli_item.get("responsibilities", []):
-                    report["discrepancies"].append({
-                        "component": "experience.SimpliRoute.b1",
-                        "issue": "SimpliRoute b1 responsibilities in anacatalina-cv have been enriched (multi-provider geocoding architecture)"
-                    })
-                    report["in_sync"] = False
-
-                target_b2 = cv_translations.get("exp.simpliroute.b2", {}).get("es")
-                if target_b2 and target_b2 not in simpli_item.get("responsibilities", []):
-                    report["discrepancies"].append({
-                        "component": "experience.SimpliRoute.b2",
-                        "issue": "SimpliRoute b2 responsibilities in anacatalina-cv have been enriched (MCP servers, Redis on Kubernetes, tool-permission boundaries)"
-                    })
-                    report["in_sync"] = False
+                current_resps = simpli_item.get("responsibilities", [])
+                for b_idx in range(1, 5):
+                    target_b = cv_translations.get(f"exp.simpliroute.b{b_idx}", {}).get("es")
+                    if target_b and (
+                        b_idx > len(current_resps)
+                        or target_b != current_resps[b_idx - 1]
+                    ):
+                        report["discrepancies"].append({
+                            "component": f"experience.SimpliRoute.b{b_idx}",
+                            "issue": f"SimpliRoute b{b_idx} wording updated in anacatalina-cv: '{target_b[:70]}...'"
+                        })
+                        report["in_sync"] = False
 
         # 2. Audit Skills Matrix (Dynamically compare against anacatalina-cv index.astro & i18n)
         all_current_skills = {
-            s.get("name").lower()
+            normalize_skill(s.get("name", ""))
             for cat in current_data.get("skills", [])
             for s in cat.get("skills", [])
         }
@@ -290,11 +362,14 @@ class DataAuditor:
         missing_skills = []
         for s in all_astro_skills:
             s_clean = s.strip()
-            s_lower = s_clean.lower()
+            s_norm = normalize_skill(s_clean)
             # Check if skill exists or is alias / matched in current skills
-            matched = any(
-                s_lower == curr or curr in s_lower or s_lower in curr
-                for curr in all_current_skills
+            matched = (
+                s_norm in all_current_skills
+                or any(
+                    s_norm == curr or (len(s_norm) > 4 and (s_norm in curr or curr in s_norm))
+                    for curr in all_current_skills
+                )
             )
             if not matched:
                 missing_skills.append(s_clean)
@@ -375,10 +450,10 @@ class DataAuditor:
                 "location": cv_translations.get("exp.simpliroute.location", {}).get("es", "Santiago, Chile (Remoto)"),
                 "type": "laboral",
                 "responsibilities": [
-                    cv_translations.get("exp.simpliroute.b1", {}).get("es", "Diseño e implementación de una arquitectura de geolocalización y geocodificación multi-proveedor, construyendo pipelines asíncronos con ejecución paralela de limpiadores y proveedores, políticas de fallback y timeout, estandarización de endpoints en microservicios y redacción automatizada de credenciales en logs."),
-                    cv_translations.get("exp.simpliroute.b2", {}).get("es", "Diseño y despliegue en producción de servidores Model Context Protocol (MCP) y consolas agénticas para motores logísticos, implementando control estricto de acceso a herramientas (tool-permission boundaries), mitigación de llamadas destructivas no confirmadas y persistencia de estado con Redis en Kubernetes."),
-                    cv_translations.get("exp.simpliroute.b3", {}).get("es", "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos y datos utilizando Google Pub/Sub y Apache Airflow, asegurando alta calidad, trazabilidad y confiabilidad operativa."),
-                    cv_translations.get("exp.simpliroute.b4", {}).get("es", "Integración de LLMs y GenAI en procesos internos y productos, incorporando herramientas asistidas por IA como Claude Code y Antigravity para acelerar ciclos de iteración, optimizar pruebas y elevar la eficiencia operativa.")
+                    cv_translations.get("exp.simpliroute.b1", {}).get("es", "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos."),
+                    cv_translations.get("exp.simpliroute.b2", {}).get("es", "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes."),
+                    cv_translations.get("exp.simpliroute.b3", {}).get("es", "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica."),
+                    cv_translations.get("exp.simpliroute.b4", {}).get("es", "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa.")
                 ],
                 "technologies": [
                     "Python",
@@ -491,6 +566,7 @@ class DataAuditor:
                     {"name": "C# (.NET)", "level": "Intermedio"},
                     {"name": "Java", "level": "Intermedio"},
                     {"name": "MATLAB", "level": "Intermedio"},
+                    {"name": "Node.js", "level": "Intermedio"},
                     {"name": "Bash / Shell", "level": "Intermedio"}
                 ]
             },
@@ -504,7 +580,10 @@ class DataAuditor:
                     {"name": "Astro", "level": "Intermedio"},
                     {"name": "Tailwind CSS", "level": "Intermedio"},
                     {"name": "Vite", "level": "Intermedio"},
-                    {"name": "Streamlit", "level": "Intermedio"}
+                    {"name": "Streamlit", "level": "Intermedio"},
+                    {"name": "HTML & CSS", "level": "Intermedio"},
+                    {"name": "Plotly / Dash", "level": "Intermedio"},
+                    {"name": "Figma", "level": "Intermedio"}
                 ]
             },
             {
@@ -547,7 +626,9 @@ class DataAuditor:
                     {"name": "Metodologías Ágiles", "level": "Avanzado"},
                     {"name": "Planificación de Roadmaps", "level": "Avanzado"},
                     {"name": "Diseño de Sistemas", "level": "Avanzado"},
-                    {"name": "Test-Driven Development (TDD)", "level": "Avanzado"}
+                    {"name": "Test-Driven Development (TDD)", "level": "Avanzado"},
+                    {"name": "Jira", "level": "Avanzado"},
+                    {"name": "Notion", "level": "Avanzado"}
                 ]
             },
             {
