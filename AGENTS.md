@@ -83,7 +83,7 @@ anacatalina-mcp/
 │   ├── index.html                # Single-page Pastel-Tech showcase & deterministic playground
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
-│   ├── test_server.py            # 27 automated tests (Streamable HTTP, MCP tools, REST APIs)
+│   ├── test_server.py            # 28 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets)
 │   └── test_sync_script.py       # 6 automated tests for cross-repo synchronization engine
 ├── Dockerfile                    # Container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
@@ -145,6 +145,9 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
+| `/icon.png` | `GET` | `image/png` | Serves the official robot avatar mascot image displayed in `README.md` and the Hero showcase. |
+| `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG monogram. |
+| `/favicon.ico` | `GET` | `image/x-icon` | Serves the fallback favicon. |
 
 ---
 
@@ -200,7 +203,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (33 tests)
+# Run full test suite (34 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)

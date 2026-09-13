@@ -190,6 +190,15 @@ async def favicon_ico(request: Request):
     return Response(status_code=404)
 
 
+@mcp.custom_route("/icon.png", methods=["GET"])
+async def icon_png(request: Request):
+    """Serves the official robot avatar icon."""
+    png_path = Path(__file__).resolve().parent / "icon.png"
+    if png_path.exists():
+        return FileResponse(png_path, media_type="image/png")
+    return Response(status_code=404)
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     """Health check endpoint for Google Cloud Run container liveness."""

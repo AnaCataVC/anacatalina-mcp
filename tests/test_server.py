@@ -179,12 +179,23 @@ def test_root_browser_content_negotiation_html():
 
 
 def test_demo_endpoint():
-    """Tests direct /demo route returns the HTML showcase."""
+    """Tests direct /demo route returns the HTML showcase with the robot avatar."""
     client = TestClient(app)
     res = client.get("/demo")
     assert res.status_code == 200
     assert "text/html" in res.headers["content-type"]
     assert "Alineación" in res.text or "Interactive" in res.text
+    assert "/icon.png" in res.text
+    assert "hero-avatar" in res.text
+
+
+def test_icon_png_endpoint():
+    """Tests that /icon.png returns the robot avatar with image/png content type."""
+    client = TestClient(app)
+    res = client.get("/icon.png")
+    assert res.status_code == 200
+    assert "image/png" in res.headers["content-type"]
+    assert len(res.content) > 1000
 
 
 def test_api_evaluate_fit_success():
