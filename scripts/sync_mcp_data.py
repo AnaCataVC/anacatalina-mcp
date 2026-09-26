@@ -673,7 +673,7 @@ class DataAuditor:
                     "GitHub CLI"
                 ],
                 "repo_url": "https://github.com/AnaCataVC/work-activity-panel",
-                "demo_url": "https://work-activity-panel.ana-catalina.com"
+                "demo_url": "https://github.com/AnaCataVC/work-activity-panel"
             },
             {
                 "name": "Interactive MCP Curriculum & Agent Server",

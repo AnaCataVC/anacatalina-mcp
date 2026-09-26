@@ -10,7 +10,7 @@ Official **Model Context Protocol (MCP)** server and interactive showcase for **
 
 The repository serves a dual-purpose architecture:
 1. **Programmatic / Agent Interface:** Official FastMCP server operating over modern **Streamable HTTP** at `/mcp`, with JSON discovery at `/`. Enables AI agents (Claude.ai Custom Connectors, Gemini Connected Apps, Cursor, Windsurf) to query Ana-Catalina's professional background, skills, and projects with structured JSON responses.
-2. **Human / Evaluator Interface:** A single-page web showcase served at `/` and `/demo` via transparent HTTP content negotiation (`Accept: text/html`). Allows technical recruiters and engineering managers to see what the mcp offers.
+2. **Human / Evaluator Interface:** A single-page web showcase served at `/demo`; browser requests to `/` (`Accept: text/html`) get a 301 redirect to the product page at `https://projects.ana-catalina.com/p/anacatalina-mcp/`. Allows technical recruiters and engineering managers to see what the mcp offers.
 
 **Live Production URLs:**
 - Primary Custom Domain: [https://mcp.ana-catalina.com/](https://mcp.ana-catalina.com/)
@@ -137,7 +137,7 @@ In `server.py`, the Starlette application routes requests as follows:
 
 | Route | Method | Content-Type | Behavior |
 | :--- | :--- | :--- | :--- |
-| `/` | `GET` | `text/html` or `application/json` | **Transparent Content Negotiation:** If `Accept: text/html` is present (browsers), serves the web showcase. Otherwise serves JSON discovery metadata. |
+| `/` | `GET` | `301 redirect` or `application/json` | **Transparent Content Negotiation:** If `Accept: text/html` is present (browsers), returns a 301 redirect to the product page (`https://projects.ana-catalina.com/p/anacatalina-mcp/`). Otherwise serves JSON discovery metadata. |
 | `/demo` | `GET` | `text/html` | Direct access to the web showcase and interactive playground. |
 | `/mcp` | `POST` | `application/json` or `text/event-stream` | **Streamable HTTP MCP Endpoint:** Unified MCP transport for Claude.ai, Gemini, Cursor, and modern AI clients. |
 | `/health` | `GET` | `application/json` | Cloud Run container liveness probe. |
