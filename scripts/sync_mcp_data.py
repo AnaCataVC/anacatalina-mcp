@@ -208,8 +208,12 @@ def parse_project_markdown(file_path: Path) -> Optional[Dict[str, Any]]:
     frontmatter_text = parts[1]
     data: Dict[str, Any] = {}
 
-    for line in frontmatter_text.splitlines():
-        line = line.strip()
+    for raw_line in frontmatter_text.splitlines():
+        # Only top-level keys: indented lines belong to nested blocks whose keys
+        # (e.g. a nested "title") would otherwise overwrite the project's own.
+        if raw_line[:1].isspace():
+            continue
+        line = raw_line.strip()
         if not line or line.startswith("#"):
             continue
 
@@ -393,12 +397,31 @@ class DataAuditor:
                     })
                     report["in_sync"] = False
 
+        # 4. Audit i18n keys the sync depends on (a missing key silently falls back to hardcoded text)
+        if cv_translations:
+            self.generate_synchronized_dataset()
+            for key in sorted(self.missing_translation_keys):
+                report["discrepancies"].append({
+                    "component": "cv_translations",
+                    "issue": f"Key '{key}' missing in anacatalina-cv i18n.js; sync would use the hardcoded fallback."
+                })
+                report["in_sync"] = False
+
         return report
+
+    def _es(self, translations: Dict[str, Dict[str, str]], key: str, fallback: str) -> str:
+        """Return the Spanish translation for key, recording the key when the fallback is used."""
+        value = translations.get(key, {}).get("es")
+        if value is None:
+            self.missing_translation_keys.add(key)
+            return fallback
+        return value
 
     def generate_synchronized_dataset(self) -> Dict[str, Any]:
         """
         Merge and build the complete updated CVData structure.
         """
+        self.missing_translation_keys: Set[str] = set()
         current_data = self.load_current_cv_data()
         cv_translations = parse_i18n_js(self.cv_dir / "src" / "i18n.js")
         hub_projects = scan_projects_hub(self.projects_dir)
@@ -412,7 +435,7 @@ class DataAuditor:
             "middle_name": "Alejandra",
             "last_name": "Villalobos Contardo",
             "full_name": "Ana-Catalina Alejandra Villalobos Contardo",
-            "title": cv_translations.get("hero.subtitle", {}).get("es", "Data Scientist & Machine Learning Engineer"),
+            "title": self._es(cv_translations, "hero.subtitle", "Data Scientist & Machine Learning Engineer"),
             "location": "Santiago, Chile",
             "contact": {
                 "email": "anacatalina@outlook.cl",
@@ -446,14 +469,14 @@ class DataAuditor:
             {
                 "company": "SimpliRoute",
                 "role": "Learning Engineer",
-                "period": cv_translations.get("exp.simpliroute.date", {}).get("es", "Agosto 2025 - Presente"),
-                "location": cv_translations.get("exp.simpliroute.location", {}).get("es", "Santiago, Chile (Remoto)"),
+                "period": self._es(cv_translations, "exp.simpliroute.date", "Agosto 2025 - Presente"),
+                "location": self._es(cv_translations, "exp.simpliroute.location", "Santiago, Chile (Remoto)"),
                 "type": "laboral",
                 "responsibilities": [
-                    cv_translations.get("exp.simpliroute.b1", {}).get("es", "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos."),
-                    cv_translations.get("exp.simpliroute.b2", {}).get("es", "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes."),
-                    cv_translations.get("exp.simpliroute.b3", {}).get("es", "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica."),
-                    cv_translations.get("exp.simpliroute.b4", {}).get("es", "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa.")
+                    self._es(cv_translations, "exp.simpliroute.b1", "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos."),
+                    self._es(cv_translations, "exp.simpliroute.b2", "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes."),
+                    self._es(cv_translations, "exp.simpliroute.b3", "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica."),
+                    self._es(cv_translations, "exp.simpliroute.b4", "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa.")
                 ],
                 "technologies": [
                     "Python",
@@ -472,14 +495,14 @@ class DataAuditor:
             {
                 "company": "Fracttal",
                 "role": "Tech Lead Fracttal Hub",
-                "period": cv_translations.get("exp.fracttal1.date", {}).get("es", "Noviembre 2023 - Julio 2025"),
-                "location": cv_translations.get("exp.fracttal1.location", {}).get("es", "Santiago, Chile"),
+                "period": self._es(cv_translations, "exp.fracttal1.date", "Noviembre 2023 - Julio 2025"),
+                "location": self._es(cv_translations, "exp.fracttal1.location", "Santiago, Chile"),
                 "type": "laboral",
                 "responsibilities": [
-                    cv_translations.get("exp.fracttal1.b1", {}).get("es", "Liderazgo de equipo multidisciplinario de integraciones con personas en distintos países, enfocado en mentoría técnica, desarrollo profesional y un entorno colaborativo."),
-                    cv_translations.get("exp.fracttal1.b2", {}).get("es", "Planificación estratégica del roadmap de Fracttal Hub, alineando los objetivos de negocio y la entrega continua de valor a clientes."),
-                    cv_translations.get("exp.fracttal1.b3", {}).get("es", "Desarrollo en Python para librerías de procesamiento de datos y orquestación de tareas, habilitando la integración con múltiples fuentes y destinos, con más de 100 acciones posibles y capacidades avanzadas de transformación."),
-                    cv_translations.get("exp.fracttal1.b4", {}).get("es", "Supervisión y coordinación de proyectos de integración para decenas de clientes, aplicando gestión eficiente de recursos, plazos y flujos de datos confiables.")
+                    self._es(cv_translations, "exp.fracttal1.b1", "Liderazgo de equipo multidisciplinario de integraciones con personas en distintos países, enfocado en mentoría técnica, desarrollo profesional y un entorno colaborativo."),
+                    self._es(cv_translations, "exp.fracttal1.b2", "Planificación estratégica del roadmap de Fracttal Hub, alineando los objetivos de negocio y la entrega continua de valor a clientes."),
+                    self._es(cv_translations, "exp.fracttal1.b3", "Desarrollo en Python para librerías de procesamiento de datos y orquestación de tareas, habilitando la integración con múltiples fuentes y destinos, con más de 100 acciones posibles y capacidades avanzadas de transformación."),
+                    self._es(cv_translations, "exp.fracttal1.b4", "Supervisión y coordinación de proyectos de integración para decenas de clientes, aplicando gestión eficiente de recursos, plazos y flujos de datos confiables.")
                 ],
                 "technologies": [
                     "Python",
@@ -491,14 +514,14 @@ class DataAuditor:
             {
                 "company": "Fracttal",
                 "role": "Data Scientist",
-                "period": cv_translations.get("exp.fracttal2.date", {}).get("es", "Agosto 2021 - Noviembre 2023"),
-                "location": cv_translations.get("exp.fracttal2.location", {}).get("es", "Santiago, Chile"),
+                "period": self._es(cv_translations, "exp.fracttal2.date", "Agosto 2021 - Noviembre 2023"),
+                "location": self._es(cv_translations, "exp.fracttal2.location", "Santiago, Chile"),
                 "type": "laboral",
                 "responsibilities": [
-                    cv_translations.get("exp.fracttal2.b1", {}).get("es", "Diseño e implementación de procesos de ciencia de datos para las plataformas Predictto y Fracttal One, con foco en generar valor a partir de datos operacionales de maquinaria."),
-                    cv_translations.get("exp.fracttal2.b2", {}).get("es", "Desarrollo de modelos analíticos aplicados a mantenimiento predictivo, priorización de activos y predicción de fallas, combinando ML, estadística y conocimiento del dominio."),
-                    cv_translations.get("exp.fracttal2.b3", {}).get("es", "Colaboración en la creación y desarrollo de producto para gestionar integraciones entre Fracttal y otras plataformas de software empresariales."),
-                    cv_translations.get("exp.fracttal2.b4", {}).get("es", "Evaluación continua de modelos en producción, optimizando pipelines de datos para garantizar la precisión y robustez en entornos reales.")
+                    self._es(cv_translations, "exp.fracttal2.b1", "Diseño e implementación de procesos de ciencia de datos para las plataformas Predictto y Fracttal One, con foco en generar valor a partir de datos operacionales de maquinaria."),
+                    self._es(cv_translations, "exp.fracttal2.b2", "Desarrollo de modelos analíticos aplicados a mantenimiento predictivo, priorización de activos y predicción de fallas, combinando ML, estadística y conocimiento del dominio."),
+                    self._es(cv_translations, "exp.fracttal2.b3", "Colaboración en la creación y desarrollo de producto para gestionar integraciones entre Fracttal y otras plataformas de software empresariales."),
+                    self._es(cv_translations, "exp.fracttal2.b4", "Evaluación continua de modelos en producción, optimizando pipelines de datos para garantizar la precisión y robustez en entornos reales.")
                 ],
                 "technologies": [
                     "Python",
@@ -510,13 +533,13 @@ class DataAuditor:
             {
                 "company": "Fracttal",
                 "role": "Analista de Datos",
-                "period": cv_translations.get("exp.fracttal3.date", {}).get("es", "Febrero 2020 - Julio 2021"),
-                "location": cv_translations.get("exp.fracttal3.location", {}).get("es", "Santiago, Chile"),
+                "period": self._es(cv_translations, "exp.fracttal3.date", "Febrero 2020 - Julio 2021"),
+                "location": self._es(cv_translations, "exp.fracttal3.location", "Santiago, Chile"),
                 "type": "laboral",
                 "responsibilities": [
-                    cv_translations.get("exp.fracttal3.b1", {}).get("es", "Desarrollo desde cero de la herramienta de mantenimiento predictivo, utilizando análisis estadístico avanzado y modelos preliminares de Machine Learning."),
-                    cv_translations.get("exp.fracttal3.b2", {}).get("es", "Diseño, manejo y optimización de bases de datos relacionales para almacenar lecturas de telemetría e historial de mantenimiento."),
-                    cv_translations.get("exp.fracttal3.b3", {}).get("es", "Apoyo en el desarrollo web frontend/backend básico de visualizaciones de datos y métricas para tomadores de decisiones.")
+                    self._es(cv_translations, "exp.fracttal3.b1", "Desarrollo desde cero de la herramienta de mantenimiento predictivo, utilizando análisis estadístico avanzado y modelos preliminares de Machine Learning."),
+                    self._es(cv_translations, "exp.fracttal3.b2", "Diseño, manejo y optimización de bases de datos relacionales para almacenar lecturas de telemetría e historial de mantenimiento."),
+                    self._es(cv_translations, "exp.fracttal3.b3", "Apoyo en el desarrollo web frontend/backend básico de visualizaciones de datos y métricas para tomadores de decisiones.")
                 ],
                 "technologies": [
                     "Python",

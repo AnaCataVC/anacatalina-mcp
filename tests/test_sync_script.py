@@ -54,6 +54,20 @@ def test_parse_project_markdown_invalid(tmp_path: Path):
     assert parse_project_markdown(md_file) is None
 
 
+def test_parse_project_markdown_ignores_nested_keys(tmp_path: Path):
+    md_file = tmp_path / "nested.md"
+    md_file.write_text(
+        '---\n'
+        'title: "Cute Agents Desk"\n'
+        'highlights:\n'
+        '  - icon: "shield"\n'
+        '    title: "Pipeline Seguro de PRs"\n'
+        '---\n',
+        encoding="utf-8"
+    )
+    assert parse_project_markdown(md_file)["title"] == "Cute Agents Desk"
+
+
 def test_parse_i18n_js(tmp_path: Path):
     js_file = tmp_path / "i18n.js"
     js_file.write_text(
@@ -89,6 +103,34 @@ def test_auditor_generate_synchronized_dataset_validates_pydantic():
     assert cv_data_obj.personal_info.name == "Ana-Catalina Villalobos Contardo"
     assert len(cv_data_obj.experience) >= 4
     assert len(cv_data_obj.projects) >= 3
+
+
+def test_auditor_audit_reports_missing_translation_keys(tmp_path: Path):
+    cv_dir = tmp_path / "anacatalina-cv"
+    (cv_dir / "src").mkdir(parents=True)
+    (cv_dir / "src" / "i18n.js").write_text(
+        'export const translations = {\n'
+        '  "hero.subtitle": {\n'
+        '    es: "Data Scientist & Machine Learning Engineer",\n'
+        '    en: "Data Scientist & Machine Learning Engineer"\n'
+        '  }\n'
+        '};\n',
+        encoding="utf-8"
+    )
+    projects_dir = tmp_path / "projects-hub"
+    projects_dir.mkdir()
+    auditor = DataAuditor(
+        base_dir=tmp_path,
+        cv_dir=cv_dir,
+        projects_dir=projects_dir,
+        data_file=tmp_path / "cv_data.json"
+    )
+
+    report = auditor.audit()
+    missing = [d["issue"] for d in report["discrepancies"] if d["component"] == "cv_translations"]
+    assert any("'exp.simpliroute.b1'" in issue for issue in missing)
+    assert not any("'hero.subtitle'" in issue for issue in missing)
+    assert report["in_sync"] is False
 
 
 def test_auditor_audit_executes_cleanly():

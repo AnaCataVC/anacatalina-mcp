@@ -30,6 +30,8 @@ Esta skill guía el proceso de auditoría y sincronización entre el servidor MC
 
 ## Flujo de Ejecución
 
+La divergencia se detecta sola: el workflow diario `upstream-drift.yml` abre un issue recurrente cuando `--check-only` falla, y esa es la señal para correr este flujo (ver `docs/upstream-sync.md`).
+
 ### 1. Ejecutar el Script de Auditoría de Datos
 Ejecutar la herramienta nativa de auditoría en Python desde la raíz del proyecto:
 
