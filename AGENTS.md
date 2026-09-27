@@ -69,8 +69,13 @@ anacatalina-mcp/
 │   └── skills/
 │       └── sync-mcp-data/
 │           └── SKILL.md          # Cross-repository data audit & sync workflow instructions
+├── .github/workflows/
+│   ├── test.yml                  # Test suite on push to main and PRs
+│   └── upstream-drift.yml        # Daily drift audit against anacatalina-cv / projects-hub (opens an issue)
 ├── data/
 │   └── cv_data.json              # In-memory single source of truth for the CV dataset
+├── docs/
+│   └── upstream-sync.md          # How the cross-repo sync and drift detection work
 ├── models/
 │   ├── __init__.py
 │   └── cv.py                     # Pydantic v2 models (PersonalInfo, ExperienceItem, Skills, etc.)
@@ -84,7 +89,7 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_server.py            # 28 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets)
-│   └── test_sync_script.py       # 9 automated tests for cross-repo synchronization engine
+│   └── test_sync_script.py       # 11 automated tests for cross-repo synchronization engine
 ├── Dockerfile                    # Container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
 ├── requirements.txt              # Production runtime dependencies (pinned mcp<2)
@@ -203,7 +208,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (37 tests)
+# Run full test suite (39 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
@@ -253,3 +258,6 @@ These items document deliberate architectural choices and operational boundaries
    - In accordance with the March 2025 MCP specification update deprecating HTTP+SSE, the server operates exclusively via **Streamable HTTP** (`/mcp`).
    - Legacy SSE endpoints (`/sse`, `/messages/`) and the local stdio bridge (`conecta_cata.py`) were eliminated to keep the architecture clean, high-performance, and directly cloud-native for Claude.ai Custom Connectors, Cursor, and modern MCP clients.
 
+5. **Upstream Drift Detection (content audit, not SHA pins):**
+   - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`, and opens/reopens/closes a single recurring issue. It is kept out of the PR gate because drift comes from the other repos.
+   - The audit also flags i18n keys the sync depends on that are missing upstream (otherwise `--sync` silently uses hardcoded fallbacks). Details: `docs/upstream-sync.md`.

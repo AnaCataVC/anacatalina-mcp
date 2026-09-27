@@ -1,5 +1,5 @@
 """
-Services package for Ana Catalina MCP Server.
+Services package for Ana-Catalina MCP Server.
 """
 from .cv_service import CVService, get_cv_service
 

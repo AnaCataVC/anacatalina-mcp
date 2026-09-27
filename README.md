@@ -108,6 +108,9 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 3. **Compatibilidad y Cambios de API en `mcp 2.x`:**
    - Recientemente, la versión `2.0.0` del SDK oficial de MCP introdujo cambios que renombraron `FastMCP`. Para mantener la estabilidad del despliegue en Cloud Run y garantizar que nuestro código `FastMCP` v1 continúe funcionando correctamente sin refactorización inmediata, fijamos la dependencia en `requirements.txt` a `mcp>=1.3.0,<2`.
 
+4. **Detección Automatizada de Deriva (Upstream Drift Detection):**
+   - Para mantener los datos de `data/cv_data.json` permanentemente consistentes con los repositorios fuente (`anacatalina-cv` y `projects-hub`), se diseñó un flujo automatizado de auditoría en GitHub Actions (`upstream-drift.yml`) basado en comparación semántica de contenido (en lugar de SHAs fijos). Detecta discrepancias de contenido y claves faltantes en `i18n.js`, gestionando automáticamente el ciclo de vida de un issue en GitHub. (Consulta [docs/upstream-sync.md](docs/upstream-sync.md)).
+
 ---
 
 ## 🚀 Instalación y Uso Local / Local Setup
@@ -150,6 +153,9 @@ python scripts/sync_mcp_data.py --audit
 # Sincronizar data/cv_data.json con las últimas actualizaciones
 python scripts/sync_mcp_data.py --sync
 ```
+
+> [!TIP]
+> Para conocer en detalle la arquitectura de sincronización, el funcionamiento del workflow diario en GitHub Actions y la resolución de discrepancias, consulta [docs/upstream-sync.md](docs/upstream-sync.md).
 
 ### 4. Iniciar el Servidor MCP Local
 

@@ -1,5 +1,6 @@
 > **Created:** 2026-09-08
-> **Last Updated:** 2026-09-08
+> **Last Updated:** 2026-09-27
+> **Architectural Status:** *Historical Reference / Superseded.* As documented in `AGENTS.md` (§ Operational Constraints #4), the legacy dual-transport (`/sse` and `conecta_cata.py`) was permanently retired following the March 2025 MCP specification update. The server now operates exclusively via unified **Streamable HTTP** (`/mcp`).
 
 # MCP Streamable HTTP Transport & Claude Custom Connectors
 
