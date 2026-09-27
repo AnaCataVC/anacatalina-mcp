@@ -140,7 +140,7 @@ def get_showcase_html() -> str:
 DISCOVERY_PAYLOAD: Dict[str, Any] = {
     "name": "Ana-Catalina Interactive Portfolio MCP",
     "status": "healthy",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "mcp_endpoint": "/mcp",
     "health_endpoint": "/health",
     "web_showcase": "/demo",
@@ -204,7 +204,7 @@ async def health_check(request: Request):
     return JSONResponse({
         "status": "healthy",
         "service": "anacatalina-mcp",
-        "version": "1.3.0",
+        "version": "1.4.0",
         "transports": ["Streamable HTTP (/mcp)"],
     })
 
