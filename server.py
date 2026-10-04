@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import List, Optional, Dict, Any
 from starlette.requests import Request
-from starlette.responses import JSONResponse, HTMLResponse, FileResponse, RedirectResponse, Response
+from starlette.responses import JSONResponse, HTMLResponse, FileResponse, Response
 from mcp.server.fastmcp import FastMCP
 
 from models.cv import (
@@ -148,16 +148,17 @@ DISCOVERY_PAYLOAD: Dict[str, Any] = {
 }
 
 
-PRODUCT_PAGE_URL = "https://projects.ana-catalina.com/p/anacatalina-mcp/"
-
-
 # 4. Register Custom Routes (Web Showcase, Standalone REST APIs & Health Check)
 @mcp.custom_route("/", methods=["GET"])
 async def root_info(request: Request):
-    """Root endpoint: redirects browsers to the product page and serves JSON discovery to APIs."""
+    """Root endpoint: serves interactive showcase HTML to browsers and JSON discovery to MCP clients/APIs."""
     accept_header = request.headers.get("accept", "").lower()
     if "text/html" in accept_header:
-        return RedirectResponse(PRODUCT_PAGE_URL, status_code=301)
+        return HTMLResponse(
+            content=get_showcase_html(),
+            status_code=200,
+            headers={"Cache-Control": "no-cache, must-revalidate"},
+        )
     return JSONResponse(DISCOVERY_PAYLOAD)
 
 

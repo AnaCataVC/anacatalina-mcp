@@ -167,16 +167,17 @@ def test_root_endpoint():
     assert response.json()["name"] == "Ana-Catalina Interactive Portfolio MCP"
 
 
-def test_root_browser_redirects_to_product_page():
-    """Tests that browser requests with text/html in Accept header are redirected to the product page."""
+def test_root_browser_returns_showcase_html():
+    """Tests that browser requests with text/html in Accept header return the showcase HTML directly."""
     client = TestClient(app)
     response = client.get(
         "/",
         headers={"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"},
         follow_redirects=False,
     )
-    assert response.status_code == 301
-    assert response.headers["location"] == "https://projects.ana-catalina.com/p/anacatalina-mcp/"
+    assert response.status_code == 200
+    assert "text/html" in response.headers["content-type"]
+    assert "location" not in response.headers
 
 
 def test_demo_endpoint():
