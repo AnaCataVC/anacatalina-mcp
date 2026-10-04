@@ -1,8 +1,10 @@
 <p align="center">
-  <img src="icon.png" alt="Ana-Catalina MCP Server" width="160" />
+  <img src="icon.png" alt="anacatalina-mcp Logo" width="120" />
 </p>
 
-<h1 align="center">Ana-Catalina Villalobos Contardo &mdash; Interactive Curriculum MCP Server</h1>
+# Ana-Catalina MCP Server
+
+[English](README.md) | [Español](README.es.md)
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.12" /></a>
@@ -14,32 +16,19 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat" alt="License MIT" /></a>
 </p>
 
-> **Official Model Context Protocol (MCP) Server** with **Streamable HTTP** transport over FastMCP, exposing an interactive CV and portfolio for AI assistants (Claude.ai, Cursor, Windsurf) and LLM clients. Includes a self-contained web showcase and a production-ready container for Google Cloud Run.
+> **Official Model Context Protocol (MCP) Server** with **Streamable HTTP** transport over FastMCP, exposing an interactive CV and portfolio for AI assistants (Claude.ai, Cursor, Windsurf, Gemini) and LLM clients. Includes a self-contained web showcase and a production-ready container for Google Cloud Run.
 
 <div align="center">
-  <h3>🟢 Live Server URL / Servidor en Vivo:</h3>
+  <h3>Live Server URL:</h3>
   <p><strong><a href="https://mcp.ana-catalina.com/">https://mcp.ana-catalina.com/</a></strong></p>
   <small>(Cloud Run Mirror: <code>https://anacatalina-mcp-165536131179.us-central1.run.app/</code>)</small>
 </div>
 
 ---
 
-## Descripción del Proyecto (Spanish)
+## Project Description
 
-Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)** en Python que permite a evaluadores técnicos, reclutadores y modelos LLM (como Claude o GPT) explorar de forma interactiva y estructurada la trayectoria profesional, habilidades técnicas, proyectos insignia y compatibilidad con vacantes de **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
-
-### Características Principales
-- **Web Showcase & Playground Interactivo:** Servido en `/demo` (la raíz `/` redirige a los navegadores a la página del producto) bajo el *Pastel-Tech Design System*. Permite a reclutadores y visitantes humanos evaluar compatibilidad con vacantes y buscar en el currículum en tiempo real con latencia inferior a 5ms y resultados 100% verificables en memoria.
-- **Negociación Transparente de Contenido:** Devuelve una aplicación web responsiva si la petición proviene de un navegador (`Accept: text/html`) y el JSON de descubrimiento original si proviene de agentes o APIs.
-- **Transporte Moderno Streamable HTTP (`/mcp`):** Transporte nativo recomendado por la especificación MCP para conexiones directas desde **Claude.ai** (conectores personalizados), **Gemini** (gemini.com Connected Apps) y **Cursor / Windsurf** (`mcp.json`).
-- **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
-- **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
-
----
-
-## Project Overview (English)
-
-This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
+This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and technical evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
 
 ### Key Features
 - **Interactive Web Showcase & Playground:** Served at `/demo` (browsers hitting `/` are redirected to the product page) using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
@@ -50,11 +39,11 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 
 ---
 
-## 📐 Arquitectura del Sistema / System Architecture
+## Architecture
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["Clientes MCP / AI Clients"]
+    subgraph ClientLayer["AI Clients & Consumers"]
         A["Claude.ai (Custom Connector)<br/>Streamable HTTP (POST /mcp)"]
         B["Cursor / Windsurf (mcp.json)<br/>Streamable HTTP (POST /mcp)"]
         G["Gemini (gemini.com Connected Apps)<br/>Streamable HTTP (POST /mcp)"]
@@ -62,7 +51,7 @@ flowchart TD
 
     subgraph CloudLayer["Google Cloud Run / Serverless Host"]
         C["FastMCP App (:8080)<br/>/mcp & Custom Routes"]
-        D["9 Herramientas MCP / Tools"]
+        D["9 Registered MCP Tools"]
         E["CV Service & Pydantic Engine<br/>(models/cv.py)"]
         F[("data/cv_data.json<br/>(In-Memory Dataset)")]
     end
@@ -77,176 +66,90 @@ flowchart TD
 
 ---
 
-## 🧰 Catálogo de Herramientas MCP / MCP Tools Catalog
+## MCP Tools Catalog
 
-El servidor expone **9 herramientas oficiales** registradas a través del protocolo MCP:
+The server exposes **9 official tools** registered via the Model Context Protocol:
 
-| Herramienta / Tool | Parámetros / Parameters | Tipo Retorno / Return Type | Descripción / Description |
+| Tool | Parameters | Return Type | Description |
 | :--- | :--- | :--- | :--- |
-| `obtener_experiencia` | `empresa` *(str, opcional)* | `List[ExperienceItem]` | Historial laboral detallado, roles, responsabilidades y tecnologías empleadas. Permite filtrar por empresa. |
-| `obtener_stack_tecnologico` | `categoria` *(str, opcional)*<br/>`nivel` *(str, opcional)* | `List[SkillCategory]` | Tecnologías, lenguajes (Python, SQL), Cloud/GCP (BigQuery, Vertex AI) y Docker organizados por categoría y nivel (Avanzado, Intermedio). |
-| `obtener_proyectos_destacados` | `tipo` *(str, opcional)*<br/>`tecnologia` *(str, opcional)* | `List[ProjectItem]` | Proyectos insignia (laborales y personales), arquitectura, stack tecnológico y enlaces a repositorios/demos. |
-| `evaluar_fit_puesto` | `descripcion_vacante` *(str, requerido)* | `FitEvaluationResult` | Analiza los requerimientos de una vacante laboral y calcula el porcentaje de compatibilidad, fortalezas coincidentes y propuesta de valor. |
-| `buscar_en_curriculum` | `consulta` *(str, requerido)* | `Dict[str, Any]` | Búsqueda transversal por palabra clave en todo el currículum (experiencia, habilidades, proyectos y educación). |
-| `obtener_educacion` | *Ninguno* | `List[EducationItem]` | Formación académica formal, grado obtenido, institución y especialización. |
-| `obtener_contacto` | *Ninguno* | `ContactDetails` | Canales directos de contacto profesional (Email y perfil de LinkedIn). |
-| `obtener_perfil` | *Ninguno* | `PersonalInfo` | Perfil general: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub). |
-| `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Síntesis ejecutiva del perfil profesional enfocada en Data Science, ML, GCP y arquitecturas MCP en español (`es`) o inglés (`en`). |
+| `obtener_experiencia` | `empresa` *(str, optional)* | `List[ExperienceItem]` | Detailed employment history, roles, responsibilities, and technologies used. Filterable by company. |
+| `obtener_stack_tecnologico` | `categoria` *(str, optional)*<br/>`nivel` *(str, optional)* | `List[SkillCategory]` | Technologies, languages (Python, SQL), Cloud/GCP (BigQuery, Vertex AI) and Docker by category and level. |
+| `obtener_proyectos_destacados` | `tipo` *(str, optional)*<br/>`tecnologia` *(str, optional)* | `List[ProjectItem]` | Highlighted portfolio projects, architecture, stack, and live demos/repo links. |
+| `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Evaluates job requirements and calculates compatibility score, matching strengths, and value proposition. |
+| `buscar_en_curriculum` | `consulta` *(str, required)* | `Dict[str, Any]` | Cross-cutting keyword search across experience, skills, projects, and education. |
+| `obtener_educacion` | *None* | `List[EducationItem]` | Formal university degrees, institutions, and specializations. |
+| `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact channels (Email, LinkedIn). |
+| `obtener_perfil` | *None* | `PersonalInfo` | General profile: name, title, location, and portfolio links. |
+| `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Executive career summary focused on Data Science, ML, GCP, and MCP architecture in English or Spanish. |
 
 ---
 
-## 💡 Aprendizajes Clave & Decisiones de Diseño
+## Key Learnings
 
-1. **Evolución del Transporte MCP (Migración a Streamable HTTP):**
-   - Inicialmente, los servidores MCP remotos dependían de combinaciones multi-endpoint basadas en Server-Sent Events (`/sse` y `/messages/`).
-   - La especificación moderna de MCP estandarizó **Streamable HTTP** (`/mcp`) mediante un único endpoint unificado sobre HTTP POST que admite respuestas JSON y flujos en tiempo real (`Accept: application/json, text/event-stream`).
-   - Esta arquitectura simplifica drásticamente el despliegue serverless, elimina la necesidad de mantener puentes locales (`stdio`) para clientes remotos y garantiza compatibilidad nativa directa con **Claude.ai** (conectores personalizados) y **Cursor / Windsurf** (`mcp.json`).
+1. **MCP Transport Evolution (Migration to Streamable HTTP):**
+   - Traditional remote MCP servers relied on complex multi-endpoint SSE combinations (`/sse` and `/messages/`).
+   - The modern MCP specification introduced **Streamable HTTP** (`/mcp`) via a single unified HTTP POST endpoint supporting both JSON responses and streaming events (`Accept: application/json, text/event-stream`).
+   - This eliminates local `stdio` bridge overhead for remote clients and enables direct cloud connections from Claude.ai, Cursor, and Windsurf.
 
-2. **Desacoplamiento y Validación de Datos:**
-   - La separación entre la capa de datos (`data/cv_data.json`), los contratos de interfaz (`models/cv.py`) y la lógica de negocio (`services/cv_service.py`) permite actualizar el contenido del currículum sin modificar el servidor MCP ni arriesgar la compatibilidad de tipos.
+2. **Decoupled Architecture & Schema Validation:**
+   - Separating raw data (`data/cv_data.json`), interface contracts (`models/cv.py`), and domain services (`services/cv_service.py`) ensures that CV content updates never compromise server stability or type safety.
 
-3. **Compatibilidad y Cambios de API en `mcp 2.x`:**
-   - Recientemente, la versión `2.0.0` del SDK oficial de MCP introdujo cambios que renombraron `FastMCP`. Para mantener la estabilidad del despliegue en Cloud Run y garantizar que nuestro código `FastMCP` v1 continúe funcionando correctamente sin refactorización inmediata, fijamos la dependencia en `requirements.txt` a `mcp>=1.3.0,<2`.
+3. **Pinned Stability Across MCP SDK Versions:**
+   - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. Pinning `mcp>=1.3.0,<2` preserves Cloud Run production stability without forced premature rewrites.
 
-4. **Detección Automatizada de Deriva (Upstream Drift Detection):**
-   - Para mantener los datos de `data/cv_data.json` permanentemente consistentes con los repositorios fuente (`anacatalina-cv` y `projects-hub`), se diseñó un flujo automatizado de auditoría en GitHub Actions (`upstream-drift.yml`) basado en comparación semántica de contenido (en lugar de SHAs fijos). Detecta discrepancias de contenido y claves faltantes en `i18n.js`, gestionando automáticamente el ciclo de vida de un issue en GitHub. (Consulta [docs/upstream-sync.md](docs/upstream-sync.md)).
+4. **Automated Upstream Drift Detection:**
+   - Built a GitHub Actions workflow (`upstream-drift.yml`) using semantic content comparison to detect discrepancies and missing keys between `data/cv_data.json` and sibling repositories (`anacatalina-cv`, `projects-hub`).
 
 ---
 
-## 🚀 Instalación y Uso Local / Local Setup
+## Local Setup & Development
 
-### 1. Clonar el Repositorio y Configurar Entorno
+### 1. Clone Repository & Setup Virtual Environment
 
 ```bash
-# Clonar repositorio
 git clone https://github.com/AnaCataVC/anacatalina-mcp.git
 cd anacatalina-mcp
 
-# Crear y activar entorno virtual
+# Create and activate virtual environment
 python -m venv .venv
+source .venv/bin/activate  # On Windows PowerShell: .venv\Scripts\Activate.ps1
 
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-
-# Linux / macOS
-source .venv/bin/activate
-
-# Instalar dependencias (producción)
+# Install dependencies
 pip install -r requirements.txt
-
-# Instalar dependencias de desarrollo (incluye pytest, para correr la suite de pruebas)
 pip install -r requirements-dev.txt
 ```
 
-### 2. Ejecutar la Suite de Pruebas
+### 2. Run Test Suite
 
 ```bash
 pytest tests/ -v
 ```
 
-### 3. Sincronización y Auditoría de Datos (`anacatalina-cv` y `projects-hub`)
-
-```bash
-# Auditar consistencia con los repositorios hermanos
-python scripts/sync_mcp_data.py --audit
-
-# Sincronizar data/cv_data.json con las últimas actualizaciones
-python scripts/sync_mcp_data.py --sync
-```
-
-> [!TIP]
-> Para conocer en detalle la arquitectura de sincronización, el funcionamiento del workflow diario en GitHub Actions y la resolución de discrepancias, consulta [docs/upstream-sync.md](docs/upstream-sync.md).
-
-### 4. Iniciar el Servidor MCP Local
+### 3. Start Local MCP Server
 
 ```bash
 uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-Endpoints disponibles:
-- **Web Showcase & Playground:** `http://localhost:8080/` (en navegadores) o `http://localhost:8080/demo`
-- **Discovery JSON:** `http://localhost:8080/` (con cabecera `Accept: application/json` o agentes MCP)
-- **Health Check:** `http://localhost:8080/health`
-- **Streamable HTTP (MCP Endpoint):** `http://localhost:8080/mcp` &mdash; para Claude.ai, Cursor y Windsurf
-- **APIs REST Auxiliares (Integraciones HTTP directas / Scripts):**
-  - `POST /api/evaluate-fit` &mdash; Evaluación determinista de vacantes vía HTTP
-  - `GET /api/search?q={query}` &mdash; Búsqueda transversal por palabras clave vía HTTP
-  - `GET /api/skills` &mdash; Taxonomía de stack y niveles técnicos
-  - `GET /api/projects` &mdash; Proyectos destacados (laborales y personales)
-
 ---
 
-## 🤖 Conectar Asistentes de IA / AI Clients Setup
+## Connecting AI Assistants
 
-### 1. Claude.ai (Conector Personalizado)
-1. En Claude.ai: **Ajustes → Conectores → Agregar conector personalizado**
-2. Nombre: `Ana-Catalina MCP`
-3. URL del servidor:
-```
-https://mcp.ana-catalina.com/mcp
-```
-4. Autenticación: **Ninguna** (servidor de portafolio público)
-
-> [!TIP]
-> **En desarrollo local:** usa `http://localhost:8080/mcp` como URL del conector.
-
-### 2. Gemini (gemini.com &mdash; Connected Apps)
-1. En [gemini.google.com](https://gemini.google.com): **Settings & help → Connected Apps** (si no aparece, entra primero a **Personal Intelligence → Connected Apps**).
-2. En "Custom apps for Spark", haz clic en **Add a custom app**.
-3. Pega la URL del servidor:
-```
-https://mcp.ana-catalina.com/mcp
-```
-4. Haz clic en **Next** y sigue las instrucciones en pantalla. Una vez conectado, invócalo escribiendo `@` en el chat.
-
-> [!NOTE]
-> Esta función (**Gemini Spark**) requiere cuenta personal de Google, 18+ años, ubicación en EE.UU. y "Keep Activity" habilitado — todavía no está disponible para todas las cuentas ni regiones.
-
-### 3. Cursor & Windsurf (`mcp.json`)
-Agrega el servidor en tu configuración de MCP (`~/.cursor/mcp.json` o settings de Cursor):
-
-```json
-{
-  "mcpServers": {
-    "anacatalina-cv": {
-      "url": "https://mcp.ana-catalina.com/mcp"
+- **Claude.ai:** Settings → Connectors → Add custom connector → URL: `https://mcp.ana-catalina.com/mcp`
+- **Cursor / Windsurf (`mcp.json`):**
+  ```json
+  {
+    "mcpServers": {
+      "anacatalina-cv": {
+        "url": "https://mcp.ana-catalina.com/mcp"
+      }
     }
   }
-}
-```
+  ```
 
 ---
 
-## ☁️ Despliegue en Google Cloud Run / Cloud Run Deployment
+## License
 
-### 1. Construir y Probar Contenedor Localmente
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
-```bash
-docker build -t anacatalina-mcp .
-docker run -p 8080:8080 -e PORT=8080 anacatalina-mcp
-```
-
-### 2. Desplegar a Google Cloud Run con Google Cloud SDK (`gcloud`)
-
-```bash
-# Autenticarse en Google Cloud
-gcloud auth login
-gcloud config set project TU_PROJECT_ID
-
-# Desplegar directamente desde el código fuente
-gcloud run deploy anacatalina-mcp \
-  --source . \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --timeout 3600
-```
-
-> [!NOTE]
-> La opción `--timeout 3600` es fundamental para mantener estables las conexiones Streamable HTTP de larga duración en Cloud Run.
-
----
-
-## 📄 Licencia / License
-
-Este proyecto se distribuye bajo la licencia **MIT**. Desarrollado por **Ana-Catalina Villalobos Contardo**.
