@@ -102,7 +102,7 @@ def test_auditor_generate_synchronized_dataset_validates_pydantic():
     assert cv_data_obj.personal_info.first_name == "Ana-Catalina"
     assert cv_data_obj.personal_info.name == "Ana-Catalina Villalobos Contardo"
     assert len(cv_data_obj.experience) >= 4
-    assert len(cv_data_obj.projects) >= 3
+    assert len(cv_data_obj.projects) >= 2
 
 
 def test_auditor_audit_reports_missing_translation_keys(tmp_path: Path):
@@ -207,5 +207,66 @@ def test_parse_cv_ts(tmp_path: Path):
     assert res["exp.simpliroute.date"]["es"] == "Agosto 2025 - Presente"
     assert "Arquitectura multi-proveedor." in res["exp.simpliroute.b1"]["es"]
     assert "<strong>" not in res["exp.simpliroute.b1"]["es"]
+
+
+def test_auditor_audit_detects_project_drift(tmp_path: Path):
+    import json
+    cv_dir = tmp_path / "anacatalina-cv"
+    (cv_dir / "src").mkdir(parents=True)
+    projects_dir = tmp_path / "projects-hub"
+    es_dir = projects_dir / "src" / "content" / "projects" / "es"
+    es_dir.mkdir(parents=True)
+
+    (es_dir / "active-app.md").write_text(
+        '---\n'
+        'title: "Active App"\n'
+        'description: "Updated description"\n'
+        'technologies: ["Rust", "Tauri v2"]\n'
+        'githubUrl: "https://github.com/AnaCataVC/active-app"\n'
+        'websiteUrl: "https://active-app.ana-catalina.com"\n'
+        'status: "Activo"\n'
+        '---\n',
+        encoding="utf-8"
+    )
+    (es_dir / "archived-app.md").write_text(
+        '---\n'
+        'title: "Archived App"\n'
+        'description: "Old app"\n'
+        'technologies: ["C#"]\n'
+        'githubUrl: "https://github.com/AnaCataVC/archived-app"\n'
+        'status: "Archivado"\n'
+        '---\n',
+        encoding="utf-8"
+    )
+
+    data_file = tmp_path / "cv_data.json"
+    data_file.write_text(
+        json.dumps({
+            "projects": [
+                {
+                    "name": "Archived App",
+                    "type": "personal",
+                    "description": "Old app",
+                    "technologies": ["C#"],
+                    "repo_url": "https://github.com/AnaCataVC/archived-app",
+                    "demo_url": None
+                }
+            ]
+        }),
+        encoding="utf-8"
+    )
+
+    auditor = DataAuditor(
+        base_dir=tmp_path,
+        cv_dir=cv_dir,
+        projects_dir=projects_dir,
+        data_file=data_file
+    )
+    report = auditor.audit()
+    components = {d["component"] for d in report["discrepancies"]}
+    assert "projects.active-app" in components
+    assert "projects.archived-app" in components
+    assert report["in_sync"] is False
+
 
 

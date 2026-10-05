@@ -267,6 +267,7 @@ TECH_ALIAS_MAP: List[Tuple[str, str]] = [
     (r"\bdocker\b", "Docker"),
     (r"\bfastapi\b", "FastAPI"),
     (r"\bairflow\b|\bapache\s+airflow\b", "Apache Airflow"),
+    (r"\bairbyte\b", "Airbyte"),
     (r"\bpub/?sub\b", "Google Pub/Sub"),
     (r"\bpostgres(ql)?\b", "PostgreSQL"),
     (r"\bmachine\s+learning\b|\bml\b", "Machine Learning"),

@@ -385,17 +385,61 @@ class DataAuditor:
             })
             report["in_sync"] = False
 
-        # 3. Audit Projects Hub Alignment (Dynamically compare showcase projects)
-        current_project_names = {p.get("name") for p in current_data.get("projects", [])}
-        target_flagship_slugs = ["cute-agents-desk", "work-activity-panel", "anacatalina-mcp"]
-        for p in hub_projects:
-            if p.get("slug") in target_flagship_slugs:
-                if p.get("name") not in current_project_names and p.get("slug") != "anacatalina-mcp":
+        # 3. Audit Projects Hub Alignment (Dynamically compare all active projects)
+        if hub_projects:
+            active_hub = [
+                p for p in hub_projects
+                if p.get("status") not in ("Archivado", "Archived")
+            ]
+            archived_hub = [
+                p for p in hub_projects
+                if p.get("status") in ("Archivado", "Archived")
+            ]
+            current_personal = [
+                p for p in current_data.get("projects", [])
+                if p.get("type") == "personal"
+            ]
+            curr_by_repo = {
+                p.get("repo_url"): p for p in current_personal if p.get("repo_url")
+            }
+            curr_by_name = {
+                p.get("name"): p for p in current_personal if p.get("name")
+            }
+
+            for arch in archived_hub:
+                if arch.get("repo_url") in curr_by_repo or arch.get("name") in curr_by_name:
                     report["discrepancies"].append({
-                        "component": "projects",
-                        "issue": f"Flagship project '{p.get('name')}' ({p.get('slug')}) from projects-hub can be synchronized into MCP featured projects."
+                        "component": f"projects.{arch.get('slug')}",
+                        "issue": f"Archived project '{arch.get('name')}' ({arch.get('slug')}) is still listed in MCP active projects."
                     })
                     report["in_sync"] = False
+
+            for p in active_hub:
+                curr = curr_by_repo.get(p.get("repo_url")) or curr_by_name.get(p.get("name"))
+                if not curr:
+                    report["discrepancies"].append({
+                        "component": f"projects.{p.get('slug')}",
+                        "issue": f"Active project '{p.get('name')}' ({p.get('slug')}) from projects-hub is missing in MCP projects."
+                    })
+                    report["in_sync"] = False
+                else:
+                    diffs = []
+                    if curr.get("name") != p.get("name"):
+                        diffs.append("name")
+                    if curr.get("description") != p.get("description"):
+                        diffs.append("description")
+                    if curr.get("technologies") != p.get("technologies"):
+                        diffs.append("technologies")
+                    if curr.get("repo_url") != p.get("repo_url"):
+                        diffs.append("repo_url")
+                    if curr.get("demo_url") != p.get("demo_url"):
+                        diffs.append("demo_url")
+                    if diffs:
+                        report["discrepancies"].append({
+                            "component": f"projects.{p.get('slug')}",
+                            "issue": f"Project '{p.get('name')}' ({p.get('slug')}) updated in projects-hub ({', '.join(diffs)})."
+                        })
+                        report["in_sync"] = False
 
         # 4. Audit i18n keys the sync depends on (a missing key silently falls back to hardcoded text)
         if cv_translations:
@@ -473,10 +517,10 @@ class DataAuditor:
                 "location": self._es(cv_translations, "exp.simpliroute.location", "Santiago, Chile (Remoto)"),
                 "type": "laboral",
                 "responsibilities": [
-                    self._es(cv_translations, "exp.simpliroute.b1", "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos."),
-                    self._es(cv_translations, "exp.simpliroute.b2", "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes."),
+                    self._es(cv_translations, "exp.simpliroute.b1", "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes."),
+                    self._es(cv_translations, "exp.simpliroute.b2", "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos."),
                     self._es(cv_translations, "exp.simpliroute.b3", "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica."),
-                    self._es(cv_translations, "exp.simpliroute.b4", "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa.")
+                    self._es(cv_translations, "exp.simpliroute.b4", "Participación en la evolución y operación de modelos predictivos en producción, automatizando flujos de reentrenamiento y monitoreo de desempeño.")
                 ],
                 "technologies": [
                     "Python",
@@ -635,6 +679,7 @@ class DataAuditor:
                     {"name": "Google Cloud Run & Artifact Registry", "level": "Avanzado"},
                     {"name": "Docker", "level": "Avanzado"},
                     {"name": "Airflow", "level": "Avanzado"},
+                    {"name": "Airbyte", "level": "Intermedio"},
                     {"name": "Git", "level": "Avanzado"},
                     {"name": "GitHub", "level": "Avanzado"},
                     {"name": "Kubernetes", "level": "Intermedio"},
@@ -666,81 +711,58 @@ class DataAuditor:
             }
         ]
 
-        # 5. Synchronize Featured Projects (Personal flagships + Laboral ML pipelines)
-        new_data["projects"] = [
+        # 5. Synchronize Featured Projects (All active personal projects from projects-hub + Laboral ML pipelines)
+        active_hub_projects = [
             {
-                "name": "Cute Agents Desk",
+                "name": p["name"],
                 "type": "personal",
-                "description": "Panel de control y despacho de escritorio en Electron para coordinar agentes de IA CLI (Claude Code y Antigravity) en paralelo con aislamiento estricto por Git Worktrees y buzón interactivo PTY.",
-                "technologies": [
-                    "Electron",
-                    "Node.js",
-                    "Claude Code",
-                    "Antigravity CLI",
-                    "Git Worktrees",
-                    "ES Modules"
-                ],
-                "repo_url": "https://github.com/AnaCataVC/cute-agents-desk",
-                "demo_url": None
-            },
-            {
-                "name": "Work Activity Panel",
-                "type": "personal",
-                "description": "Aplicación de escritorio nativa para Windows 11 en WinUI 3 y .NET 9 que optimiza la jornada laboral: auto-inicia herramientas, sincroniza Google Calendar con soporte RRULE, emite alertas emergentes con unión directa y conmuta cuentas GitHub CLI.",
-                "technologies": [
-                    "WinUI 3",
-                    ".NET 9",
-                    "C#",
-                    "Windows App SDK",
-                    "Google Calendar API",
-                    "GitHub CLI"
-                ],
-                "repo_url": "https://github.com/AnaCataVC/work-activity-panel",
-                "demo_url": "https://github.com/AnaCataVC/work-activity-panel"
-            },
-            {
-                "name": "Interactive MCP Curriculum & Agent Server",
-                "type": "personal",
-                "description": "Servidor MCP oficial con transporte Streamable HTTP montado sobre FastAPI para consulta interactiva de trayectoria profesional por parte de LLMs (Claude.ai, Gemini, Cursor), preparado para despliegue Serverless en Google Cloud Run.",
-                "technologies": [
-                    "Python",
-                    "Model Context Protocol (MCP)",
-                    "FastAPI",
-                    "Streamable HTTP",
-                    "Docker",
-                    "Google Cloud Run"
-                ],
-                "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
-                "demo_url": None
-            },
-            {
-                "name": "Pipeline de Inferencia y Monitoreo de Modelos en Vertex AI",
-                "type": "laboral",
-                "description": "Arquitectura de entrenamiento continuo y despliegue de endpoints en Vertex AI con ingesta de datos directos desde BigQuery y containerización en Docker para simplificar el ciclo MLOps.",
-                "technologies": [
-                    "Python",
-                    "Vertex AI",
-                    "BigQuery",
-                    "Docker",
-                    "GCP"
-                ],
-                "repo_url": None,
-                "demo_url": None
-            },
-            {
-                "name": "Predictive Maintenance & Asset Telemetry Engine",
-                "type": "laboral",
-                "description": "Motor analítico para detección de anomalías y predicción de fallas en equipos industriales a partir de señales de telemetría IoT.",
-                "technologies": [
-                    "Python",
-                    "SQL",
-                    "Time-Series Analysis",
-                    "Docker"
-                ],
-                "repo_url": None,
-                "demo_url": None
+                "description": p["description"],
+                "technologies": p["technologies"],
+                "repo_url": p["repo_url"],
+                "demo_url": p["demo_url"],
             }
+            for p in hub_projects
+            if p.get("status") not in ("Archivado", "Archived")
         ]
+
+        if not active_hub_projects:
+            active_hub_projects = [
+                {
+                    "name": "Cute Agents Desk",
+                    "type": "personal",
+                    "description": "Panel de control y despacho de escritorio para coordinar agentes de IA de línea de comandos (Claude Code y Antigravity CLI) en repositorios locales con aislamiento por Git Worktrees.",
+                    "technologies": [
+                        "Electron 44",
+                        "Node.js",
+                        "node-pty",
+                        "Claude Code",
+                        "Antigravity CLI",
+                        "Git Worktrees",
+                        "ES Modules",
+                        "Pastel-Tech CSS"
+                    ],
+                    "repo_url": "https://github.com/AnaCataVC/cute-agents-desk",
+                    "demo_url": "https://cute-agents-desk.ana-catalina.com"
+                },
+                {
+                    "name": "AI-Native Interactive Resume (MCP Server)",
+                    "type": "personal",
+                    "description": "Servidor Model Context Protocol (MCP) que permite a Inteligencias Artificiales interactuar con mi experiencia profesional.",
+                    "technologies": [
+                        "Python 3.12",
+                        "FastMCP",
+                        "Streamable-HTTP",
+                        "Docker",
+                        "Google Cloud Run",
+                        "Model Context Protocol",
+                        "Gemini Connected Apps"
+                    ],
+                    "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
+                    "demo_url": "https://mcp.ana-catalina.com/"
+                }
+            ]
+
+        new_data["projects"] = active_hub_projects
 
         # 6. Education & Formations
         new_data["education"] = [

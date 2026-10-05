@@ -27,10 +27,10 @@
       "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos.",
         "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes.",
+        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos.",
         "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica.",
-        "Impulso de la adopción de IA Generativa en el ciclo de desarrollo (DevEx) y productos, diseñando flujos de trabajo asistidos por agentes para optimizar pruebas, acelerar ciclos de iteración y elevar la eficiencia operativa."
+        "Participación en la evolución y operación de modelos predictivos en producción, automatizando flujos de reentrenamiento y monitoreo de desempeño."
       ],
       "technologies": [
         "Python",
@@ -353,6 +353,10 @@
           "level": "Avanzado"
         },
         {
+          "name": "Airbyte",
+          "level": "Intermedio"
+        },
+        {
           "name": "Git",
           "level": "Avanzado"
         },
@@ -435,76 +439,282 @@
   ],
   "projects": [
     {
+      "name": "Amiga IA",
+      "type": "personal",
+      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 24 skills declarativas portátiles. 100% compatible con Antigravity (Gemini) y Claude Code.",
+      "technologies": [
+        "Subagent Orchestration",
+        "Agent Skills",
+        "Delimited Block Protocol",
+        "Release Automation",
+        "PowerShell",
+        "Node.js"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/amiga-ia",
+      "demo_url": "https://amiga-ia.ana-catalina.com"
+    },
+    {
+      "name": "Anacatalina CV — Sitio Personal Bilingüe",
+      "type": "personal",
+      "description": "Mi CV como sitio web bilingüe con modo oscuro, más un PDF descargable generado imprimiendo plantillas HTML con el motor headless del navegador.",
+      "technologies": [
+        "Astro 6",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "Vercel"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/anacatalina-cv",
+      "demo_url": null
+    },
+    {
+      "name": "AI-Native Interactive Resume (MCP Server)",
+      "type": "personal",
+      "description": "Servidor Model Context Protocol (MCP) que permite a Inteligencias Artificiales interactuar con mi experiencia profesional.",
+      "technologies": [
+        "Python 3.12",
+        "FastMCP",
+        "Streamable-HTTP",
+        "Docker",
+        "Google Cloud Run",
+        "Model Context Protocol",
+        "Gemini Connected Apps"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
+      "demo_url": "https://mcp.ana-catalina.com/"
+    },
+    {
       "name": "Cute Agents Desk",
       "type": "personal",
-      "description": "Panel de control y despacho de escritorio en Electron para coordinar agentes de IA CLI (Claude Code y Antigravity) en paralelo con aislamiento estricto por Git Worktrees y buzón interactivo PTY.",
+      "description": "Panel de control y despacho de escritorio para coordinar agentes de IA de línea de comandos (Claude Code y Antigravity CLI) en repositorios locales con aislamiento por Git Worktrees.",
       "technologies": [
-        "Electron",
+        "Electron 44",
         "Node.js",
+        "node-pty",
         "Claude Code",
         "Antigravity CLI",
         "Git Worktrees",
-        "ES Modules"
+        "ES Modules",
+        "Pastel-Tech CSS"
       ],
       "repo_url": "https://github.com/AnaCataVC/cute-agents-desk",
+      "demo_url": "https://cute-agents-desk.ana-catalina.com"
+    },
+    {
+      "name": "Emotion Finder",
+      "type": "personal",
+      "description": "Detector interactivo de emociones y clasificador NLP afectivo basado en el Modelo Circunflejo de Russell y un árbol de decisión somático de 64 estados.",
+      "technologies": [
+        "Python 3.11",
+        "FastHTML",
+        "HTMX",
+        "scikit-learn",
+        "Pico CSS",
+        "TF-IDF",
+        "Turso LibSQL",
+        "Vercel Serverless"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/emotion-finder",
       "demo_url": null
     },
     {
-      "name": "Work Activity Panel",
+      "name": "Google Drive Work Sync",
       "type": "personal",
-      "description": "Aplicación de escritorio nativa para Windows 11 en WinUI 3 y .NET 9 que optimiza la jornada laboral: auto-inicia herramientas, sincroniza Google Calendar con soporte RRULE, emite alertas emergentes con unión directa y conmuta cuentas GitHub CLI.",
+      "description": "Aplicación de escritorio nativa para Windows 11 (WinUI 3 / .NET 9) que sincroniza carpetas de trabajo y contexto de agentes IA hacia Google Drive mediante Google Apps Script, con hashing incremental y redacción de secretos.",
       "technologies": [
-        "WinUI 3",
+        "C# 13",
         ".NET 9",
-        "C#",
+        "WinUI 3",
         "Windows App SDK",
-        "Google Calendar API",
+        "CommunityToolkit.Mvvm",
+        "Google Apps Script",
+        "xUnit"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/google-drive-work-sync",
+      "demo_url": "https://google-drive-work-sync.ana-catalina.com"
+    },
+    {
+      "name": "Life Tracker Analytics",
+      "type": "personal",
+      "description": "Aplicación Web Progresiva (PWA) centrada en la privacidad para rastrear y analizar métricas de vida y hábitos mediante visualizaciones de datos y sincronización local-first.",
+      "technologies": [
+        "React 19",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "Dexie.js",
+        "remoteStorage.js",
+        "Recharts"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/life-tracker-analytics",
+      "demo_url": null
+    },
+    {
+      "name": "Little Chef Timer",
+      "type": "personal",
+      "description": "Temporizador de cocina para Android, 100% offline, con alarmas exactas que suenan aunque el teléfono esté bloqueado, en modo Doze o con la app cerrada por el sistema.",
+      "technologies": [
+        "Kotlin",
+        "Jetpack Compose",
+        "Material Design 3",
+        "SharedPreferences",
+        "AlarmManager",
+        "Storage Access Framework"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/little-chef-timer",
+      "demo_url": "https://little-chef-timer.ana-catalina.com"
+    },
+    {
+      "name": "Meds Reminder",
+      "type": "personal",
+      "description": "Aplicación móvil nativa para Android (100% offline-first) para la adherencia médica y recordatorios de dosis multi-perfil con alarmas de alta precisión.",
+      "technologies": [
+        "Kotlin",
+        "Jetpack Compose",
+        "Material Design 3",
+        "Room Database",
+        "Koin",
+        "AlarmManager"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/meds-reminder",
+      "demo_url": "https://meds-reminder.ana-catalina.com"
+    },
+    {
+      "name": "Prima Focus",
+      "type": "personal",
+      "description": "Aplicación nativa de Android local-first construida con Kotlin Multiplatform, enfocada en la productividad mediante un sistema predictivo de prioridades, widgets con Jetpack Glance y sincronización P2P mediante Google Nearby Connections.",
+      "technologies": [
+        "Kotlin Multiplatform",
+        "Jetpack Compose",
+        "Jetpack Glance",
+        "Room Database v6",
+        "P2P Nearby Connections"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/prima-focus",
+      "demo_url": "https://prima-focus.ana-catalina.com"
+    },
+    {
+      "name": "Projects Hub — Terminal Interactiva",
+      "type": "personal",
+      "description": "El portafolio que estás viendo: una terminal Unix simulada 100% en el cliente para navegar mis proyectos por teclado o búsqueda, sin backend.",
+      "technologies": [
+        "Astro 7",
+        "TypeScript",
+        "Tailwind CSS v4",
+        "Zod",
+        "Vitest",
+        "Vercel"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/projects-hub",
+      "demo_url": null
+    },
+    {
+      "name": "Rest Your Eyes",
+      "type": "personal",
+      "description": "Aplicación nativa para Android diseñada para prevenir la fatiga visual generada por el uso prolongado de dispositivos móviles.",
+      "technologies": [
+        "Kotlin",
+        "Jetpack Compose",
+        "Foreground Services",
+        "Broadcast Receivers",
+        "Jetpack DataStore",
+        "MVVM"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/rest-your-eyes",
+      "demo_url": "https://rest-your-eyes.ana-catalina.com"
+    },
+    {
+      "name": "Screen Health Guardian",
+      "type": "personal",
+      "description": "Aplicación de escritorio nativa y ultraligera para Windows que promueve la salud visual y postural monitoreando la actividad real del usuario con soporte multimonitor.",
+      "technologies": [
+        "C#",
+        ".NET 9",
+        "WPF",
+        "XAML",
+        "Win32 API",
+        "Multi-Monitor",
+        "Fluent Design"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/screen-health-guardian",
+      "demo_url": "https://screen-health-guardian.ana-catalina.com"
+    },
+    {
+      "name": "Ayudante de Compras — Shopping List Helper",
+      "type": "personal",
+      "description": "Aplicación móvil nativa para Android (100% offline-first) para gestionar compras recurrentes del hogar y armar la lista de compras por tienda.",
+      "technologies": [
+        "Kotlin",
+        "Jetpack Compose",
+        "Material Design 3",
+        "Room Database"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/shopping-list-helper",
+      "demo_url": "https://shopping-list-helper.ana-catalina.com"
+    },
+    {
+      "name": "Smart Calendar Manager",
+      "type": "personal",
+      "description": "Aplicación de escritorio nativa para Windows 11 (WinUI 3 / .NET 9) que une agendas laboral y personal vía feeds iCal secretos, bloquea disponibilidad sin OAuth y automatiza la preparación de videollamadas.",
+      "technologies": [
+        "C# 13",
+        ".NET 9",
+        "WinUI 3",
+        "Windows App SDK",
+        "CommunityToolkit.Mvvm",
+        "RFC 5545 iCalendar",
+        "Google Apps Script",
+        "xUnit"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/smart-calendar-manager",
+      "demo_url": "https://smart-calendar-manager.ana-catalina.com"
+    },
+    {
+      "name": "System Core Monitor",
+      "type": "personal",
+      "description": "Panel interactivo de telemetría HUD y suite de control de rendimiento para Windows en C# nativo (.NET WPF/XAML) en un único ejecutable standalone de 585 KB sin dependencias externas.",
+      "technologies": [
+        "C#",
+        ".NET Framework 4.8",
+        "WPF",
+        "XAML",
+        "Win32 P/Invoke",
+        "PowrProf.dll",
+        "ntdll Kernel API",
+        "AI & MCP Process Monitor"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/system-core-monitor",
+      "demo_url": "https://system-core-monitor.ana-catalina.com"
+    },
+    {
+      "name": "Windows Icons Admin",
+      "type": "personal",
+      "description": "Utilidad de alto rendimiento para Windows 10 y 11 que automatiza la personalización masiva de iconos de carpetas y del sistema, con motor de reglas, codificador PNG a ICO nativo y refresco instantáneo del shell.",
+      "technologies": [
+        "C# 13",
+        ".NET 9",
+        "WinUI 3",
+        "Windows App SDK",
+        "Win32 P/Invoke",
+        "xUnit",
+        "Inno Setup"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/windows-icons-admin",
+      "demo_url": "https://windows-icons-admin.ana-catalina.com"
+    },
+    {
+      "name": "Workspace Companion",
+      "type": "personal",
+      "description": "Micro-herramienta flotante nativa para Windows (System Tray y Spotlight) para gestionar Git Worktrees, lanzadores desacoplados de IDEs y terminales, y alternancia de cuentas de GitHub CLI en 1 clic.",
+      "technologies": [
+        "Rust",
+        "Tauri v2",
+        "Svelte 5",
+        "TypeScript",
+        "Tailwind CSS",
+        "Git Porcelain Protocol",
         "GitHub CLI"
       ],
-      "repo_url": "https://github.com/AnaCataVC/work-activity-panel",
-      "demo_url": "https://github.com/AnaCataVC/work-activity-panel"
-    },
-    {
-      "name": "Interactive MCP Curriculum & Agent Server",
-      "type": "personal",
-      "description": "Servidor MCP oficial con transporte Streamable HTTP montado sobre FastAPI para consulta interactiva de trayectoria profesional por parte de LLMs (Claude.ai, Gemini, Cursor), preparado para despliegue Serverless en Google Cloud Run.",
-      "technologies": [
-        "Python",
-        "Model Context Protocol (MCP)",
-        "FastAPI",
-        "Streamable HTTP",
-        "Docker",
-        "Google Cloud Run"
-      ],
-      "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
-      "demo_url": null
-    },
-    {
-      "name": "Pipeline de Inferencia y Monitoreo de Modelos en Vertex AI",
-      "type": "laboral",
-      "description": "Arquitectura de entrenamiento continuo y despliegue de endpoints en Vertex AI con ingesta de datos directos desde BigQuery y containerización en Docker para simplificar el ciclo MLOps.",
-      "technologies": [
-        "Python",
-        "Vertex AI",
-        "BigQuery",
-        "Docker",
-        "GCP"
-      ],
-      "repo_url": null,
-      "demo_url": null
-    },
-    {
-      "name": "Predictive Maintenance & Asset Telemetry Engine",
-      "type": "laboral",
-      "description": "Motor analítico para detección de anomalías y predicción de fallas en equipos industriales a partir de señales de telemetría IoT.",
-      "technologies": [
-        "Python",
-        "SQL",
-        "Time-Series Analysis",
-        "Docker"
-      ],
-      "repo_url": null,
-      "demo_url": null
+      "repo_url": "https://github.com/AnaCataVC/workspace-companion",
+      "demo_url": "https://workspace-companion.ana-catalina.com"
     }
   ],
   "education": [
