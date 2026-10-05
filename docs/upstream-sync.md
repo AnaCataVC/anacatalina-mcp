@@ -49,5 +49,4 @@ Review the diff of `data/cv_data.json` before committing: identity fields (name 
 
 ## Limitations
 
-- The audit does not cover every field `--sync` writes. It checks SimpliRoute bullets, the skills matrix, flagship projects and missing translation keys. Other experience entries, education and the summaries are rebuilt by `--sync` but not compared.
-- Flagship projects are a fixed slug list inside `audit()`; a new flagship project in projects-hub needs that list updated.
+- The audit does not cover every field `--sync` writes. It checks SimpliRoute bullets, the skills matrix, all active projects in `projects-hub` (name, description, technologies, repo/demo URLs, and removal of archived projects), and missing translation keys. Other experience entries, education and the summaries are rebuilt by `--sync` but not compared.
