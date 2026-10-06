@@ -483,23 +483,6 @@
       "demo_url": "https://mcp.ana-catalina.com/"
     },
     {
-      "name": "Cute Agents Desk",
-      "type": "personal",
-      "description": "Panel de control y despacho de escritorio para coordinar agentes de IA de línea de comandos (Claude Code y Antigravity CLI) en repositorios locales con aislamiento por Git Worktrees.",
-      "technologies": [
-        "Electron 44",
-        "Node.js",
-        "node-pty",
-        "Claude Code",
-        "Antigravity CLI",
-        "Git Worktrees",
-        "ES Modules",
-        "Pastel-Tech CSS"
-      ],
-      "repo_url": "https://github.com/AnaCataVC/cute-agents-desk",
-      "demo_url": "https://cute-agents-desk.ana-catalina.com"
-    },
-    {
       "name": "Emotion Finder",
       "type": "personal",
       "description": "Detector interactivo de emociones y clasificador NLP afectivo basado en el Modelo Circunflejo de Russell y un árbol de decisión somático de 64 estados.",
