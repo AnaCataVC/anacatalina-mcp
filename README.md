@@ -16,7 +16,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat" alt="License MIT" /></a>
 </p>
 
-> **Official Model Context Protocol (MCP) Server** with **Streamable HTTP** transport over FastMCP, exposing an interactive CV and portfolio for AI assistants (Claude.ai, Cursor, Windsurf, Gemini) and LLM clients. Includes a self-contained web showcase and a production-ready container for Google Cloud Run.
+> **Official Model Context Protocol (MCP) Server** with **Streamable HTTP** transport over FastMCP, exposing an interactive CV and portfolio for AI assistants (Google Antigravity, Claude.ai, Cursor, Windsurf, Gemini) and LLM clients. Includes a self-contained web showcase and a production-ready container for Google Cloud Run.
 
 <div align="center">
   <h3>Live Server URL:</h3>
@@ -33,7 +33,7 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 ### Key Features
 - **Interactive Web Showcase & Playground:** Served at `/demo` (browsers hitting `/` are redirected to the product page) using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
 - **Transparent HTTP Content Negotiation:** Serves the interactive web interface to browsers (`Accept: text/html`) while preserving the structured JSON discovery payload for programmatic agents and curl.
-- **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Claude.ai** (custom connectors), **Gemini** (gemini.com Connected Apps) and **Cursor / Windsurf** (`mcp.json`).
+- **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Google Antigravity** (`mcp_config.json`), **Claude.ai** (custom connectors), **Gemini** (gemini.com Connected Apps) and **Cursor / Windsurf** (`mcp.json`).
 - **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
 
@@ -44,6 +44,7 @@ This project provides an official **Model Context Protocol (MCP)** server built 
 ```mermaid
 flowchart TD
     subgraph ClientLayer["AI Clients & Consumers"]
+        AG["Google Antigravity (mcp_config.json)<br/>Streamable HTTP (POST /mcp)"]
         A["Claude.ai (Custom Connector)<br/>Streamable HTTP (POST /mcp)"]
         B["Cursor / Windsurf (mcp.json)<br/>Streamable HTTP (POST /mcp)"]
         G["Gemini (gemini.com Connected Apps)<br/>Streamable HTTP (POST /mcp)"]
@@ -56,6 +57,7 @@ flowchart TD
         F[("data/cv_data.json<br/>(In-Memory Dataset)")]
     end
 
+    AG <-->|"JSON-RPC Streamable HTTP"| C
     A <-->|"JSON-RPC Streamable HTTP"| C
     B <-->|"JSON-RPC Streamable HTTP"| C
     G <-->|"JSON-RPC Streamable HTTP"| C
@@ -135,6 +137,16 @@ uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 
 ## Connecting AI Assistants
 
+- **Google Antigravity / Gemini CLI (`~/.gemini/config/mcp_config.json`):**
+  ```json
+  {
+    "mcpServers": {
+      "anacatalina-cv": {
+        "url": "https://mcp.ana-catalina.com/mcp"
+      }
+    }
+  }
+  ```
 - **Claude.ai:** Settings → Connectors → Add custom connector → URL: `https://mcp.ana-catalina.com/mcp`
 - **Cursor / Windsurf (`mcp.json`):**
   ```json

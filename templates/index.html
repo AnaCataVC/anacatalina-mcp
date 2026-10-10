@@ -869,7 +869,8 @@
       </p>
 
       <div class="tab-bar">
-        <button id="tab-cursor" class="tab-btn active" onclick="setTab('cursor')">Cursor &amp; Windsurf (mcp.json)</button>
+        <button id="tab-antigravity" class="tab-btn active" onclick="setTab('antigravity')">Antigravity (mcp_config.json)</button>
+        <button id="tab-cursor" class="tab-btn" onclick="setTab('cursor')">Cursor &amp; Windsurf (mcp.json)</button>
         <button id="tab-claude-web" class="tab-btn" onclick="setTab('claude-web')">Claude.ai (Conector Web)</button>
         <button id="tab-gemini" class="tab-btn" onclick="setTab('gemini')">Gemini (gemini.com)</button>
         <button id="tab-cli" class="tab-btn" onclick="setTab('cli')">cURL / CLI Health</button>
@@ -1077,6 +1078,13 @@
     };
 
     const CONFIGS = {
+      antigravity: JSON.stringify({
+        "mcpServers": {
+          "anacatalina-cv": {
+            "url": "https://mcp.ana-catalina.com/mcp"
+          }
+        }
+      }, null, 2),
       cursor: JSON.stringify({
         "mcpServers": {
           "anacatalina-cv": {
@@ -1090,7 +1098,7 @@
     };
 
     let currentLang = 'es';
-    let currentTab = 'cursor';
+    let currentTab = 'antigravity';
 
     /* ==========================================================================
        Language & Theme Handlers
@@ -1145,6 +1153,7 @@
        ========================================================================== */
     function setTab(tab) {
       currentTab = tab;
+      document.getElementById('tab-antigravity').classList.toggle('active', tab === 'antigravity');
       document.getElementById('tab-cursor').classList.toggle('active', tab === 'cursor');
       document.getElementById('tab-claude-web').classList.toggle('active', tab === 'claude-web');
       document.getElementById('tab-gemini').classList.toggle('active', tab === 'gemini');
@@ -1243,7 +1252,7 @@
     }
 
     // Initialize Default View
-    setTab('cursor');
+    setTab('antigravity');
     selectScenario('data-science');
   </script>
 </body>
