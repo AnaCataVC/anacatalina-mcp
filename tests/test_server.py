@@ -181,7 +181,7 @@ def test_root_browser_returns_showcase_html():
 
 
 def test_demo_endpoint():
-    """Tests direct /demo route returns the HTML showcase with the brand emblem."""
+    """Tests direct /demo route returns the HTML showcase with the robot mascot avatar."""
     client = TestClient(app)
     res = client.get("/demo")
     assert res.status_code == 200
@@ -192,7 +192,7 @@ def test_demo_endpoint():
 
 
 def test_icon_png_endpoint():
-    """Tests that /icon.png returns the brand emblem with image/png content type."""
+    """Tests that /icon.png returns the robot mascot avatar with image/png content type."""
     client = TestClient(app)
     res = client.get("/icon.png")
     assert res.status_code == 200

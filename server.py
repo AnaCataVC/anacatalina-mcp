@@ -237,7 +237,7 @@ async def apple_touch_icon(request: Request):
 
 @mcp.custom_route("/icon.png", methods=["GET"])
 async def icon_png(request: Request):
-    """Serves the official brand avatar / emblem icon."""
+    """Serves the official MCP server robot mascot icon."""
     png_path = Path(__file__).resolve().parent / "icon.png"
     if png_path.exists():
         return FileResponse(png_path, media_type="image/png")

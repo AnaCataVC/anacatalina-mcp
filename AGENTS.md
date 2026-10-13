@@ -98,7 +98,7 @@ anacatalina-mcp/
 ├── server.py                     # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
 ├── favicon.svg                   # Official geometric AV emblem SVG
 ├── favicon.ico                   # Multi-resolution fallback favicon
-├── icon.png                      # Official 1024x1024 geometric AV emblem PNG (from logo-av.png)
+├── icon.png                      # Official MCP server robot mascot PNG
 ├── logo-av.svg                   # Official geometric AV emblem vector SVG
 ├── logo-av.png                   # Official high-resolution geometric AV emblem PNG
 ├── AGENTS.md                     # This file
@@ -153,7 +153,7 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
-| `/icon.png` | `GET` | `image/png` | Serves the official geometric AV emblem PNG displayed in `README.md` and the Hero showcase. |
+| `/icon.png` | `GET` | `image/png` | Serves the official MCP server robot mascot PNG displayed in `README.md` and the Hero showcase. |
 | `/logo-av.svg` | `GET` | `image/svg+xml` | Serves the official geometric AV emblem SVG. |
 | `/logo-av.png` | `GET` | `image/png` | Serves the official high-resolution geometric AV emblem PNG. |
 | `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG (geometric AV emblem). |
