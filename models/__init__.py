@@ -11,6 +11,7 @@ from .cv import (
     ProjectItem,
     EducationItem,
     FitEvaluationResult,
+    SearchResult,
     CVData,
 )
 
@@ -24,5 +25,6 @@ __all__ = [
     "ProjectItem",
     "EducationItem",
     "FitEvaluationResult",
+    "SearchResult",
     "CVData",
 ]

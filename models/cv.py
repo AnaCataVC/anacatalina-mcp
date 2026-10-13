@@ -1,7 +1,7 @@
 """
 Pydantic data models for curriculum data validation and MCP tool outputs.
 """
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -89,6 +89,29 @@ class FitEvaluationResult(BaseModel):
     matching_strengths: List[str] = Field(description="Candidate strengths that match the job description")
     technologies_matched: List[str] = Field(description="Technologies mentioned in vacancy matching candidate's stack")
     added_value_summary: str = Field(description="Summary of high-impact contributions the candidate brings")
+
+
+class SearchResult(BaseModel):
+    """Structured output for cross-curriculum keyword search."""
+    query: str = Field(description="Search term executed")
+    matched_experiences_count: int = Field(description="Number of matching work experience entries")
+    experiences: List[ExperienceItem] = Field(
+        default_factory=list,
+        description="Matching work experience items"
+    )
+    matched_skills: List[str] = Field(
+        default_factory=list,
+        description="Matching skill descriptions with level and category"
+    )
+    matched_projects_count: int = Field(description="Number of matching projects")
+    projects: List[ProjectItem] = Field(
+        default_factory=list,
+        description="Matching project items"
+    )
+
+    def __getitem__(self, item: str) -> Any:
+        """Preserves dictionary-style indexing for backwards compatibility."""
+        return getattr(self, item)
 
 
 class CVData(BaseModel):

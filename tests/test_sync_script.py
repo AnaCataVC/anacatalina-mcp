@@ -2,7 +2,6 @@
 Unit tests for the MCP data synchronization script (scripts/sync_mcp_data.py).
 """
 from pathlib import Path
-import pytest
 from models.cv import CVData
 from scripts.sync_mcp_data import (
     clean_html,

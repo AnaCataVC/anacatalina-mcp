@@ -17,6 +17,7 @@ from models.cv import (
     ProjectItem,
     EducationItem,
     FitEvaluationResult,
+    SearchResult,
 )
 
 
@@ -119,7 +120,7 @@ class CVService:
         """Returns formal academic education history."""
         return self.cv.education
 
-    def search(self, query: str) -> Dict[str, Any]:
+    def search(self, query: str) -> SearchResult:
         """Performs cross-cutting keyword search across experience, skills, and projects."""
         q = query.lower().strip()
         matched_experience = [
@@ -143,14 +144,14 @@ class CVService:
             or any(q in t.lower() for t in proj.technologies)
         ]
 
-        return {
-            "query": query,
-            "matched_experiences_count": len(matched_experience),
-            "experiences": matched_experience,
-            "matched_skills": matched_skills,
-            "matched_projects_count": len(matched_projects),
-            "projects": matched_projects,
-        }
+        return SearchResult(
+            query=query,
+            matched_experiences_count=len(matched_experience),
+            experiences=matched_experience,
+            matched_skills=matched_skills,
+            matched_projects_count=len(matched_projects),
+            projects=matched_projects,
+        )
 
     def evaluate_job_fit(self, scenario_or_description: str) -> FitEvaluationResult:
         """Dynamically evaluates fit against candidate's real CV skills, technologies, and experience."""

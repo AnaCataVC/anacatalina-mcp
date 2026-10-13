@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import sys
 from pathlib import Path
@@ -443,7 +442,10 @@ class DataAuditor:
 
         # 4. Audit i18n keys the sync depends on (a missing key silently falls back to hardcoded text)
         if cv_translations:
-            self.generate_synchronized_dataset()
+            self.generate_synchronized_dataset(
+                cv_translations=cv_translations,
+                hub_projects=hub_projects,
+            )
             for key in sorted(self.missing_translation_keys):
                 report["discrepancies"].append({
                     "component": "cv_translations",
@@ -461,14 +463,20 @@ class DataAuditor:
             return fallback
         return value
 
-    def generate_synchronized_dataset(self) -> Dict[str, Any]:
+    def generate_synchronized_dataset(
+        self,
+        cv_translations: Optional[Dict[str, Dict[str, str]]] = None,
+        hub_projects: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
         """
         Merge and build the complete updated CVData structure.
         """
         self.missing_translation_keys: Set[str] = set()
         current_data = self.load_current_cv_data()
-        cv_translations = parse_i18n_js(self.cv_dir / "src" / "i18n.js")
-        hub_projects = scan_projects_hub(self.projects_dir)
+        if cv_translations is None:
+            cv_translations = parse_i18n_js(self.cv_dir / "src" / "i18n.js")
+        if hub_projects is None:
+            hub_projects = scan_projects_hub(self.projects_dir)
 
         new_data = json.loads(json.dumps(current_data)) if current_data else {}
 

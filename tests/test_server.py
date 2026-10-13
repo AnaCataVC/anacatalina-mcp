@@ -5,8 +5,10 @@ import pytest
 from starlette.testclient import TestClient
 
 from services.cv_service import CVService, get_cv_service
+from models.cv import SearchResult
 from server import (
     app,
+    STATIC_ASSETS,
     obtener_experiencia,
     obtener_stack_tecnologico,
     obtener_proyectos_destacados,
@@ -79,9 +81,16 @@ async def test_tool_evaluar_fit_puesto():
 
 @pytest.mark.asyncio
 async def test_tool_buscar_en_curriculum():
-    """Tests buscar_en_curriculum tool."""
+    """Tests buscar_en_curriculum tool and validates SearchResult contract."""
     search_res = await buscar_en_curriculum(consulta="Docker")
+    assert isinstance(search_res, SearchResult)
+    assert search_res.query == "Docker"
+    assert search_res.matched_skills or search_res.projects or search_res.experiences
+    # Backwards-compatible dict indexing
     assert search_res["matched_skills"] or search_res["projects"] or search_res["experiences"]
+    dumped = search_res.model_dump()
+    assert "matched_experiences_count" in dumped
+    assert "matched_projects_count" in dumped
 
 
 @pytest.mark.asyncio
@@ -369,3 +378,37 @@ def test_discovery_json_exposes_mcp_endpoint():
     data = response.json()
     assert "mcp_endpoint" in data
     assert data["mcp_endpoint"] == "/mcp"
+
+
+def test_benchmark_presets_semantic_coherence(service):
+    """Verifies that all 4 preset benchmarks in index.html match backend evaluate_job_fit output."""
+    # 1. Data Science preset
+    ds_res = service.evaluate_job_fit("data-science")
+    assert "Excepcional" in ds_res.estimated_fit_score
+    assert "Python" in ds_res.technologies_matched
+    assert "Vertex AI" in ds_res.technologies_matched
+
+    # 2. Logistics preset
+    log_res = service.evaluate_job_fit("logistics")
+    assert "Excepcional" in log_res.estimated_fit_score
+    assert "Optimización Logística" in log_res.technologies_matched
+
+    # 3. Agents preset
+    agent_res = service.evaluate_job_fit("agents")
+    assert "Excepcional" in agent_res.estimated_fit_score
+    assert "Model Context Protocol (MCP)" in agent_res.technologies_matched
+
+    # 4. Pop-singer negative test preset
+    pop_res = service.evaluate_job_fit("pop-singer")
+    assert "0%" in pop_res.estimated_fit_score
+    assert pop_res.technologies_matched == []
+
+
+def test_static_assets_dispatcher_coverage():
+    """Verifies that all routes registered in STATIC_ASSETS return 200 with matching Content-Type."""
+    client = TestClient(app)
+    for route, (file_path, expected_media_type) in STATIC_ASSETS.items():
+        res = client.get(route)
+        assert res.status_code == 200, f"Expected 200 for {route}"
+        assert expected_media_type in res.headers["content-type"], f"Expected {expected_media_type} for {route}"
+

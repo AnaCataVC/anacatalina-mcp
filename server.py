@@ -2,9 +2,10 @@
 server.py - Interactive Curriculum MCP Server with Streamable HTTP Transport.
 Configured for Google Cloud Run deployment and local inspection.
 """
+import functools
 import os
 from pathlib import Path
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse, FileResponse, Response
 from mcp.server.fastmcp import FastMCP
@@ -17,6 +18,7 @@ from models.cv import (
     ContactDetails,
     PersonalInfo,
     FitEvaluationResult,
+    SearchResult,
 )
 from services.cv_service import get_cv_service
 
@@ -74,7 +76,7 @@ async def evaluar_fit_puesto(descripcion_vacante: str) -> FitEvaluationResult:
     name="buscar_en_curriculum",
     description="Realiza una búsqueda transversal por palabra clave en todo el currículum de Ana-Catalina (experiencia, tecnologías, proyectos y responsabilidades)."
 )
-async def buscar_en_curriculum(consulta: str) -> Dict[str, Any]:
+async def buscar_en_curriculum(consulta: str) -> SearchResult:
     """Busca cualquier término en el historial laboral, proyectos y habilidades."""
     return cv_service.search(query=consulta)
 
@@ -116,25 +118,23 @@ async def obtener_resumen_ejecutivo(idioma: str = "es") -> str:
 
 
 # 3. Template Cache & Content Negotiation
-_TEMPLATE_PATH = Path(__file__).resolve().parent / "templates" / "index.html"
-_CACHED_HTML: Optional[str] = None
+_BASE_DIR = Path(__file__).resolve().parent
+_TEMPLATE_PATH = _BASE_DIR / "templates" / "index.html"
+
+
+@functools.lru_cache(maxsize=1)
+def _read_showcase_template() -> str:
+    """Reads and caches the showcase HTML template from disk."""
+    if not _TEMPLATE_PATH.exists():
+        raise FileNotFoundError(f"Showcase template not found at: {_TEMPLATE_PATH}")
+    return _TEMPLATE_PATH.read_text(encoding="utf-8")
 
 
 def get_showcase_html() -> str:
-    """Returns the cached showcase HTML template, reloading on debug."""
-    global _CACHED_HTML
-    if _CACHED_HTML is None or os.environ.get("DEBUG") == "1":
-        if _TEMPLATE_PATH.exists():
-            with open(_TEMPLATE_PATH, "r", encoding="utf-8") as f:
-                _CACHED_HTML = f.read()
-        else:
-            _CACHED_HTML = (
-                "<!DOCTYPE html><html lang='es'><head><meta charset='UTF-8'>"
-                "<title>Ana-Catalina MCP</title></head><body>"
-                "<h1>Ana-Catalina Interactive Portfolio MCP</h1>"
-                "<p>Showcase template not yet initialized.</p></body></html>"
-            )
-    return _CACHED_HTML
+    """Returns the cached showcase HTML template, clearing cache on debug."""
+    if os.environ.get("DEBUG") == "1":
+        _read_showcase_template.cache_clear()
+    return _read_showcase_template()
 
 
 DISCOVERY_PAYLOAD: Dict[str, Any] = {
@@ -144,6 +144,7 @@ DISCOVERY_PAYLOAD: Dict[str, Any] = {
     "mcp_endpoint": "/mcp",
     "health_endpoint": "/health",
     "web_showcase": "/demo",
+    # demo_endpoint is kept as a backwards-compatible alias of web_showcase
     "demo_endpoint": "/demo",
 }
 
@@ -172,85 +173,33 @@ async def demo_page(request: Request):
     )
 
 
-@mcp.custom_route("/favicon.svg", methods=["GET"])
-async def favicon_svg(request: Request):
-    """Serves the official brand logo SVG (geometric AV emblem)."""
-    svg_path = Path(__file__).resolve().parent / "favicon.svg"
-    if svg_path.exists():
-        return FileResponse(svg_path, media_type="image/svg+xml")
-    return Response(status_code=404)
+# Declarative static assets mapping: route -> (Path, media_type)
+STATIC_ASSETS: Dict[str, Tuple[Path, str]] = {
+    "/favicon.svg": (_BASE_DIR / "favicon.svg", "image/svg+xml"),
+    "/logo-av.svg": (_BASE_DIR / "logo-av.svg", "image/svg+xml"),
+    "/logo-av.png": (_BASE_DIR / "logo-av.png", "image/png"),
+    "/favicon.ico": (_BASE_DIR / "favicon.ico", "image/x-icon"),
+    "/favicon-32x32.png": (_BASE_DIR / "favicon-32x32.png", "image/png"),
+    "/favicon-96x96.png": (_BASE_DIR / "favicon-96x96.png", "image/png"),
+    "/apple-touch-icon.png": (_BASE_DIR / "apple-touch-icon.png", "image/png"),
+    "/icon.png": (_BASE_DIR / "icon.png", "image/png"),
+    "/poppy.svg": (_BASE_DIR / "templates" / "poppy.svg", "image/svg+xml"),
+}
 
 
-@mcp.custom_route("/logo-av.svg", methods=["GET"])
-async def logo_av_svg(request: Request):
-    """Serves the official geometric AV emblem SVG."""
-    svg_path = Path(__file__).resolve().parent / "logo-av.svg"
-    if svg_path.exists():
-        return FileResponse(svg_path, media_type="image/svg+xml")
-    return Response(status_code=404)
+def _register_static_asset(route: str, file_path: Path, media_type: str) -> None:
+    async def serve_asset(request: Request):
+        if file_path.exists():
+            return FileResponse(file_path, media_type=media_type)
+        return Response(status_code=404)
+
+    serve_asset.__name__ = f"serve_{route.strip('/').replace('.', '_').replace('-', '_')}"
+    serve_asset.__doc__ = f"Serves static asset {route} ({media_type})"
+    mcp.custom_route(route, methods=["GET"])(serve_asset)
 
 
-@mcp.custom_route("/logo-av.png", methods=["GET"])
-async def logo_av_png(request: Request):
-    """Serves the official geometric AV emblem PNG."""
-    png_path = Path(__file__).resolve().parent / "logo-av.png"
-    if png_path.exists():
-        return FileResponse(png_path, media_type="image/png")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/favicon.ico", methods=["GET"])
-async def favicon_ico(request: Request):
-    """Serves the favicon.ico."""
-    ico_path = Path(__file__).resolve().parent / "favicon.ico"
-    if ico_path.exists():
-        return FileResponse(ico_path, media_type="image/x-icon")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/favicon-32x32.png", methods=["GET"])
-async def favicon_32(request: Request):
-    """Serves the 32x32 favicon PNG."""
-    png_path = Path(__file__).resolve().parent / "favicon-32x32.png"
-    if png_path.exists():
-        return FileResponse(png_path, media_type="image/png")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/favicon-96x96.png", methods=["GET"])
-async def favicon_96(request: Request):
-    """Serves the 96x96 favicon PNG."""
-    png_path = Path(__file__).resolve().parent / "favicon-96x96.png"
-    if png_path.exists():
-        return FileResponse(png_path, media_type="image/png")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/apple-touch-icon.png", methods=["GET"])
-async def apple_touch_icon(request: Request):
-    """Serves the Apple touch icon PNG."""
-    png_path = Path(__file__).resolve().parent / "apple-touch-icon.png"
-    if png_path.exists():
-        return FileResponse(png_path, media_type="image/png")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/icon.png", methods=["GET"])
-async def icon_png(request: Request):
-    """Serves the official MCP server robot mascot icon."""
-    png_path = Path(__file__).resolve().parent / "icon.png"
-    if png_path.exists():
-        return FileResponse(png_path, media_type="image/png")
-    return Response(status_code=404)
-
-
-@mcp.custom_route("/poppy.svg", methods=["GET"])
-async def poppy_svg(request: Request):
-    """Serves the botanical poppy SVG watermark."""
-    svg_path = Path(__file__).resolve().parent / "templates" / "poppy.svg"
-    if svg_path.exists():
-        return FileResponse(svg_path, media_type="image/svg+xml")
-    return Response(status_code=404)
+for _route, (_file_path, _media_type) in STATIC_ASSETS.items():
+    _register_static_asset(_route, _file_path, _media_type)
 
 
 @mcp.custom_route("/health", methods=["GET"])
@@ -291,15 +240,7 @@ async def api_search(request: Request):
     """Standalone REST endpoint: cross-curriculum keyword search across experience, skills, and projects via direct HTTP."""
     query = request.query_params.get("q", "")
     res = cv_service.search(query=query)
-    payload = {
-        "query": res["query"],
-        "matched_experiences_count": res["matched_experiences_count"],
-        "experiences": [e.model_dump() for e in res["experiences"]],
-        "matched_skills": res["matched_skills"],
-        "matched_projects_count": res["matched_projects_count"],
-        "projects": [p.model_dump() for p in res["projects"]],
-    }
-    return JSONResponse(payload, status_code=200)
+    return JSONResponse(res.model_dump(), status_code=200)
 
 
 @mcp.custom_route("/api/skills", methods=["GET"])
