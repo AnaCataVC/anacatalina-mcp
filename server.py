@@ -199,6 +199,15 @@ async def icon_png(request: Request):
     return Response(status_code=404)
 
 
+@mcp.custom_route("/poppy.svg", methods=["GET"])
+async def poppy_svg(request: Request):
+    """Serves the botanical poppy SVG watermark."""
+    svg_path = Path(__file__).resolve().parent / "templates" / "poppy.svg"
+    if svg_path.exists():
+        return FileResponse(svg_path, media_type="image/svg+xml")
+    return Response(status_code=404)
+
+
 @mcp.custom_route("/health", methods=["GET"])
 async def health_check(request: Request):
     """Health check endpoint for Google Cloud Run container liveness."""

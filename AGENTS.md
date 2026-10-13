@@ -187,13 +187,11 @@ When modifying `templates/index.html`:
 3. **Zero Broken Mockups:**
    - Every single button, chip, tab switcher, and copy block must be 100% operational in live production.
    - Do not leave decorative placeholders, non-functional inputs, or broken links.
-4. **Color Tokens (Pastel Palette):**
-   - `--color-pastel-lilac`: `#C7B8EA`
-   - `--color-pastel-accent`: `#8F6FFF`
-   - `--color-pastel-mint`: `#C8F3E0`
-   - `--color-pastel-pink`: `#F7C6D9`
-   - `--color-pastel-blue`: `#BCDFFB`
-   - Base canvas uses Dark Theme (`#1E1A2B`) by default with clean Slate grays.
+4. **Color Tokens (Pastel-Tech System — DESIGN_SYSTEM.md):**
+   - Brand Triad: `--color-brand-purple` (`#9A82E8`), `--color-brand-purple-light` (`#A78BFA`), `--color-brand-magenta` (`#E573A7`), `--color-brand-cyan` (`#4DD0E1`).
+   - Pastel Support: `--color-pastel-lilac` (`#CDB4F6`), `--color-pastel-pink` (`#FBCFE8`), `--color-pastel-cyan` (`#B2EFF7`), `--color-pastel-blue` (`#BCDFFB`), `--color-pastel-mint` (`#C8F3E0`).
+   - Surfaces: Canvas Dark (`#0F172A`), container surfaces (`#1E293B`), Canvas Light (`#F8FAFC`), surfaces (`#FFFFFF`).
+   - Decorative Watermark: Botanical poppy line-art flower SVG (`templates/poppy.svg` / `/poppy.svg`).
 5. **Mobile Responsiveness:**
    - Use elastic `1fr` grid columns on mobile screens (`@media (max-width: 768px)`).
    - Stack header actions vertically with centered brand icon.
@@ -209,7 +207,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (47 tests)
+# Run full test suite (48 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
@@ -353,9 +351,11 @@ Every repository in the portfolio must strictly adhere to the following universa
    - Flags represent sovereign states, not languages; terminal emulators, Windows shells, and XAML render them as broken letters (`[U][S]`) or tofu glyphs (`□□`). Always use ISO codes (`ES`, `EN`) or text labels (`Español`, `English`).
 
 5. **Design Palette & Aesthetics (Pastel-Tech System):**
-   - Color palette tokens: Pastel Lilac (`#C7B8EA`), Pastel Pink (`#F7C6D9`), Pastel Blue (`#BCDFFB`), Pastel Mint (`#C8F3E0`), and Dark Canvas (`#1E1A2B` / `#0B0F19`).
-   - Typography: `Outfit` for geometric headings, `Inter` for crisp body copy, `JetBrains Mono` for code/specs.
-   - Zero Broken Mockups: Every button, toggle, link, and interactive widget must be 100% operational in production.
+   - **Brand Core Triad**: Tech Lavender (`#9A82E8` / `#A78BFA` in dark text), Petal Rose (`#E573A7`), Crystal Aqua (`#4DD0E1`).
+   - **Pastel Support Tokens**: Pastel Lilac (`#CDB4F6`), Pastel Pink (`#FBCFE8`), Pastel Cyan (`#B2EFF7`), Pastel Blue (`#BCDFFB`), Pastel Mint (`#C8F3E0`), and Dark Canvas (`#1E1A2B` / `#0F172A`).
+   - **Visual Brand Anchor**: Geometric AV triangular emblem with continuous harmonic gradient.
+   - **Typography**: `Outfit` for geometric headings, `Inter` for crisp body copy, `JetBrains Mono` for code/specs.
+   - **Zero Broken Mockups**: Every button, toggle, link, and interactive widget must be 100% operational in production.
 
 ---
 

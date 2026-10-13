@@ -200,6 +200,15 @@ def test_icon_png_endpoint():
     assert len(res.content) > 1000
 
 
+def test_poppy_svg_endpoint():
+    """Tests that /poppy.svg returns the botanical poppy SVG with image/svg+xml content type."""
+    client = TestClient(app)
+    res = client.get("/poppy.svg")
+    assert res.status_code == 200
+    assert "image/svg+xml" in res.headers["content-type"]
+    assert len(res.content) > 1000
+
+
 def test_api_evaluate_fit_success():
     """Tests POST /api/evaluate-fit with valid tech vacancy."""
     client = TestClient(app)
