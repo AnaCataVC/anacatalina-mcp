@@ -181,7 +181,7 @@ def test_root_browser_returns_showcase_html():
 
 
 def test_demo_endpoint():
-    """Tests direct /demo route returns the HTML showcase with the robot avatar."""
+    """Tests direct /demo route returns the HTML showcase with the brand emblem."""
     client = TestClient(app)
     res = client.get("/demo")
     assert res.status_code == 200
@@ -192,11 +192,47 @@ def test_demo_endpoint():
 
 
 def test_icon_png_endpoint():
-    """Tests that /icon.png returns the robot avatar with image/png content type."""
+    """Tests that /icon.png returns the brand emblem with image/png content type."""
     client = TestClient(app)
     res = client.get("/icon.png")
     assert res.status_code == 200
     assert "image/png" in res.headers["content-type"]
+    assert len(res.content) > 1000
+
+
+def test_logo_av_svg_endpoint():
+    """Tests that /logo-av.svg returns the geometric AV emblem SVG with image/svg+xml content type."""
+    client = TestClient(app)
+    res = client.get("/logo-av.svg")
+    assert res.status_code == 200
+    assert "image/svg+xml" in res.headers["content-type"]
+    assert len(res.content) > 500
+
+
+def test_logo_av_png_endpoint():
+    """Tests that /logo-av.png returns the geometric AV emblem PNG with image/png content type."""
+    client = TestClient(app)
+    res = client.get("/logo-av.png")
+    assert res.status_code == 200
+    assert "image/png" in res.headers["content-type"]
+    assert len(res.content) > 1000
+
+
+def test_favicon_svg_endpoint():
+    """Tests that /favicon.svg returns the AV emblem SVG with image/svg+xml content type."""
+    client = TestClient(app)
+    res = client.get("/favicon.svg")
+    assert res.status_code == 200
+    assert "image/svg+xml" in res.headers["content-type"]
+    assert len(res.content) > 500
+
+
+def test_favicon_ico_endpoint():
+    """Tests that /favicon.ico returns the favicon with image/x-icon content type."""
+    client = TestClient(app)
+    res = client.get("/favicon.ico")
+    assert res.status_code == 200
+    assert "image/x-icon" in res.headers["content-type"]
     assert len(res.content) > 1000
 
 

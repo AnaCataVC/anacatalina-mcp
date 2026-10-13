@@ -174,10 +174,28 @@ async def demo_page(request: Request):
 
 @mcp.custom_route("/favicon.svg", methods=["GET"])
 async def favicon_svg(request: Request):
-    """Serves the official brand logo SVG."""
+    """Serves the official brand logo SVG (geometric AV emblem)."""
     svg_path = Path(__file__).resolve().parent / "favicon.svg"
     if svg_path.exists():
         return FileResponse(svg_path, media_type="image/svg+xml")
+    return Response(status_code=404)
+
+
+@mcp.custom_route("/logo-av.svg", methods=["GET"])
+async def logo_av_svg(request: Request):
+    """Serves the official geometric AV emblem SVG."""
+    svg_path = Path(__file__).resolve().parent / "logo-av.svg"
+    if svg_path.exists():
+        return FileResponse(svg_path, media_type="image/svg+xml")
+    return Response(status_code=404)
+
+
+@mcp.custom_route("/logo-av.png", methods=["GET"])
+async def logo_av_png(request: Request):
+    """Serves the official geometric AV emblem PNG."""
+    png_path = Path(__file__).resolve().parent / "logo-av.png"
+    if png_path.exists():
+        return FileResponse(png_path, media_type="image/png")
     return Response(status_code=404)
 
 
@@ -190,9 +208,36 @@ async def favicon_ico(request: Request):
     return Response(status_code=404)
 
 
+@mcp.custom_route("/favicon-32x32.png", methods=["GET"])
+async def favicon_32(request: Request):
+    """Serves the 32x32 favicon PNG."""
+    png_path = Path(__file__).resolve().parent / "favicon-32x32.png"
+    if png_path.exists():
+        return FileResponse(png_path, media_type="image/png")
+    return Response(status_code=404)
+
+
+@mcp.custom_route("/favicon-96x96.png", methods=["GET"])
+async def favicon_96(request: Request):
+    """Serves the 96x96 favicon PNG."""
+    png_path = Path(__file__).resolve().parent / "favicon-96x96.png"
+    if png_path.exists():
+        return FileResponse(png_path, media_type="image/png")
+    return Response(status_code=404)
+
+
+@mcp.custom_route("/apple-touch-icon.png", methods=["GET"])
+async def apple_touch_icon(request: Request):
+    """Serves the Apple touch icon PNG."""
+    png_path = Path(__file__).resolve().parent / "apple-touch-icon.png"
+    if png_path.exists():
+        return FileResponse(png_path, media_type="image/png")
+    return Response(status_code=404)
+
+
 @mcp.custom_route("/icon.png", methods=["GET"])
 async def icon_png(request: Request):
-    """Serves the official robot avatar icon."""
+    """Serves the official brand avatar / emblem icon."""
     png_path = Path(__file__).resolve().parent / "icon.png"
     if png_path.exists():
         return FileResponse(png_path, media_type="image/png")

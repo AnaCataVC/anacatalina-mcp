@@ -96,9 +96,11 @@ anacatalina-mcp/
 ├── requirements.txt              # Production runtime dependencies (pinned mcp<2)
 ├── requirements-dev.txt          # Development dependencies (pytest, pytest-asyncio, httpx)
 ├── server.py                     # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
-├── favicon.svg                   # Official ACVC geometric monogram SVG
-├── favicon.ico                   # Fallback favicon
-├── icon.png                      # Repository and client avatar
+├── favicon.svg                   # Official geometric AV emblem SVG
+├── favicon.ico                   # Multi-resolution fallback favicon
+├── icon.png                      # Official 1024x1024 geometric AV emblem PNG (from logo-av.png)
+├── logo-av.svg                   # Official geometric AV emblem vector SVG
+├── logo-av.png                   # Official high-resolution geometric AV emblem PNG
 ├── AGENTS.md                     # This file
 └── README.md                     # Bilingual portfolio README
 ```
@@ -151,9 +153,12 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
-| `/icon.png` | `GET` | `image/png` | Serves the official robot avatar mascot image displayed in `README.md` and the Hero showcase. |
-| `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG monogram. |
-| `/favicon.ico` | `GET` | `image/x-icon` | Serves the fallback favicon. |
+| `/icon.png` | `GET` | `image/png` | Serves the official geometric AV emblem PNG displayed in `README.md` and the Hero showcase. |
+| `/logo-av.svg` | `GET` | `image/svg+xml` | Serves the official geometric AV emblem SVG. |
+| `/logo-av.png` | `GET` | `image/png` | Serves the official high-resolution geometric AV emblem PNG. |
+| `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG (geometric AV emblem). |
+| `/favicon.ico` | `GET` | `image/x-icon` | Serves the multi-resolution fallback favicon. |
+| `/poppy.svg` | `GET` | `image/svg+xml` | Serves the botanical poppy watermark line-art SVG. |
 
 ---
 
