@@ -31,8 +31,8 @@
 This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and technical evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
 
 ### Key Features
-- **Interactive Web Showcase & Playground:** Served at `/demo` (browsers hitting `/` are redirected to the product page) using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
-- **Transparent HTTP Content Negotiation:** Serves the interactive web interface to browsers (`Accept: text/html`) while preserving the structured JSON discovery payload for programmatic agents and curl.
+- **Interactive Web Showcase & Playground:** Served directly at `/` (serves 200 OK directly to browsers via transparent content negotiation, with `/demo` as direct alias) using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
+- **Transparent HTTP Content Negotiation:** Serves the interactive web interface directly to browsers (`Accept: text/html`) with HTTP 200 without redirects, while preserving the structured JSON discovery payload for programmatic agents and cURL.
 - **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Google Antigravity** (`mcp_config.json`), **Claude.ai** (custom connectors), **Gemini** (gemini.com Connected Apps) and **Cursor / Windsurf** (`mcp.json`).
 - **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
@@ -78,7 +78,7 @@ The server exposes **9 official tools** registered via the Model Context Protoco
 | `obtener_stack_tecnologico` | `categoria` *(str, optional)*<br/>`nivel` *(str, optional)* | `List[SkillCategory]` | Technologies, languages (Python, SQL), Cloud/GCP (BigQuery, Vertex AI) and Docker by category and level. |
 | `obtener_proyectos_destacados` | `tipo` *(str, optional)*<br/>`tecnologia` *(str, optional)* | `List[ProjectItem]` | Highlighted portfolio projects, architecture, stack, and live demos/repo links. |
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Evaluates job requirements and calculates compatibility score, matching strengths, and value proposition. |
-| `buscar_en_curriculum` | `consulta` *(str, required)* | `Dict[str, Any]` | Cross-cutting keyword search across experience, skills, projects, and education. |
+| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, projects, and education (Pydantic model with backwards-compatible dict indexing). |
 | `obtener_educacion` | *None* | `List[EducationItem]` | Formal university degrees, institutions, and specializations. |
 | `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact channels (Email, LinkedIn). |
 | `obtener_perfil` | *None* | `PersonalInfo` | General profile: name, title, location, and portfolio links. |
@@ -86,20 +86,29 @@ The server exposes **9 official tools** registered via the Model Context Protoco
 
 ---
 
-## Key Learnings
+### Key Learnings & Architectural Decisions
 
 1. **MCP Transport Evolution (Migration to Streamable HTTP):**
    - Traditional remote MCP servers relied on complex multi-endpoint SSE combinations (`/sse` and `/messages/`).
    - The modern MCP specification introduced **Streamable HTTP** (`/mcp`) via a single unified HTTP POST endpoint supporting both JSON responses and streaming events (`Accept: application/json, text/event-stream`).
    - This eliminates local `stdio` bridge overhead for remote clients and enables direct cloud connections from Claude.ai, Cursor, and Windsurf.
 
-2. **Decoupled Architecture & Schema Validation:**
+2. **Decoupled Architecture & Strongly-Typed Contracts (`SearchResult`):**
    - Separating raw data (`data/cv_data.json`), interface contracts (`models/cv.py`), and domain services (`services/cv_service.py`) ensures that CV content updates never compromise server stability or type safety.
+   - Formalizing `SearchResult` with Pydantic v2 and backwards-compatible dictionary indexing (`__getitem__`) exposes explicit JSON Schemas to LLM assistants without breaking existing callers or test assertions.
 
-3. **Pinned Stability Across MCP SDK Versions:**
+3. **Transparent HTTP Content Negotiation (Zero Redirects):**
+   - Root `GET /` serves HTML directly to web browsers (`Accept: text/html`) with HTTP 200 while delivering JSON discovery to automated agents, eliminating 301/302 redirect latency.
+   - Template caching via `@functools.lru_cache(maxsize=1)` ensures zero-overhead template delivery while supporting live reloads in local development (`DEBUG=1`).
+
+4. **Declarative Static Asset Dispatcher & Test Suite Coverage:**
+   - Centralizing all static assets in a single immutable `STATIC_ASSETS` registry in `server.py` eliminated 60+ lines of duplicate routing code while strictly preserving root canonical URLs and preventing path traversal.
+   - Full automated test suite expanded to **54 passing tests** covering MCP tools, REST endpoints, content negotiation, and semantic benchmark consistency.
+
+5. **Pinned Stability Across MCP SDK Versions (`mcp>=1.3.0,<2`):**
    - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. Pinning `mcp>=1.3.0,<2` preserves Cloud Run production stability without forced premature rewrites.
 
-4. **Automated Upstream Drift Detection:**
+6. **Automated Upstream Drift Detection (`upstream-drift.yml`):**
    - Built a GitHub Actions workflow (`upstream-drift.yml`) using semantic content comparison to detect discrepancies and missing keys between `data/cv_data.json` and sibling repositories (`anacatalina-cv`, `projects-hub`).
 
 ---

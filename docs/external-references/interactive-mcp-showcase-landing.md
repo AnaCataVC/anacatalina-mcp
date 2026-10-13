@@ -1,5 +1,9 @@
 # Architecture & Technical Research: Interactive Showcase & Playground for MCP Server
 
+> [!NOTE]
+> **Status:** Implemented & Active Reference.
+> The architecture detailed below was successfully implemented as an in-memory deterministic engine with transparent HTTP content negotiation on `GET /` (returning 200 OK HTML without redirects), cached via `@functools.lru_cache(maxsize=1)`, alongside unified Streamable HTTP on `/mcp`.
+
 ## 1. Executive Summary & Problem Context
 
 The `anacatalina-mcp` service runs as a containerized Model Context Protocol (MCP) server on Google Cloud Run. While it effectively exposes 9 MCP tools over Server-Sent Events (SSE) and local `stdio` (via `conecta_cata.py`), its primary human-facing URL (`https://anacatalina-mcp-165536131179.us-central1.run.app/`) currently returns a raw JSON dictionary (`{"name": "...", "status": "healthy"}`).

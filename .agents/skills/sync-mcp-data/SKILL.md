@@ -71,7 +71,7 @@ Para volcar las actualizaciones validadas a `data/cv_data.json`:
 ```
 
 ### 4. Quality Gate & Verificación
-Validar que la suite de 27+ pruebas automatizadas pase con 100% de éxito:
+Validar que la suite de 54 pruebas automatizadas pase con 100% de éxito:
 
 ```powershell
 .venv\Scripts\python.exe -m pytest tests/ -v

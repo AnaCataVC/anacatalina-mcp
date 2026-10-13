@@ -89,7 +89,7 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_content_negotiation.py # 7 automated tests for root HTML/JSON content negotiation
-│   ├── test_server.py            # 28 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets)
+│   ├── test_server.py            # 35 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets, benchmarks)
 │   └── test_sync_script.py       # 12 automated tests for cross-repo synchronization engine
 ├── Dockerfile                    # Container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
@@ -131,7 +131,7 @@ The FastMCP server exposes **9 official tools** via the standard MCP protocol:
 | `obtener_stack_tecnologico` | `categoria` *(str, optional)*<br/>`nivel` *(str, optional)* | `List[SkillCategory]` | Technical skill matrix (Python, SQL, BigQuery, Vertex AI, Docker) with proficiency levels. |
 | `obtener_proyectos_destacados` | `tipo` *(str, optional)*<br/>`tecnologia` *(str, optional)* | `List[ProjectItem]` | Flagship personal and professional projects with architectures and demo links. |
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Dynamic vacancy fit analysis matching technologies against CV skills, returning score, strengths, and added value. |
-| `buscar_en_curriculum` | `consulta` *(str, required)* | `Dict[str, Any]` | Cross-cutting keyword search across experience, skills, and projects in memory. |
+| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, and projects in memory (Pydantic model with backwards-compatible dict indexing). |
 | `obtener_educacion` | *None* | `List[EducationItem]` | Formal degree and academic background from Universidad de Chile. |
 | `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact email and LinkedIn URL. |
 | `obtener_perfil` | *None* | `PersonalInfo` | General profile: display name, first/middle/last names, full name, headline, location, and GitHub. |
@@ -158,6 +158,9 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/logo-av.png` | `GET` | `image/png` | Serves the official high-resolution geometric AV emblem PNG. |
 | `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG (geometric AV emblem). |
 | `/favicon.ico` | `GET` | `image/x-icon` | Serves the multi-resolution fallback favicon. |
+| `/favicon-32x32.png` | `GET` | `image/png` | Serves the 32x32 raster favicon PNG. |
+| `/favicon-96x96.png` | `GET` | `image/png` | Serves the 96x96 raster favicon PNG. |
+| `/apple-touch-icon.png` | `GET` | `image/png` | Serves the Apple touch icon PNG. |
 | `/poppy.svg` | `GET` | `image/svg+xml` | Serves the botanical poppy watermark line-art SVG. |
 
 ---
@@ -212,7 +215,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (48 tests)
+# Run full test suite (54 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
