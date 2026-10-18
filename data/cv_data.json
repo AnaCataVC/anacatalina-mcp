@@ -28,8 +28,8 @@
       "type": "laboral",
       "responsibilities": [
         "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes.",
-        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad y estandarización de microservicios con tolerancia a fallos.",
-        "Gestión y modelado de datos a gran escala en Google BigQuery y orquestación de flujos de eventos mediante Google Pub/Sub y Apache Airflow, garantizando alta confiabilidad operativa, linaje de datos y telemetría crítica.",
+        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad, concurrencia segura y tolerancia a fallos.",
+        "Gestión y modelado de datos a gran escala en Google BigQuery, canalizaciones de procesamiento distribuido con Google Cloud Dataflow / Apache Beam y orquestación con Google Pub/Sub y Apache Airflow, garantizando linaje de datos y telemetría crítica.",
         "Participación en la evolución y operación de modelos predictivos en producción, automatizando flujos de reentrenamiento y monitoreo de desempeño."
       ],
       "technologies": [
@@ -441,7 +441,7 @@
     {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 24 skills declarativas portátiles. 100% compatible con Antigravity (Gemini) y Claude Code.",
+      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 25 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",
@@ -474,9 +474,12 @@
         "Python 3.12",
         "FastMCP",
         "Streamable-HTTP",
+        "FastAPI / Starlette",
+        "Pydantic v2",
         "Docker",
         "Google Cloud Run",
         "Model Context Protocol",
+        "Google Antigravity",
         "Gemini Connected Apps"
       ],
       "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
