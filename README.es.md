@@ -90,7 +90,7 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 
 - **Lenguaje y Runtime:** Python 3.12+
 - **Framework MCP y Transporte:** SDK Oficial de Anthropic (`mcp>=1.3.0,<2.0.0`, `FastMCP` sobre Streamable HTTP `/mcp`)
-- **Servidor Web / ASGI:** Starlette (`<1.0.0`) + Uvicorn (`<1.0.0`) + Middleware ASGI Puro de Seguridad y Rate Limiting
+- **Servidor Web / ASGI:** Starlette (`<2.0.0`) + Uvicorn (`<1.0.0`) + Middleware ASGI Puro de Seguridad y Rate Limiting
 - **Validación de Datos y Contratos:** Pydantic v2 (`<3.0.0`)
 - **Showcase Frontend:** HTML5, CSS3 (*Pastel-Tech Design System*) y ES6 autocontenido (`/demo` y `GET /`)
 - **Contenedorización y Cloud:** Docker sin privilegios (`python:3.12-slim`, `appuser`) desplegado en Google Cloud Run
@@ -195,7 +195,7 @@ python scripts/sync_mcp_data.py --check-only
    - La suite de pruebas automatizadas se amplió a **57 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
 
 5. **Acotamiento de Dependencias y Poda de Paquetes No Utilizados (`requirements.txt`):**
-   - La versión `2.0.0` del SDK oficial de MCP introdujo cambios incompatibles en `FastMCP`. Todas las dependencias de producción aplican cotas superiores explícitas (`mcp>=1.3.0,<2.0.0`, `starlette<1.0.0`, `pydantic<3.0.0`) y se eliminaron paquetes no utilizados (`fastapi`) para reducir la superficie de ataque del contenedor.
+   - La versión `2.0.0` del SDK oficial de MCP introdujo cambios incompatibles en `FastMCP`. Todas las dependencias de producción aplican cotas superiores explícitas (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) y se eliminaron paquetes no utilizados (`fastapi`) para reducir la superficie de ataque del contenedor.
 
 6. **Detección Automatizada de Deriva (Upstream Drift Detection):**
    - Para mantener los datos de `data/cv_data.json` permanentemente consistentes con los repositorios fuente (`anacatalina-cv` y `projects-hub`), se diseñó un flujo automatizado de auditoría en GitHub Actions (`upstream-drift.yml`) basado en comparación semántica de contenido.

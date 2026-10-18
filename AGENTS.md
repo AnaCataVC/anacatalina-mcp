@@ -256,7 +256,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 These items document deliberate architectural choices and operational boundaries:
 
 1. **Upper-Bound Dependency Pinning (`requirements.txt`):**
-   - All production dependencies in `requirements.txt` (`mcp<2.0.0`, `uvicorn<1.0.0`, `starlette<1.0.0`, `pydantic<3.0.0`, `anyio<5.0.0`, `httpx<1.0.0`) enforce explicit major upper bounds to prevent unverified upstream major releases from breaking Cloud Run builds.
+   - All production dependencies in `requirements.txt` (`mcp<2.0.0`, `uvicorn<1.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`, `anyio<5.0.0`, `httpx<1.0.0`) enforce explicit major upper bounds to prevent unverified upstream major releases from breaking Cloud Run builds.
    - Unused `fastapi` was removed from `requirements.txt` because `server.py` operates directly over `FastMCP` and `Starlette`.
 
 2. **Unversioned `cloudbuild.yaml`:**

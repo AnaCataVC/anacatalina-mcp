@@ -90,7 +90,7 @@ The server exposes **9 official tools** registered via the Model Context Protoco
 
 - **Language & Runtime:** Python 3.12+
 - **MCP Framework & Transport:** Official Anthropic SDK (`mcp>=1.3.0,<2.0.0`, `FastMCP` over Streamable HTTP `/mcp`)
-- **Web / ASGI Server:** Starlette (`<1.0.0`) + Uvicorn (`<1.0.0`) + Pure-ASGI Security & Rate-Limiting Middleware
+- **Web / ASGI Server:** Starlette (`<2.0.0`) + Uvicorn (`<1.0.0`) + Pure-ASGI Security & Rate-Limiting Middleware
 - **Data Validation & Contracts:** Pydantic v2 (`<3.0.0`)
 - **Frontend Showcase:** Self-contained Vanilla HTML5, CSS3 (*Pastel-Tech Design System*), and Modern ES6 (`/demo` & `GET /`)
 - **Containerization & Cloud:** Non-root Docker (`python:3.12-slim`, `appuser`) deployed on Google Cloud Run
@@ -195,7 +195,7 @@ python scripts/sync_mcp_data.py --check-only
    - Full automated test suite expanded to **57 passing tests** covering MCP tools, REST endpoints, content negotiation, security headers, rate limiting, and semantic benchmark consistency.
 
 5. **Upper-Bound Dependency Pinning & Unused Package Pruning (`requirements.txt`):**
-   - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. All runtime dependencies enforce explicit major upper bounds (`mcp>=1.3.0,<2.0.0`, `starlette<1.0.0`, `pydantic<3.0.0`) and unused transitive wrappers (`fastapi`) were pruned to reduce container attack surface.
+   - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. All runtime dependencies enforce explicit major upper bounds (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) and unused transitive wrappers (`fastapi`) were pruned to reduce container attack surface.
 
 6. **Automated Upstream Drift Detection (`upstream-drift.yml`):**
    - Built a GitHub Actions workflow (`upstream-drift.yml`) using semantic content comparison to detect discrepancies and missing keys between `data/cv_data.json` and sibling repositories (`anacatalina-cv`, `projects-hub`).
