@@ -192,7 +192,7 @@ python scripts/sync_mcp_data.py --check-only
 
 4. **Declarative Static Asset Dispatcher & Test Suite Coverage:**
    - Centralizing all static assets in a single immutable `STATIC_ASSETS` registry in `server.py` eliminated 60+ lines of duplicate routing code while strictly preserving root canonical URLs and preventing path traversal.
-   - Full automated test suite expanded to **57 passing tests** covering MCP tools, REST endpoints, content negotiation, security headers, rate limiting, and semantic benchmark consistency.
+   - Full automated test suite expanded to **59 passing tests** covering MCP tools, REST endpoints, content negotiation, security headers, rate limiting, and semantic benchmark consistency.
 
 5. **Upper-Bound Dependency Pinning & Unused Package Pruning (`requirements.txt`):**
    - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. All runtime dependencies enforce explicit major upper bounds (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) and unused transitive wrappers (`fastapi`) were pruned to reduce container attack surface.

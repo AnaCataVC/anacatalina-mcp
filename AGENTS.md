@@ -91,21 +91,23 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_content_negotiation.py # 7 automated tests for root HTML/JSON content negotiation
-│   ├── test_server.py            # 38 automated tests (Streamable HTTP, MCP tools, REST APIs, security, rate limit)
+│   ├── test_server.py            # 40 automated tests (Streamable HTTP, MCP tools, REST APIs, security, rate limit)
 │   └── test_sync_script.py       # 12 automated tests for cross-repo synchronization engine
 ├── Dockerfile                    # Non-root container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
 ├── requirements.txt              # Production runtime dependencies with explicit upper bounds
 ├── requirements-dev.txt          # Development dependencies (pytest, pytest-asyncio, pytest-cov, pip-audit)
 ├── server.py                     # Main entrypoint: FastMCP server, route handlers, ASGI security & rate limit
-├── favicon.svg                   # Official geometric AV emblem SVG
+├── favicon.svg                   # Official brand emblem SVG
 ├── favicon.ico                   # Multi-resolution fallback favicon
 ├── favicon-32x32.png             # 32x32 raster favicon PNG
 ├── favicon-96x96.png             # 96x96 raster favicon PNG
 ├── apple-touch-icon.png          # Apple touch icon PNG
 ├── icon.png                      # Official MCP server robot mascot PNG
-├── logo-av.svg                   # Official geometric AV emblem vector SVG
-├── logo-av.png                   # Official high-resolution geometric AV emblem PNG
+├── logo-acvc.svg                 # Official brand monogram / emblem vector SVG (ACVC)
+├── logo-acvc.png                 # Official high-resolution brand monogram / emblem PNG (ACVC)
+├── logo-av.svg                   # Legacy AV emblem vector SVG (backwards-compatible alias)
+├── logo-av.png                   # Legacy AV emblem PNG (backwards-compatible alias)
 ├── AGENTS.md                     # This file
 ├── README.md                     # English portfolio README (default landing)
 └── README.es.md                  # Spanish symmetric portfolio README
@@ -160,9 +162,11 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
 | `/icon.png` | `GET` | `image/png` | Serves the official MCP server robot mascot PNG displayed in `README.md` and the Hero showcase. |
-| `/logo-av.svg` | `GET` | `image/svg+xml` | Serves the official geometric AV emblem SVG. |
-| `/logo-av.png` | `GET` | `image/png` | Serves the official high-resolution geometric AV emblem PNG. |
-| `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand logo SVG (geometric AV emblem). |
+| `/logo-acvc.svg` | `GET` | `image/svg+xml` | Serves the official brand monogram / emblem vector SVG (ACVC). |
+| `/logo-acvc.png` | `GET` | `image/png` | Serves the official high-resolution brand monogram / emblem PNG (ACVC). |
+| `/logo-av.svg` | `GET` | `image/svg+xml` | Serves legacy AV emblem SVG (backwards-compatible alias). |
+| `/logo-av.png` | `GET` | `image/png` | Serves legacy AV emblem PNG (backwards-compatible alias). |
+| `/favicon.svg` | `GET` | `image/svg+xml` | Serves the official brand emblem SVG. |
 | `/favicon.ico` | `GET` | `image/x-icon` | Serves the multi-resolution fallback favicon. |
 | `/favicon-32x32.png` | `GET` | `image/png` | Serves the 32x32 raster favicon PNG. |
 | `/favicon-96x96.png` | `GET` | `image/png` | Serves the 96x96 raster favicon PNG. |
@@ -203,7 +207,7 @@ When modifying `templates/index.html`:
    - Every single button, chip, tab switcher, and copy block must be 100% operational in live production.
    - Do not leave decorative placeholders, non-functional inputs, or broken links.
 4. **Color Tokens (Pastel-Tech System — DESIGN_SYSTEM.md):**
-   - Brand Triad: `--color-brand-purple` (`#9A82E8`), `--color-brand-purple-light` (`#A78BFA`), `--color-brand-magenta` (`#E573A7`), `--color-brand-cyan` (`#4DD0E1`).
+   - Brand Triad: `--color-brand-purple` (`#B98DFD`), `--color-brand-purple-light` (`#BA8EFF`), `--color-brand-magenta` (`#FF7889`), `--color-brand-cyan` (`#2EE6E5`).
    - Pastel Support: `--color-pastel-lilac` (`#CDB4F6`), `--color-pastel-pink` (`#FBCFE8`), `--color-pastel-cyan` (`#B2EFF7`), `--color-pastel-blue` (`#BCDFFB`), `--color-pastel-mint` (`#C8F3E0`).
    - Surfaces: Canvas Dark (`#0F172A`), container surfaces (`#1E293B`), Canvas Light (`#F8FAFC`), surfaces (`#FFFFFF`).
    - Decorative Watermark: Botanical poppy line-art flower SVG (`templates/poppy.svg` / `/poppy.svg`).
@@ -222,7 +226,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (57 tests)
+# Run full test suite (59 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
@@ -369,9 +373,9 @@ Every repository in the portfolio must strictly adhere to the following universa
    - Flags represent sovereign states, not languages; terminal emulators, Windows shells, and XAML render them as broken letters (`[U][S]`) or tofu glyphs (`□□`). Always use ISO codes (`ES`, `EN`) or text labels (`Español`, `English`).
 
 5. **Design Palette & Aesthetics (Pastel-Tech System):**
-   - **Brand Core Triad**: Tech Lavender (`#9A82E8` / `#A78BFA` in dark text), Petal Rose (`#E573A7`), Crystal Aqua (`#4DD0E1`).
+   - **Brand Core Triad**: Tech Lavender (`#B98DFD` / `#BA8EFF` in dark text), Petal Rose (`#FF7889`), Crystal Aqua (`#2EE6E5`).
    - **Pastel Support Tokens**: Pastel Lilac (`#CDB4F6`), Pastel Pink (`#FBCFE8`), Pastel Cyan (`#B2EFF7`), Pastel Blue (`#BCDFFB`), Pastel Mint (`#C8F3E0`), and Dark Canvas (`#1E1A2B` / `#0F172A`).
-   - **Visual Brand Anchor**: Geometric AV triangular emblem with continuous harmonic gradient.
+   - **Visual Brand Anchor**: Geometric ACVC emblem with continuous harmonic conic gradient (`#2EE6E5`, `#B98DFD`, `#FF7889`).
    - **Typography**: `Outfit` for geometric headings, `Inter` for crisp body copy, `JetBrains Mono` for code/specs.
    - **Zero Broken Mockups**: Every button, toggle, link, and interactive widget must be 100% operational in production.
 

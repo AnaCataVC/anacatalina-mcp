@@ -211,6 +211,24 @@ def test_icon_png_endpoint():
     assert len(res.content) > 1000
 
 
+def test_logo_acvc_svg_endpoint():
+    """Tests that /logo-acvc.svg returns the brand monogram / emblem SVG with image/svg+xml content type."""
+    client = TestClient(app)
+    res = client.get("/logo-acvc.svg")
+    assert res.status_code == 200
+    assert "image/svg+xml" in res.headers["content-type"]
+    assert len(res.content) > 500
+
+
+def test_logo_acvc_png_endpoint():
+    """Tests that /logo-acvc.png returns the brand monogram / emblem PNG with image/png content type."""
+    client = TestClient(app)
+    res = client.get("/logo-acvc.png")
+    assert res.status_code == 200
+    assert "image/png" in res.headers["content-type"]
+    assert len(res.content) > 1000
+
+
 def test_logo_av_svg_endpoint():
     """Tests that /logo-av.svg returns the geometric AV emblem SVG with image/svg+xml content type."""
     client = TestClient(app)

@@ -192,7 +192,7 @@ python scripts/sync_mcp_data.py --check-only
 
 4. **Factoría Declarativa de Assets Estáticos y Cobertura de Pruebas:**
    - La centralización de todos los activos estáticos en un registro inmutable `STATIC_ASSETS` en `server.py` eliminó más de 60 líneas de código duplicado, preservando estrictamente las URLs raíz canónicas y previniendo vulnerabilidades de *path traversal*.
-   - La suite de pruebas automatizadas se amplió a **57 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
+   - La suite de pruebas automatizadas se amplió a **59 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
 
 5. **Acotamiento de Dependencias y Poda de Paquetes No Utilizados (`requirements.txt`):**
    - La versión `2.0.0` del SDK oficial de MCP introdujo cambios incompatibles en `FastMCP`. Todas las dependencias de producción aplican cotas superiores explícitas (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) y se eliminaron paquetes no utilizados (`fastapi`) para reducir la superficie de ataque del contenedor.

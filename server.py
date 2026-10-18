@@ -203,6 +203,8 @@ async def demo_page(request: Request):
 # Declarative static assets mapping: route -> (Path, media_type)
 STATIC_ASSETS: Dict[str, Tuple[Path, str]] = {
     "/favicon.svg": (_BASE_DIR / "favicon.svg", "image/svg+xml"),
+    "/logo-acvc.svg": (_BASE_DIR / "logo-acvc.svg", "image/svg+xml"),
+    "/logo-acvc.png": (_BASE_DIR / "logo-acvc.png", "image/png"),
     "/logo-av.svg": (_BASE_DIR / "logo-av.svg", "image/svg+xml"),
     "/logo-av.png": (_BASE_DIR / "logo-av.png", "image/png"),
     "/favicon.ico": (_BASE_DIR / "favicon.ico", "image/x-icon"),
