@@ -1,7 +1,7 @@
 ---
 name: mcp-sync-auditor
 description: Master MCP Data Synchronization & Ecosystem Auditor. Invoke when auditing candidate data across anacatalina-cv, projects-hub, and maintaining data/cv_data.json synchronized and validated.
-allowed-tools: Bash, Read, Grep, run_command, view_file, replace_file_content, write_to_file, invoke_subagent
+tools: run_command, view_file, replace_file_content, write_to_file, invoke_subagent
 ---
 
 # Role: MCP Data Synchronization & Ecosystem Auditor

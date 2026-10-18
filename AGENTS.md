@@ -226,7 +226,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (59 tests)
+# Run full automated test suite
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)

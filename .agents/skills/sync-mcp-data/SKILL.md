@@ -1,7 +1,6 @@
 ---
 name: sync-mcp-data
 description: Audita y sincroniza los datos del servidor MCP (data/cv_data.json) con los repositorios hermanos anacatalina-cv y projects-hub garantizando consistencia, validación Pydantic v2 y cumplimiento de invariantes de identidad.
-allowed-tools: Bash, Read, Grep, run_command, view_file, replace_file_content, write_to_file
 ---
 
 # Skill: Sincronización de Datos MCP (Cross-Repository Data Sync)
@@ -71,7 +70,7 @@ Para volcar las actualizaciones validadas a `data/cv_data.json`:
 ```
 
 ### 4. Quality Gate & Verificación
-Validar que la suite de 57 pruebas automatizadas pase con 100% de éxito:
+Validar que la suite completa de pruebas automatizadas pase con 100% de éxito (cero fallos / zero regressions):
 
 ```powershell
 .venv\Scripts\python.exe -m pytest tests/ -v
