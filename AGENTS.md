@@ -24,13 +24,13 @@ The repository serves a dual-purpose architecture:
 | Category | Technology | Description |
 | :--- | :--- | :--- |
 | **Language** | Python 3.12+ | Core runtime environment |
-| **MCP SDK** | `mcp>=1.3.0,<2` | Official Anthropic Model Context Protocol SDK (FastMCP) |
-| **Web / ASGI Framework** | Starlette + FastAPI | High-performance async server handling SSE and HTTP negotiation |
+| **MCP SDK** | `mcp>=1.3.0,<2.0.0` | Official Anthropic Model Context Protocol SDK (FastMCP) |
+| **Web / ASGI Framework** | Starlette + Uvicorn | High-performance async server handling Streamable HTTP and content negotiation |
 | **Data Validation** | Pydantic v2 | Strict schema validation, typed models, and JSON serialization |
 | **Templating / UI** | Vanilla HTML5 + CSS + Modern ES6 | Self-contained single-page showcase (zero Node/npm build dependencies) |
-| **Containerization** | Docker | Multi-stage Debian slim container optimized for Cloud Run |
+| **Containerization** | Docker | Non-root (`appuser`) Debian slim container optimized for Cloud Run |
 | **Deployment** | Google Cloud Run | Serverless container host with automatic scale-to-zero |
-| **Test Suite** | pytest + pytest-asyncio | 100% passing automated test coverage with Starlette `TestClient` |
+| **Test & Security Suite** | pytest + pytest-cov + pip-audit | 100% passing automated test coverage and dependency vulnerability auditing |
 
 ---
 
@@ -69,9 +69,11 @@ anacatalina-mcp/
 │   └── skills/
 │       └── sync-mcp-data/
 │           └── SKILL.md          # Cross-repository data audit & sync workflow instructions
-├── .github/workflows/
-│   ├── test.yml                  # Test suite on push to main and PRs
-│   └── upstream-drift.yml        # Daily drift audit against anacatalina-cv / projects-hub (opens an issue)
+├── .github/
+│   ├── dependabot.yml            # Automated weekly dependency updates (pip & github-actions)
+│   └── workflows/
+│       ├── test.yml              # Test suite, coverage report, and pip-audit on push/PRs
+│       └── upstream-drift.yml    # Daily drift audit against anacatalina-cv / projects-hub (opens an issue)
 ├── data/
 │   └── cv_data.json              # In-memory single source of truth for the CV dataset
 ├── docs/
@@ -89,20 +91,24 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_content_negotiation.py # 7 automated tests for root HTML/JSON content negotiation
-│   ├── test_server.py            # 35 automated tests (Streamable HTTP, MCP tools, REST APIs, static assets, benchmarks)
+│   ├── test_server.py            # 38 automated tests (Streamable HTTP, MCP tools, REST APIs, security, rate limit)
 │   └── test_sync_script.py       # 12 automated tests for cross-repo synchronization engine
-├── Dockerfile                    # Container definition for Google Cloud Run
+├── Dockerfile                    # Non-root container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
-├── requirements.txt              # Production runtime dependencies (pinned mcp<2)
-├── requirements-dev.txt          # Development dependencies (pytest, pytest-asyncio, httpx)
-├── server.py                     # Main entrypoint: FastMCP server, route handlers, Streamable HTTP
+├── requirements.txt              # Production runtime dependencies with explicit upper bounds
+├── requirements-dev.txt          # Development dependencies (pytest, pytest-asyncio, pytest-cov, pip-audit)
+├── server.py                     # Main entrypoint: FastMCP server, route handlers, ASGI security & rate limit
 ├── favicon.svg                   # Official geometric AV emblem SVG
 ├── favicon.ico                   # Multi-resolution fallback favicon
+├── favicon-32x32.png             # 32x32 raster favicon PNG
+├── favicon-96x96.png             # 96x96 raster favicon PNG
+├── apple-touch-icon.png          # Apple touch icon PNG
 ├── icon.png                      # Official MCP server robot mascot PNG
 ├── logo-av.svg                   # Official geometric AV emblem vector SVG
 ├── logo-av.png                   # Official high-resolution geometric AV emblem PNG
 ├── AGENTS.md                     # This file
-└── README.md                     # Bilingual portfolio README
+├── README.md                     # English portfolio README (default landing)
+└── README.es.md                  # Spanish symmetric portfolio README
 ```
 
 ---
@@ -167,10 +173,11 @@ In `server.py`, the Starlette application routes requests as follows:
 
 ## MCP Client Setup Reference
 
-Keep this table, `templates/index.html` (`CONFIGS` object in the MCP Client Configurator card) and `README.md` (§ Conectar Asistentes de IA) in sync — the same four clients are documented in all three places.
+Keep this table, `templates/index.html` (`CONFIGS` object in the MCP Client Configurator card) and `README.md` / `README.es.md` (§ Connecting AI Assistants) in sync — the same five clients are documented across all places.
 
 | Client | Config Location | Snippet |
 | :--- | :--- | :--- |
+| **Google Antigravity / Gemini CLI** | `~/.gemini/config/mcp_config.json` | `{"mcpServers": {"anacatalina-cv": {"url": "https://mcp.ana-catalina.com/mcp"}}}` |
 | **Cursor / Windsurf** | `~/.cursor/mcp.json` | `{"mcpServers": {"anacatalina-cv": {"url": "https://mcp.ana-catalina.com/mcp"}}}` |
 | **Claude.ai** | Ajustes → Conectores → Agregar conector personalizado | URL del servidor: `https://mcp.ana-catalina.com/mcp` (sin autenticación) |
 | **Gemini** | gemini.google.com → Settings & help → Connected Apps → Custom apps for Spark → Add a custom app | Paste server URL: `https://mcp.ana-catalina.com/mcp` |
@@ -185,11 +192,11 @@ Keep this table, `templates/index.html` (`CONFIGS` object in the MCP Client Conf
 When modifying `templates/index.html`:
 
 1. **Card Hierarchy:**
-   - **Card 1 (Top Priority):** Conectar con Asistentes de IA (MCP) &mdash; tabs for Cursor & Windsurf (`mcp.json`), Claude.ai (Conector Web), Gemini (gemini.com Connected Apps), and cURL / CLI Health.
+   - **Card 1 (Top Priority):** Conectar con Asistentes de IA (MCP) &mdash; tabs for Antigravity (`mcp_config.json`), Cursor & Windsurf (`mcp.json`), Claude.ai (Conector Web), Gemini (gemini.com Connected Apps), and cURL / CLI Health.
    - **Card 2:** Catálogo Oficial de 9 Herramientas MCP.
    - **Card 3:** Escenarios de Alineación Técnica (Ejemplos Fijos: Data Science, Ruteo/Logística, Agentes MCP, Test Negativo).
 2. **Zero Flags Rule (STRICT INVARIANT):**
-   - **NEVER** use country flag emojis (`🇺🇸`, `🇬🇧`, `🇪🇸`, `🇲🇽`, etc.) or flag graphics anywhere in the UI or documentation.
+   - **NEVER** use country flag emojis (`US`, `GB`, `ES`, `MX`, etc.) or flag graphics anywhere in the UI or documentation.
    - Flags represent sovereign states, not languages or technologies. Terminal emulators, Windows consoles, and various web browsers render them as broken letter pairs (`[U][S]`) or monochrome squares (`□□`).
    - Use clean text (`ES`, `EN`, `Español`, `English`) or neutral icons.
 3. **Zero Broken Mockups:**
@@ -215,7 +222,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
 
-# Run full test suite (54 tests)
+# Run full test suite (57 tests)
 .venv\Scripts\python.exe -m pytest tests/ -v
 
 # Audit candidate data against sibling repositories (anacatalina-cv and projects-hub)
@@ -237,7 +244,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
    - Any architectural modification, schema adjustment (`models/cv.py`), tool signature change (`server.py`), dataset update (`data/cv_data.json`), UI layout reordering (`templates/index.html`), or technical dependency adjustment must be immediately documented in this file without waiting for explicit user prompting.
 
 2. **Canonical Baseline Data Source (`anacatalina-cv`):**
-   - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` ([github.com/AnaCataVC/anacatalina-cv](https://github.com/AnaCataVC/anacatalina-cv) or locally at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/pages/index.astro` and `src/i18n.js`).
+   - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` ([github.com/AnaCataVC/anacatalina-cv](https://github.com/AnaCataVC/anacatalina-cv) or locally at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/data/cv.ts`, `src/pages/index.astro`, and `src/i18n.js`).
    - `anacatalina-mcp` packages its own verified in-memory dataset in `data/cv_data.json` and operates fully standalone without hard external build-time dependencies.
    - When updating or auditing `data/cv_data.json` or curriculum benchmarks in this repository, agents can inspect and pull verified baseline data directly from `anacatalina-cv` to maintain 100% cross-portfolio ecosystem consistency.
    - Known gap: `anacatalina-cv` also has Publications and Courses & Certifications sections with no equivalent in `models/cv.py` (`CVData`). Adding them is a schema change (new Pydantic models, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task.
@@ -248,17 +255,16 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 
 These items document deliberate architectural choices and operational boundaries:
 
-1. **`mcp` SDK Pinning (`mcp>=1.3.0,<2`):**
-   - In `requirements.txt`, the official `mcp` dependency is explicitly pinned below `2.0.0`.
-   - The release of `mcp==2.0.0` introduced backward-incompatible API changes to `FastMCP` and transport handlers that broke production deployment.
-   - Any future migration to `mcp 2.x` must be conducted in an isolated staging branch with comprehensive local and Cloud Run verification before updating production.
+1. **Upper-Bound Dependency Pinning (`requirements.txt`):**
+   - All production dependencies in `requirements.txt` (`mcp<2.0.0`, `uvicorn<1.0.0`, `starlette<1.0.0`, `pydantic<3.0.0`, `anyio<5.0.0`, `httpx<1.0.0`) enforce explicit major upper bounds to prevent unverified upstream major releases from breaking Cloud Run builds.
+   - Unused `fastapi` was removed from `requirements.txt` because `server.py` operates directly over `FastMCP` and `Starlette`.
 
 2. **Unversioned `cloudbuild.yaml`:**
    - Cloud Run continuous deployment is triggered via a Google Cloud Build trigger configured directly in the GCP console.
    - The build configuration lives outside the repository. Before committing a local `cloudbuild.yaml`, verify the production build steps using `gcloud builds triggers describe <trigger>` to prevent configuration drift.
 
-3. **Deterministic Evaluation vs. In-Memory Search:**
-   - Free-text heuristic role detection was replaced with the 4 curated Forma 1 benchmarks to ensure 100% verifiable scoring and eliminate non-deterministic parsing bugs.
+3. **Deterministic Regex Job Fit Engine & In-Memory Search:**
+   - `evaluar_fit_puesto` and `/api/evaluate-fit` evaluate both the 4 curated showcase preset aliases (`data-science`, `logistics`, `agents`, `pop-singer`) and any arbitrary freeform vacancy text via deterministic regex boundary matching (`TECH_ALIAS_MAP`), ensuring 100% reproducible scoring with zero external LLM calls.
    - Cross-curriculum search (`buscar_en_curriculum`) performs fast, safe in-memory substring filtering across ~10 items. Because Cloud Run already caps HTTP request body sizes and memory usage is trivial (<100KB), artificial input length capping was evaluated and deemed unnecessary complexity.
 
 4. **Streamable HTTP Migration (Zero Legacy SSE / Zero Stdio):**
@@ -268,6 +274,10 @@ These items document deliberate architectural choices and operational boundaries
 5. **Upstream Drift Detection (content audit, not SHA pins):**
    - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`, and opens/reopens/closes a single recurring issue. It is kept out of the PR gate because drift comes from the other repos.
    - The audit also flags i18n keys the sync depends on that are missing upstream (otherwise `--sync` silently uses hardcoded fallbacks). Details: `docs/upstream-sync.md`.
+
+6. **Pure-ASGI Security Headers, Bounded Sliding-Window Rate Limiting & Observability:**
+   - `SecurityAndRateLimitMiddleware` in `server.py` is implemented as a pure ASGI middleware (avoiding Starlette `BaseHTTPMiddleware` buffering issues on SSE/Streamable HTTP streams) that injects `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` on all responses (including `429`), and enforces a bounded in-memory per-IP sliding-window rate limit (default 120 req/min on `/mcp` and `/api/*`, max 4096 tracked IPs).
+   - Application version is centralized in `APP_VERSION` in `server.py`, and structured standard logging (`anacatalina_mcp.server`, `anacatalina_mcp.cv_service`) outputs directly to `stdout` for Google Cloud Logging ingestion.
 
 ---
 
@@ -355,7 +365,7 @@ Every repository in the portfolio must strictly adhere to the following universa
    - **SEO-Safe Redirection Invariant:** Never redirect on first page load based on `navigator.language`. Client-side redirections based on language preference must ONLY occur if a previously chosen setting exists in `localStorage`.
 
 4. **Zero Flags Rule (Strict Documentation & UI Invariant):**
-   - NEVER use country flag emojis (`🇺🇸`, `🇬🇧`, `🇪🇸`, `🇲🇽`, etc.) or flag graphics in UI, switches, badges, or documentation.
+   - NEVER use country flag emojis (`US`, `GB`, `ES`, `MX`, etc.) or flag graphics in UI, switches, badges, or documentation.
    - Flags represent sovereign states, not languages; terminal emulators, Windows shells, and XAML render them as broken letters (`[U][S]`) or tofu glyphs (`□□`). Always use ISO codes (`ES`, `EN`) or text labels (`Español`, `English`).
 
 5. **Design Palette & Aesthetics (Pastel-Tech System):**

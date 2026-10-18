@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.12-3776AB?style=flat&logo=python&logoColor=white" alt="Python 3.12" /></a>
-  <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://docs.pydantic.dev/"><img src="https://img.shields.io/badge/Pydantic-v2-E92063?style=flat&logo=pydantic&logoColor=white" alt="Pydantic v2" /></a>
   <a href="https://modelcontextprotocol.io/"><img src="https://img.shields.io/badge/MCP-SDK%20Oficial-purple?style=flat" alt="Model Context Protocol" /></a>
   <a href="https://cloud.google.com/run"><img src="https://img.shields.io/badge/Google%20Cloud-Cloud%20Run-4285F4?style=flat&logo=googlecloud&logoColor=white" alt="Google Cloud Run" /></a>
   <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-Contenedor%20Listo-2496ED?style=flat&logo=docker&logoColor=white" alt="Docker" /></a>
@@ -86,6 +86,95 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 
 ---
 
+### Stack Tecnológico
+
+- **Lenguaje y Runtime:** Python 3.12+
+- **Framework MCP y Transporte:** SDK Oficial de Anthropic (`mcp>=1.3.0,<2.0.0`, `FastMCP` sobre Streamable HTTP `/mcp`)
+- **Servidor Web / ASGI:** Starlette (`<1.0.0`) + Uvicorn (`<1.0.0`) + Middleware ASGI Puro de Seguridad y Rate Limiting
+- **Validación de Datos y Contratos:** Pydantic v2 (`<3.0.0`)
+- **Showcase Frontend:** HTML5, CSS3 (*Pastel-Tech Design System*) y ES6 autocontenido (`/demo` y `GET /`)
+- **Contenedorización y Cloud:** Docker sin privilegios (`python:3.12-slim`, `appuser`) desplegado en Google Cloud Run
+- **Pruebas y Auditoría de Seguridad:** `pytest`, `pytest-asyncio`, `pytest-cov`, `pip-audit` y GitHub Actions (`test.yml`, `upstream-drift.yml`, Dependabot)
+
+---
+
+## Instalación y Uso Local
+
+### 1. Clonar el Repositorio y Configurar Entorno
+
+```bash
+git clone https://github.com/AnaCataVC/anacatalina-mcp.git
+cd anacatalina-mcp
+
+# Crear y activar entorno virtual
+python -m venv .venv
+source .venv/bin/activate  # En Windows PowerShell: .venv\Scripts\Activate.ps1
+
+# Instalar dependencias de producción y desarrollo
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+```
+
+### 2. Iniciar el Servidor MCP Local
+
+```bash
+uvicorn server:app --host 0.0.0.0 --port 8080 --reload
+```
+
+### Pruebas Automatizadas
+
+Ejecutar la suite completa de 57 pruebas, reporte de cobertura, auditoría de sincronización upstream y escaneo de vulnerabilidades:
+
+```bash
+# Ejecutar las 57 pruebas unitarias, de negociación de contenido, seguridad y sincronización
+pytest tests/ -v
+
+# Ejecutar la suite con reporte de cobertura de líneas
+pytest tests/ -v --cov=models --cov=services --cov=server --cov-report=term-missing
+
+# Auditar dependencias en busca de vulnerabilidades conocidas (CVEs)
+python -m pip_audit -r requirements.txt
+
+# Verificar alineación de datos frente a los repositorios hermanos (anacatalina-cv y projects-hub)
+python scripts/sync_mcp_data.py --check-only
+```
+
+---
+
+## Conectar Asistentes de IA
+
+- **Google Antigravity / Gemini CLI (`~/.gemini/config/mcp_config.json`):**
+  ```json
+  {
+    "mcpServers": {
+      "anacatalina-cv": {
+        "url": "https://mcp.ana-catalina.com/mcp"
+      }
+    }
+  }
+  ```
+- **Cursor / Windsurf (`~/.cursor/mcp.json`):**
+  ```json
+  {
+    "mcpServers": {
+      "anacatalina-cv": {
+        "url": "https://mcp.ana-catalina.com/mcp"
+      }
+    }
+  }
+  ```
+- **Claude.ai:** Ajustes → Conectores → Agregar conector personalizado → URL: `https://mcp.ana-catalina.com/mcp`
+- **Gemini (`gemini.google.com`):** Settings & help → Connected Apps → Custom apps for Spark → Add a custom app → URL: `https://mcp.ana-catalina.com/mcp`
+- **cURL / Cliente HTTP Directo:**
+  ```bash
+  curl -X POST https://mcp.ana-catalina.com/mcp \
+    -H "Content-Type: application/json" \
+    -H "Accept: application/json, text/event-stream" \
+    -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+  ```
+
+---
+
 ### Decisiones de Arquitectura y Aprendizajes
 
 1. **Evolución del Transporte MCP (Migración a Streamable HTTP):**
@@ -103,74 +192,22 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 
 4. **Factoría Declarativa de Assets Estáticos y Cobertura de Pruebas:**
    - La centralización de todos los activos estáticos en un registro inmutable `STATIC_ASSETS` en `server.py` eliminó más de 60 líneas de código duplicado, preservando estrictamente las URLs raíz canónicas y previniendo vulnerabilidades de *path traversal*.
-   - La suite de pruebas automatizadas se amplió a **54 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido y coherencia semántica de benchmarks.
+   - La suite de pruebas automatizadas se amplió a **57 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
 
-5. **Compatibilidad y Cambios de API en `mcp 2.x` (`mcp>=1.3.0,<2`):**
-   - La versión `2.0.0` del SDK oficial de MCP introdujo cambios que renombraron `FastMCP`. Para mantener la estabilidad del despliegue en Cloud Run, fijamos la dependencia en `requirements.txt` a `mcp>=1.3.0,<2`.
+5. **Acotamiento de Dependencias y Poda de Paquetes No Utilizados (`requirements.txt`):**
+   - La versión `2.0.0` del SDK oficial de MCP introdujo cambios incompatibles en `FastMCP`. Todas las dependencias de producción aplican cotas superiores explícitas (`mcp>=1.3.0,<2.0.0`, `starlette<1.0.0`, `pydantic<3.0.0`) y se eliminaron paquetes no utilizados (`fastapi`) para reducir la superficie de ataque del contenedor.
 
 6. **Detección Automatizada de Deriva (Upstream Drift Detection):**
    - Para mantener los datos de `data/cv_data.json` permanentemente consistentes con los repositorios fuente (`anacatalina-cv` y `projects-hub`), se diseñó un flujo automatizado de auditoría en GitHub Actions (`upstream-drift.yml`) basado en comparación semántica de contenido.
 
----
-
-## Instalación y Uso Local
-
-### 1. Clonar el Repositorio y Configurar Entorno
-
-```bash
-git clone https://github.com/AnaCataVC/anacatalina-mcp.git
-cd anacatalina-mcp
-
-# Crear y activar entorno virtual
-python -m venv .venv
-source .venv/bin/activate  # En Windows PowerShell: .venv\Scripts\Activate.ps1
-
-# Instalar dependencias
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-```
-
-### 2. Ejecutar la Suite de Pruebas
-
-```bash
-pytest tests/ -v
-```
-
-### 3. Iniciar el Servidor MCP Local
-
-```bash
-uvicorn server:app --host 0.0.0.0 --port 8080 --reload
-```
-
----
-
-## Conectar Asistentes de IA
-
-- **Google Antigravity / Gemini CLI (`~/.gemini/config/mcp_config.json`):**
-  ```json
-  {
-    "mcpServers": {
-      "anacatalina-cv": {
-        "url": "https://mcp.ana-catalina.com/mcp"
-      }
-    }
-  }
-  ```
-- **Claude.ai:** Ajustes → Conectores → Agregar conector personalizado → URL: `https://mcp.ana-catalina.com/mcp`
-- **Cursor / Windsurf (`mcp.json`):**
-  ```json
-  {
-    "mcpServers": {
-      "anacatalina-cv": {
-        "url": "https://mcp.ana-catalina.com/mcp"
-      }
-    }
-  }
-  ```
+7. **Middleware de Seguridad ASGI Puro, Rate Limiting en Memoria y Endurecimiento DevOps:**
+   - Se implementó `SecurityAndRateLimitMiddleware` como un middleware ASGI puro (registrado mediante `app.add_middleware`) en lugar de `BaseHTTPMiddleware` de Starlette para evitar el buffering de respuestas en canales `text/event-stream` (`/mcp`) y preservar la introspección de `app.routes`.
+   - Aplica rate limiting de ventana deslizante acotado en memoria por IP (`120 req/min`, máximo 4096 IPs), cabeceras de seguridad HTTP estándar (`X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`) en todas las respuestas incluyendo `429`, ejecución de contenedor sin privilegios (`appuser`) y auditoría automatizada de vulnerabilidades con `pip-audit` en CI.
 
 ---
 
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles. Desarrollado por **Ana-Catalina Villalobos Contardo**.
+
 

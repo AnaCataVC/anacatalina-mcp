@@ -53,7 +53,7 @@ Para comprobaciones rápidas en pipelines o hooks:
 
 ### 2. Inspección y Detección de Cambios
 El script realiza automáticamente:
-- Lectura de `anacatalina-cv/src/i18n.js` y `anacatalina-cv/src/pages/index.astro` para extraer:
+- Lectura de `anacatalina-cv/src/data/cv.ts`, `anacatalina-cv/src/i18n.js` y `anacatalina-cv/src/pages/index.astro` para extraer:
   - Titular profesional (`hero.subtitle`).
   - Fechas y viñetas de responsabilidades laborales de SimpliRoute y Fracttal (limpieza de etiquetas HTML).
   - Resúmenes ejecutivos en español e inglés.
@@ -71,7 +71,7 @@ Para volcar las actualizaciones validadas a `data/cv_data.json`:
 ```
 
 ### 4. Quality Gate & Verificación
-Validar que la suite de 54 pruebas automatizadas pase con 100% de éxito:
+Validar que la suite de 57 pruebas automatizadas pase con 100% de éxito:
 
 ```powershell
 .venv\Scripts\python.exe -m pytest tests/ -v
