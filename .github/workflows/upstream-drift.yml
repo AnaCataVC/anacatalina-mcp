@@ -19,15 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Sibling layout so DataAuditor resolves ../anacatalina-cv and ../projects-hub by default.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: anacatalina-mcp
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AnaCataVC/anacatalina-cv
           ref: main
           path: anacatalina-cv
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: AnaCataVC/projects-hub
           ref: main
