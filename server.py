@@ -2,12 +2,16 @@
 server.py - Interactive Curriculum MCP Server with Streamable HTTP Transport.
 Configured for Google Cloud Run deployment and local inspection.
 """
+from collections import deque
 import functools
+import logging
 import os
+import time
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Tuple
+from typing import List, Optional, Dict, Any, Tuple, Deque
 from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse, FileResponse, Response
+from starlette.types import ASGIApp, Receive, Scope, Send, Message
 from mcp.server.fastmcp import FastMCP
 
 from models.cv import (
@@ -22,8 +26,31 @@ from models.cv import (
 )
 from services.cv_service import get_cv_service
 
+def _env_int(name: str, default: int) -> int:
+    """Safely parses an integer environment variable with fallback to default."""
+    raw = os.environ.get(name)
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
+# 0. Centralized Constants & Structured Logging Configuration
+APP_VERSION = "1.7.0"
+RATE_LIMIT_MAX_REQUESTS = _env_int("RATE_LIMIT_PER_MINUTE", 120)
+RATE_LIMIT_WINDOW_SECONDS = 60.0
+RATE_LIMIT_MAX_TRACKED_IPS = 4096
+
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+logger = logging.getLogger("anacatalina_mcp.server")
+
 # 1. Initialize FastMCP instance bound to 0.0.0.0 for Cloud Run
-port = int(os.environ.get("PORT", 8080))
+port = _env_int("PORT", 8080)
 host = os.environ.get("HOST", "0.0.0.0")
 mcp = FastMCP("Ana-Catalina Interactive Portfolio MCP", host=host, port=port)
 cv_service = get_cv_service()
@@ -140,7 +167,7 @@ def get_showcase_html() -> str:
 DISCOVERY_PAYLOAD: Dict[str, Any] = {
     "name": "Ana-Catalina Interactive Portfolio MCP",
     "status": "healthy",
-    "version": "1.7.0",
+    "version": APP_VERSION,
     "mcp_endpoint": "/mcp",
     "health_endpoint": "/health",
     "web_showcase": "/demo",
@@ -208,7 +235,7 @@ async def health_check(request: Request):
     return JSONResponse({
         "status": "healthy",
         "service": "anacatalina-mcp",
-        "version": "1.7.0",
+        "version": APP_VERSION,
         "transports": ["Streamable HTTP (/mcp)"],
     })
 
@@ -219,13 +246,16 @@ async def api_evaluate_fit(request: Request):
     try:
         data = await request.json()
     except Exception:
+        logger.warning("Invalid JSON payload received on /api/evaluate-fit")
         return JSONResponse({"error": "Invalid JSON body."}, status_code=400)
 
     if not isinstance(data, dict):
+        logger.warning("Non-object JSON payload received on /api/evaluate-fit")
         return JSONResponse({"error": "Request body must be a JSON object."}, status_code=400)
 
     scenario = data.get("scenario") or data.get("job_description")
     if not scenario or not isinstance(scenario, str) or not scenario.strip():
+        logger.warning("Empty 'scenario'/'job_description' field on /api/evaluate-fit")
         return JSONResponse(
             {"error": "Field 'scenario' or 'job_description' is required and must not be empty."},
             status_code=400,
@@ -261,11 +291,123 @@ async def api_projects(request: Request):
     return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
 
 
-# 5. Generate ASGI Application — Streamable HTTP Transport (/mcp)
+# 5. In-Memory Sliding Window Rate Limiter & Security Headers Middleware
+_rate_limit_buckets: Dict[str, Deque[float]] = {}
+
+
+def reset_rate_limiter() -> None:
+    """Clears in-memory rate limit buckets (used by automated test suites)."""
+    _rate_limit_buckets.clear()
+
+
+class SecurityAndRateLimitMiddleware:
+    """
+    Pure ASGI middleware that enforces bounded per-IP sliding-window rate limiting
+    on API/MCP endpoints and injects standard HTTP security headers without
+    buffering SSE / Streamable HTTP responses.
+    """
+
+    SECURITY_HEADERS: Tuple[Tuple[bytes, bytes], ...] = (
+        (b"x-content-type-options", b"nosniff"),
+        (b"x-frame-options", b"DENY"),
+        (b"referrer-policy", b"strict-origin-when-cross-origin"),
+    )
+
+    def __init__(
+        self,
+        app: ASGIApp,
+        max_requests: int = RATE_LIMIT_MAX_REQUESTS,
+        window_seconds: float = RATE_LIMIT_WINDOW_SECONDS,
+        max_tracked_ips: int = RATE_LIMIT_MAX_TRACKED_IPS,
+    ) -> None:
+        self.app = app
+        self.max_requests = max_requests
+        self.window_seconds = window_seconds
+        self.max_tracked_ips = max_tracked_ips
+
+    @staticmethod
+    def _extract_client_ip(scope: Scope) -> str:
+        # In Google Cloud Run, the Google Frontend appends the immediate client IP
+        # at the end of X-Forwarded-For. Reading the rightmost non-empty entry
+        # prevents spoofing via client-supplied leading entries.
+        for header_name, header_val in scope.get("headers", ()):
+            if header_name == b"x-forwarded-for":
+                parts = [p.strip() for p in header_val.decode("latin1").split(",") if p.strip()]
+                if parts:
+                    return parts[-1]
+        client = scope.get("client")
+        return client[0] if client else "unknown"
+
+    def _evict_expired_or_oldest(self, cutoff: float) -> None:
+        """Purges expired buckets and evicts oldest entry if dictionary reaches capacity."""
+        expired_ips = [
+            ip for ip, q in _rate_limit_buckets.items()
+            if not q or q[-1] <= cutoff
+        ]
+        for ip in expired_ips:
+            _rate_limit_buckets.pop(ip, None)
+
+        while len(_rate_limit_buckets) >= self.max_tracked_ips:
+            oldest_ip = next(iter(_rate_limit_buckets))
+            _rate_limit_buckets.pop(oldest_ip, None)
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+
+        async def send_with_security_headers(message: Message) -> None:
+            if message["type"] == "http.response.start":
+                headers = list(message.get("headers", []))
+                existing = {k.lower() for k, _ in headers}
+                for key, val in self.SECURITY_HEADERS:
+                    if key not in existing:
+                        headers.append((key, val))
+                message = {**message, "headers": headers}
+            await send(message)
+
+        path: str = scope.get("path", "")
+        if path == "/mcp" or path.startswith("/api/"):
+            client_ip = self._extract_client_ip(scope)
+            now = time.monotonic()
+            cutoff = now - self.window_seconds
+
+            bucket = _rate_limit_buckets.get(client_ip)
+            if bucket is not None:
+                while bucket and bucket[0] <= cutoff:
+                    bucket.popleft()
+                if not bucket:
+                    _rate_limit_buckets.pop(client_ip, None)
+                    bucket = None
+
+            if bucket is not None and len(bucket) >= self.max_requests:
+                logger.warning("Rate limit exceeded for IP %s on %s", client_ip, path)
+                response = JSONResponse(
+                    {"error": "Rate limit exceeded. Please try again later."},
+                    status_code=429,
+                    headers={"Retry-After": str(int(self.window_seconds))},
+                )
+                await response(scope, receive, send_with_security_headers)
+                return
+
+            if bucket is None:
+                if len(_rate_limit_buckets) >= self.max_tracked_ips:
+                    self._evict_expired_or_oldest(cutoff)
+                bucket = deque()
+                _rate_limit_buckets[client_ip] = bucket
+
+            bucket.append(now)
+
+        await self.app(scope, receive, send_with_security_headers)
+
+
+# 6. Generate ASGI Application — Streamable HTTP Transport (/mcp)
 app = mcp.streamable_http_app()
+app.add_middleware(SecurityAndRateLimitMiddleware)
 
 
 if __name__ == "__main__":
     import uvicorn
-    print(f"Starting MCP Server on http://{host}:{port}/mcp")
+    logger.info("Starting MCP Server on http://%s:%s/mcp (v%s)", host, port, APP_VERSION)
     uvicorn.run(app, host=host, port=port, log_level="info")
+

@@ -8,7 +8,9 @@ from services.cv_service import CVService, get_cv_service
 from models.cv import SearchResult
 from server import (
     app,
+    APP_VERSION,
     STATIC_ASSETS,
+    reset_rate_limiter,
     obtener_experiencia,
     obtener_stack_tecnologico,
     obtener_proyectos_destacados,
@@ -411,4 +413,51 @@ def test_static_assets_dispatcher_coverage():
         res = client.get(route)
         assert res.status_code == 200, f"Expected 200 for {route}"
         assert expected_media_type in res.headers["content-type"], f"Expected {expected_media_type} for {route}"
+
+
+def test_app_version_centralized_across_endpoints():
+    """Verifies that APP_VERSION is consistently exposed in both / and /health."""
+    client = TestClient(app)
+    root_res = client.get("/", headers={"Accept": "application/json"})
+    health_res = client.get("/health")
+    assert root_res.json()["version"] == APP_VERSION
+    assert health_res.json()["version"] == APP_VERSION
+
+
+def test_security_headers_injected_on_responses():
+    """Verifies that standard HTTP security headers are injected on responses."""
+    client = TestClient(app)
+    res = client.get("/health")
+    assert res.status_code == 200
+    assert res.headers.get("x-content-type-options") == "nosniff"
+    assert res.headers.get("x-frame-options") == "DENY"
+    assert res.headers.get("referrer-policy") == "strict-origin-when-cross-origin"
+
+
+def test_rate_limiter_enforces_429_per_ip():
+    """Verifies that the sliding-window rate limiter blocks excessive API calls from a single IP."""
+    reset_rate_limiter()
+    client = TestClient(app)
+    test_ip = "203.0.113.99"
+
+    try:
+        # Exhaust the bucket for test_ip using RATE_LIMIT_MAX_REQUESTS (default 120)
+        for _ in range(120):
+            res = client.get("/api/skills", headers={"X-Forwarded-For": test_ip})
+            assert res.status_code == 200
+
+        # 121st request from same IP must return 429 Too Many Requests with security headers
+        blocked = client.get("/api/skills", headers={"X-Forwarded-For": test_ip})
+        assert blocked.status_code == 429
+        assert "Rate limit exceeded" in blocked.json()["error"]
+        assert "retry-after" in blocked.headers
+        assert blocked.headers.get("x-content-type-options") == "nosniff"
+        assert blocked.headers.get("x-frame-options") == "DENY"
+
+        # Another IP remains unaffected
+        other_ip_res = client.get("/api/skills", headers={"X-Forwarded-For": "203.0.113.100"})
+        assert other_ip_res.status_code == 200
+    finally:
+        reset_rate_limiter()
+
 

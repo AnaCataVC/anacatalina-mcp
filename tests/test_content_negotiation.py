@@ -1,8 +1,7 @@
 """
 Cleanroom Black-Box Tests for Content Negotiation & Showcase Endpoints.
 
-Based strictly on the formal behavioral contract:
-docs/contracts/mcp-landing-unification.contract.md
+Based strictly on the formal HTTP Content Negotiation contract documented in AGENTS.md:
 
 Contract Invariants:
 1. GET / with browser Accept header containing 'text/html' returns 200 OK with HTML content

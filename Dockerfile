@@ -16,11 +16,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code and data
-COPY . .
+# Create non-root service user and copy application files with ownership
+RUN useradd --create-home --shell /usr/sbin/nologin appuser
+COPY --chown=appuser:appuser . .
+USER appuser
 
 # Expose default Cloud Run port
 EXPOSE 8080
 
 # Run python server directly reading PORT environment variable
 CMD ["python", "server.py"]
+
+

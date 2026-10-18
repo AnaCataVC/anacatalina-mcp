@@ -14,4 +14,8 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -r requirements-dev.txt
-      - run: python -m pytest tests/ -v
+      - name: Run test suite with coverage
+        run: python -m pytest tests/ -v --cov=models --cov=services --cov=server --cov-report=term-missing
+      - name: Audit dependencies for known vulnerabilities
+        run: python -m pip_audit -r requirements.txt
+

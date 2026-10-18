@@ -2,10 +2,11 @@
 Curriculum service providing business logic, search, and filtering for structured CV data.
 """
 import json
+import logging
 import os
 import re
 from pathlib import Path
-from typing import List, Optional, Dict, Any, Set, Tuple
+from typing import List, Optional, Set, Tuple
 
 from models.cv import (
     CVData,
@@ -19,6 +20,8 @@ from models.cv import (
     FitEvaluationResult,
     SearchResult,
 )
+
+logger = logging.getLogger("anacatalina_mcp.cv_service")
 
 
 class CVService:
@@ -35,12 +38,21 @@ class CVService:
     def _load_data(self) -> CVData:
         """Loads and validates JSON curriculum data against Pydantic schema."""
         if not self.data_path.exists():
+            logger.error("CV data file not found at: %s", self.data_path)
             raise FileNotFoundError(f"CV data file not found at: {self.data_path}")
         
         with open(self.data_path, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
         
-        return CVData.model_validate(raw_data)
+        cv_data = CVData.model_validate(raw_data)
+        logger.info(
+            "Loaded CV dataset from %s (%d experiences, %d skill categories, %d projects)",
+            self.data_path.name,
+            len(cv_data.experience),
+            len(cv_data.skills),
+            len(cv_data.projects),
+        )
+        return cv_data
 
     def get_summary(self, lang: str = "es") -> str:
         """Returns executive summary in the requested language."""
