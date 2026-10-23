@@ -131,7 +131,7 @@ The job fit evaluator (`evaluar_fit_puesto` tool and `/api/evaluate-fit` REST en
 
 ## Official MCP Tools Catalog
 
-The FastMCP server exposes **9 official tools** via the standard MCP protocol:
+The FastMCP server exposes **10 official tools** via the standard MCP protocol:
 
 | Tool Name | Parameters | Return Type | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -139,8 +139,9 @@ The FastMCP server exposes **9 official tools** via the standard MCP protocol:
 | `obtener_stack_tecnologico` | `categoria` *(str, optional)*<br/>`nivel` *(str, optional)* | `List[SkillCategory]` | Technical skill matrix (Python, SQL, BigQuery, Vertex AI, Docker) with proficiency levels. |
 | `obtener_proyectos_destacados` | `tipo` *(str, optional)*<br/>`tecnologia` *(str, optional)* | `List[ProjectItem]` | Flagship personal and professional projects with architectures and demo links. |
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Dynamic vacancy fit analysis matching technologies against CV skills, returning score, strengths, and added value. |
-| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, and projects in memory (Pydantic model with backwards-compatible dict indexing). |
+| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, projects, and publications in memory (Pydantic model with backwards-compatible dict indexing). |
 | `obtener_educacion` | *None* | `List[EducationItem]` | Formal degree and academic background from Universidad de Chile. |
+| `obtener_publicaciones` | *None* | `List[PublicationItem]` | Indexed scientific publications and papers (Structural Health Monitoring, Gaussian Processes, Bayesian inference). |
 | `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact email and LinkedIn URL. |
 | `obtener_perfil` | *None* | `PersonalInfo` | General profile: display name, first/middle/last names, full name, headline, location, and GitHub. |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Executive summary focused on Data Science, ML, and MCP in Spanish (`es`) or English (`en`). |
@@ -161,6 +162,7 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
+| `/api/publications` | `GET` | `application/json` | Standalone REST endpoint returning scientific publications and research papers. |
 | `/icon.png` | `GET` | `image/png` | Serves the official MCP server robot mascot PNG displayed in `README.md` and the Hero showcase. |
 | `/logo-acvc.svg` | `GET` | `image/svg+xml` | Serves the official brand monogram / emblem vector SVG (ACVC). |
 | `/logo-acvc.png` | `GET` | `image/png` | Serves the official high-resolution brand monogram / emblem PNG (ACVC). |
@@ -251,7 +253,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
    - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` ([github.com/AnaCataVC/anacatalina-cv](https://github.com/AnaCataVC/anacatalina-cv) or locally at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/data/cv.ts`, `src/pages/index.astro`, and `src/i18n.js`).
    - `anacatalina-mcp` packages its own verified in-memory dataset in `data/cv_data.json` and operates fully standalone without hard external build-time dependencies.
    - When updating or auditing `data/cv_data.json` or curriculum benchmarks in this repository, agents can inspect and pull verified baseline data directly from `anacatalina-cv` to maintain 100% cross-portfolio ecosystem consistency.
-   - Known gap: `anacatalina-cv` also has Publications and Courses & Certifications sections with no equivalent in `models/cv.py` (`CVData`). Adding them is a schema change (new Pydantic models, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task.
+   - Known gap: `anacatalina-cv` also has a Courses & Certifications section with no equivalent in `models/cv.py` (`CVData`). Adding it is a schema change (new Pydantic model, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task. (Publications were incorporated as `PublicationItem` and `obtener_publicaciones`).
 
 ---
 
@@ -385,8 +387,8 @@ Every repository in the portfolio must strictly adhere to the following universa
 
 - **Component Classification:** The Programmatic AI Gateway & MCP Server (`mcp.ana-catalina.com`).
 - **Provided Interfaces & Services (Outputs):**
-  - Streamable HTTP MCP endpoint at `/mcp` delivering 9 official tools (`obtener_experiencia`, `obtener_stack_tecnologico`, `obtener_proyectos_destacados`, `evaluar_fit_puesto`, `buscar_en_curriculum`, `obtener_educacion`, `obtener_contacto`, `obtener_perfil`, `obtener_resumen_ejecutivo`).
-  - Standalone REST APIs (`/api/evaluate-fit`, `/api/search`, `/api/skills`, `/api/projects`).
+  - Streamable HTTP MCP endpoint at `/mcp` delivering 10 official tools (`obtener_experiencia`, `obtener_stack_tecnologico`, `obtener_proyectos_destacados`, `evaluar_fit_puesto`, `buscar_en_curriculum`, `obtener_educacion`, `obtener_publicaciones`, `obtener_contacto`, `obtener_perfil`, `obtener_resumen_ejecutivo`).
+  - Standalone REST APIs (`/api/evaluate-fit`, `/api/search`, `/api/skills`, `/api/projects`, `/api/publications`).
   - Interactive browser showcase and deterministic vacancy playground at `/` and `/demo`.
   - Machine-readable discovery JSON at `GET /` when requested with `Accept: application/json`.
 - **Consumed Dependencies (Inputs):**

@@ -17,6 +17,7 @@ from server import (
     evaluar_fit_puesto,
     buscar_en_curriculum,
     obtener_educacion,
+    obtener_publicaciones,
     obtener_contacto,
     obtener_perfil,
     obtener_resumen_ejecutivo,
@@ -38,6 +39,8 @@ def test_cv_data_loaded(service):
     assert service.cv.personal_info.full_name == "Ana-Catalina Alejandra Villalobos Contardo"
     assert "SimpliRoute" in [exp.company for exp in service.cv.experience]
     assert "Fracttal" in [exp.company for exp in service.cv.experience]
+    assert len(service.cv.publications) >= 1
+    assert "Gaussian" in service.cv.publications[0].title
 
 
 @pytest.mark.asyncio
@@ -93,6 +96,16 @@ async def test_tool_buscar_en_curriculum():
     dumped = search_res.model_dump()
     assert "matched_experiences_count" in dumped
     assert "matched_projects_count" in dumped
+    assert "matched_publications_count" in dumped
+
+
+@pytest.mark.asyncio
+async def test_tool_buscar_en_curriculum_matches_publications():
+    """Tests that buscar_en_curriculum matches scientific publications."""
+    search_res = await buscar_en_curriculum(consulta="Gaussian")
+    assert search_res.matched_publications_count >= 1
+    assert any("delamination_paper" in p.id for p in search_res.publications)
+    assert any("sandwich" in p.title.lower() for p in search_res.publications)
 
 
 @pytest.mark.asyncio
@@ -119,6 +132,16 @@ async def test_tool_obtener_educacion():
     education = await obtener_educacion()
     assert len(education) >= 1
     assert any("Chile" in e.institution for e in education)
+
+
+@pytest.mark.asyncio
+async def test_tool_obtener_publicaciones():
+    """Tests obtener_publicaciones tool."""
+    pubs = await obtener_publicaciones()
+    assert len(pubs) >= 1
+    assert "Gaussian" in pubs[0].title
+    assert pubs[0].doi == "10.1002/stc.2727"
+    assert "Structural Control" in pubs[0].journal
 
 
 @pytest.mark.asyncio
@@ -344,6 +367,18 @@ def test_api_projects_endpoint():
     data = res.json()
     assert len(data) >= 1
     assert all(p["type"] == "personal" for p in data)
+
+
+def test_api_publications_endpoint():
+    """Tests GET /api/publications."""
+    client = TestClient(app)
+    res = client.get("/api/publications")
+    assert res.status_code == 200
+    data = res.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    assert "Generalized Gaussian" in data[0]["title"]
+    assert data[0]["doi"] == "10.1002/stc.2727"
 
 
 def test_health_endpoint():

@@ -70,7 +70,7 @@ flowchart TD
 
 ## MCP Tools Catalog
 
-The server exposes **9 official tools** registered via the Model Context Protocol:
+The server exposes **10 official tools** registered via the Model Context Protocol:
 
 | Tool | Parameters | Return Type | Description |
 | :--- | :--- | :--- | :--- |
@@ -80,6 +80,7 @@ The server exposes **9 official tools** registered via the Model Context Protoco
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Evaluates job requirements and calculates compatibility score, matching strengths, and value proposition. |
 | `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, projects, and education (Pydantic model with backwards-compatible dict indexing). |
 | `obtener_educacion` | *None* | `List[EducationItem]` | Formal university degrees, institutions, and specializations. |
+| `obtener_publicaciones` | *None* | `List[PublicationItem]` | Indexed scientific research papers (Structural Health Monitoring, Gaussian Processes, Bayesian inference). |
 | `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact channels (Email, LinkedIn). |
 | `obtener_perfil` | *None* | `PersonalInfo` | General profile: name, title, location, and portfolio links. |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Executive career summary focused on Data Science, ML, GCP, and MCP architecture in English or Spanish. |

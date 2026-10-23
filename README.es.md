@@ -70,7 +70,7 @@ flowchart TD
 
 ## Catálogo de Herramientas MCP
 
-El servidor expone **9 herramientas oficiales** registradas a través del protocolo MCP:
+El servidor expone **10 herramientas oficiales** registradas a través del protocolo MCP:
 
 | Herramienta | Parámetros | Tipo de Retorno | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -80,6 +80,7 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, requerido)* | `FitEvaluationResult` | Analiza los requerimientos de una vacante laboral y calcula el porcentaje de compatibilidad, fortalezas coincidentes y propuesta de valor. |
 | `buscar_en_curriculum` | `consulta` *(str, requerido)* | `SearchResult` | Búsqueda transversal por palabra clave en todo el currículum (experiencia, habilidades, proyectos y educación), validada con modelo Pydantic e indexación retrocompatible por corchetes. |
 | `obtener_educacion` | *Ninguno* | `List[EducationItem]` | Formación académica formal, grado obtenido, institución y especialización. |
+| `obtener_publicaciones` | *Ninguno* | `List[PublicationItem]` | Publicaciones científicas indexadas (Structural Health Monitoring, Procesos Gaussianos e inferencia Bayesiana). |
 | `obtener_contacto` | *Ninguno* | `ContactDetails` | Canales directos de contacto profesional (Email y perfil de LinkedIn). |
 | `obtener_perfil` | *Ninguno* | `PersonalInfo` | Perfil general: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub). |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Síntesis ejecutiva del perfil profesional enfocada en Data Science, ML, GCP y arquitecturas MCP en español (`es`) o inglés (`en`). |

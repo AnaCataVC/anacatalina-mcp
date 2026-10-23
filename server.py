@@ -19,6 +19,7 @@ from models.cv import (
     SkillCategory,
     ProjectItem,
     EducationItem,
+    PublicationItem,
     ContactDetails,
     PersonalInfo,
     FitEvaluationResult,
@@ -115,6 +116,15 @@ async def buscar_en_curriculum(consulta: str) -> SearchResult:
 async def obtener_educacion() -> List[EducationItem]:
     """Obtiene el historial de formación académica formal."""
     return cv_service.get_education()
+
+
+@mcp.tool(
+    name="obtener_publicaciones",
+    description="Devuelve las publicaciones científicas y papers de investigación de Ana-Catalina (Structural Health Monitoring, Procesos Gaussianos e inferencia Bayesiana), con título, journal, fecha, DOI y resumen metodológico."
+)
+async def obtener_publicaciones() -> List[PublicationItem]:
+    """Obtiene el listado de publicaciones científicas y artículos académicos."""
+    return cv_service.get_publications()
 
 
 @mcp.tool(
@@ -291,6 +301,13 @@ async def api_projects(request: Request):
     technology = request.query_params.get("technology")
     projects = cv_service.get_projects(project_type=p_type, technology=technology)
     return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
+
+
+@mcp.custom_route("/api/publications", methods=["GET"])
+async def api_publications(request: Request):
+    """Standalone REST endpoint: returns research publications and scientific papers."""
+    publications = cv_service.get_publications()
+    return JSONResponse([pub.model_dump() for pub in publications], status_code=200)
 
 
 # 5. In-Memory Sliding Window Rate Limiter & Security Headers Middleware

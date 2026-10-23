@@ -441,7 +441,7 @@
     {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 25 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
+      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 22 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",
@@ -715,6 +715,17 @@
       "degree": "Licenciatura en Ciencias de la Ingeniería",
       "period": "Finalizada en 2017",
       "details": "Actividad destacada: Ayudante del curso Probabilidades y Estadística."
+    }
+  ],
+  "publications": [
+    {
+      "id": "delamination_paper",
+      "title": "Generalized Gaussian smoothing for baseline-free debonding assessment of sandwich panels",
+      "journal": "Structural Control Health Monitoring",
+      "period": "Marzo 2021",
+      "url": "https://doi.org/10.1002/stc.2727",
+      "doi": "10.1002/stc.2727",
+      "description": "Investigación en monitorización de integridad estructural (SHM) y evaluación no destructiva en paneles sándwich de materiales compuestos de alto rendimiento. Desarrolla una formulación matemática baseline-free basada en Procesos Gaussianos (GP) y análisis Bayesiano sobre modos de curvatura vibracional, detectando y cuantificando delaminaciones (debonding) sin requerir datos previos del estado intacto."
     }
   ]
 }
