@@ -29,7 +29,7 @@
       --color-brand-aqua-deep: #0891B2;
       --color-brand-purple: #8B5CF6;
       --color-brand-purple-light: #C49BFF;
-      --color-brand-magenta: #8B5CF6;
+      --color-brand-magenta: #C49BFF;
       --color-brand-cyan: #2EE6E5;
 
       /* Pastel Support Tokens - DESIGN_SYSTEM.md §2.2 */
@@ -44,6 +44,10 @@
       --color-mint-text-dark: #34D399;
       --color-mint-bg: rgba(200, 243, 224, 0.12);
       --color-mint-border: rgba(16, 185, 129, 0.35);
+      --color-danger-text: #BE185D;
+      --color-danger-text-dark: #F472B6;
+      --color-danger-bg: rgba(251, 207, 232, 0.15);
+      --color-danger-border: rgba(229, 115, 167, 0.35);
 
       /* Dark Theme (Default) - Canvas bg-slate-900 (#0F172A), Containers bg-slate-800 (#1E293B) */
       --bg-canvas: #0F172A;
@@ -51,12 +55,12 @@
       --bg-surface-elevated: rgba(30, 41, 59, 0.95);
       --bg-input: #131A2B;
       --border-subtle: rgba(51, 65, 85, 0.65);
-      --border-hover: rgba(185, 141, 253, 0.45);
+      --border-hover: rgba(139, 92, 246, 0.45);
       --border-focus: #BA8EFF;
       --text-primary: #F1F5F9;
       --text-secondary: #94A3B8;
       --text-muted: #64748B;
-      --shadow-glow: 0 0 25px rgba(185, 141, 253, 0.22);
+      --shadow-glow: 0 0 25px rgba(139, 92, 246, 0.22);
       --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
       --code-bg: #090D16;
       --watermark-color: #E0E7FF;
@@ -70,12 +74,12 @@
       --bg-surface-elevated: #FFFFFF;
       --bg-input: #FFFFFF;
       --border-subtle: #E2E8F0;
-      --border-hover: rgba(185, 141, 253, 0.5);
-      --border-focus: #B98DFD;
+      --border-hover: rgba(139, 92, 246, 0.4);
+      --border-focus: #8B5CF6;
       --text-primary: #1E293B;       /* Strictly avoiding pure #000000 */
       --text-secondary: #475569;
       --text-muted: #64748B;
-      --shadow-glow: 0 0 25px rgba(185, 141, 253, 0.15);
+      --shadow-glow: 0 0 25px rgba(139, 92, 246, 0.15);
       --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
       --code-bg: #0F172A;
       --watermark-color: #312E81;
@@ -90,6 +94,23 @@
 
     html {
       scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-subtle) var(--bg-canvas);
+    }
+
+    /* Universal Focus-Visible & Disabled States (A11y WCAG 2.1 AA) */
+    a:focus-visible,
+    button:focus-visible {
+      outline: 2px solid var(--border-focus);
+      outline-offset: 2px;
+    }
+
+    button:disabled,
+    .btn-primary-cta:disabled,
+    .btn-secondary-cta:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     body {
@@ -299,9 +320,9 @@
     }
 
     .pill-btn.active {
-      background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-magenta));
+      background: linear-gradient(135deg, var(--color-brand-violet-deep), var(--color-brand-violet));
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(154, 130, 232, 0.35);
+      box-shadow: 0 2px 8px rgba(139, 92, 246, 0.35);
     }
 
     .theme-toggle-btn {
@@ -329,7 +350,7 @@
       position: relative;
     }
 
-    /* Avatar Medallion with AV Conic Gradient Border (DESIGN_SYSTEM.md §3) */
+    /* Avatar Medallion with AC Conic Gradient Border (DESIGN_SYSTEM.md §3) */
     .hero-avatar-wrapper {
       position: relative;
       display: inline-block;
@@ -342,7 +363,7 @@
       border-radius: 9999px;
       filter: blur(10px);
       opacity: 0.22;
-      background: conic-gradient(from 0deg, #2EE6E5 0%, #B98DFD 33%, #FF7889 66%, #2EE6E5 100%);
+      background: conic-gradient(from 180deg, var(--color-brand-aqua) 0%, var(--color-brand-violet) 50%, var(--color-brand-aqua) 100%);
       pointer-events: none;
       transition: opacity 0.5s ease;
       z-index: 0;
@@ -372,7 +393,7 @@
       border: 3px solid transparent;
       background:
         linear-gradient(var(--bg-surface-elevated), var(--bg-surface-elevated)) padding-box,
-        conic-gradient(from 0deg, #2EE6E5 0%, #B98DFD 33%, #FF7889 66%, #2EE6E5 100%) border-box;
+        conic-gradient(from 180deg, var(--color-brand-aqua) 0%, var(--color-brand-violet) 50%, var(--color-brand-aqua) 100%) border-box;
     }
 
     .hero-avatar {
@@ -460,12 +481,12 @@
       margin-top: 2px;
     }
     .terminal-dot {
-      color: var(--color-brand-magenta);
+      color: var(--color-brand-aqua);
       cursor: default;
-      transition: filter 0.3s ease;
+      transition: filter 0.3s ease, color 0.3s ease;
     }
     .terminal-dot:hover {
-      filter: drop-shadow(0 0 8px rgba(229, 115, 167, 0.7));
+      filter: drop-shadow(0 0 8px rgba(46, 230, 229, 0.8));
     }
 
     .hero-subtitle {
@@ -501,16 +522,16 @@
       font-weight: 600;
       font-size: 0.9375rem;
       color: #ffffff;
-      background: linear-gradient(to right, var(--color-brand-purple), var(--color-brand-magenta));
-      box-shadow: 0 4px 14px rgba(154, 130, 232, 0.35);
+      background: linear-gradient(135deg, var(--color-brand-violet-deep), var(--color-brand-violet));
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
       border: 1px solid rgba(255, 255, 255, 0.2);
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       letter-spacing: 0.01em;
     }
     .btn-primary-cta:hover {
-      background: linear-gradient(to right, var(--color-brand-magenta), var(--color-brand-purple));
+      background: linear-gradient(135deg, var(--color-brand-violet), var(--color-brand-violet-light));
       transform: translateY(-2px);
-      box-shadow: 0 0 20px rgba(154, 130, 232, 0.45);
+      box-shadow: 0 0 22px rgba(139, 92, 246, 0.45);
     }
 
     .btn-secondary-cta {
@@ -653,10 +674,10 @@
       border-color: var(--color-brand-purple);
     }
     .tab-btn.active {
-      background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-magenta));
+      background: linear-gradient(135deg, var(--color-brand-violet-deep), var(--color-brand-violet));
       color: #ffffff;
       border-color: transparent;
-      box-shadow: 0 4px 14px rgba(154, 130, 232, 0.35);
+      box-shadow: 0 4px 14px rgba(139, 92, 246, 0.35);
     }
 
     /* Terminal Code Container */
@@ -798,6 +819,31 @@
       padding: 4px 12px;
       border-radius: 8px;
       border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .result-score-badge.score-high {
+      background: var(--color-mint-bg);
+      border-color: var(--color-mint-border);
+      color: var(--color-mint-text-dark);
+    }
+    [data-theme="light"] .result-score-badge.score-high {
+      color: var(--color-mint-text);
+    }
+    .result-score-badge.score-mid {
+      background: rgba(46, 230, 229, 0.12);
+      border-color: rgba(46, 230, 229, 0.35);
+      color: var(--color-brand-aqua);
+    }
+    [data-theme="light"] .result-score-badge.score-mid {
+      color: var(--color-brand-aqua-deep);
+    }
+    .result-score-badge.score-low {
+      background: var(--color-danger-bg);
+      border-color: var(--color-danger-border);
+      color: var(--color-danger-text-dark);
+    }
+    [data-theme="light"] .result-score-badge.score-low {
+      color: var(--color-danger-text);
     }
 
     .tag-pill {
@@ -873,6 +919,9 @@
       }
       .card {
         padding: 20px 18px;
+      }
+      .code-container {
+        padding-top: 48px;
       }
       .tools-grid {
         grid-template-columns: 1fr;
@@ -1329,7 +1378,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
     <!-- Header -->
     <header class="header-nav">
       <div class="brand-group">
-        <a href="https://ana-catalina.com/" class="brand-logo-link" title="Ana-Catalina">
+        <a href="https://ana-catalina.com/" class="brand-logo-link" id="brand-logo-link" title="Ana-Catalina" aria-label="Ir a la página principal de Ana-Catalina">
           <img src="/logo-ac.png" alt="Ana-Catalina AC Logo" class="brand-logo-img" width="34" height="34" />
         </a>
         <div>
@@ -1340,14 +1389,14 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
 
       <div class="nav-actions">
         <!-- Ficha Técnica Link to projects-hub -->
-        <a href="https://projects.ana-catalina.com/anacatalina-mcp" target="_blank" rel="noopener noreferrer" class="nav-link-btn" id="link-ficha" title="Ver Ficha Técnica en Projects Hub">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <a href="https://projects.ana-catalina.com/anacatalina-mcp" target="_blank" rel="noopener noreferrer" class="nav-link-btn" id="link-ficha" title="Ver Ficha Técnica en Projects Hub" aria-label="Ver Ficha Técnica en Projects Hub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span id="txt-ficha">Ficha técnica</span>
         </a>
 
         <!-- GitHub Link -->
-        <a href="https://github.com/AnaCataVC/anacatalina-mcp" target="_blank" rel="noopener noreferrer" class="nav-link-btn" title="GitHub Repository">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        <a href="https://github.com/AnaCataVC/anacatalina-mcp" target="_blank" rel="noopener noreferrer" class="nav-link-btn" id="link-github" title="GitHub Repository" aria-label="Repositorio de GitHub de anacatalina-mcp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
         </a>
 
         <!-- Language Switcher (Zero Flags Rule) -->
@@ -1357,8 +1406,8 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
         </div>
 
         <!-- Theme Toggle -->
-        <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema">
-          <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema" aria-label="Alternar entre tema claro y tema oscuro">
+          <svg id="theme-icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -1369,7 +1418,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
-          <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+          <svg id="theme-icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;" aria-hidden="true">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
@@ -1408,25 +1457,25 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       <!-- Action Buttons (DESIGN_SYSTEM.md §4) -->
       <div class="hero-cta-group">
         <a href="#connect" class="btn-primary-cta">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
           <span id="txt-btn-connect">Conectar Asistente (MCP)</span>
         </a>
         <a href="https://projects.ana-catalina.com/anacatalina-mcp" target="_blank" rel="noopener noreferrer" class="btn-secondary-cta" id="btn-hero-ficha">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
           <span id="txt-btn-ficha">Ver Ficha Técnica</span>
         </a>
       </div>
 
       <!-- Social Dock -->
       <div class="social-dock">
-        <a href="https://linkedin.com/in/ana-catalina/" target="_blank" rel="noopener noreferrer" class="dock-btn" title="LinkedIn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+        <a href="https://linkedin.com/in/ana-catalina/" target="_blank" rel="noopener noreferrer" class="dock-btn" title="LinkedIn" aria-label="Perfil de LinkedIn de Ana-Catalina">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
         </a>
-        <a href="https://github.com/AnaCataVC" target="_blank" rel="noopener noreferrer" class="dock-btn" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+        <a href="https://github.com/AnaCataVC" target="_blank" rel="noopener noreferrer" class="dock-btn" title="GitHub" aria-label="Perfil de GitHub de Ana-Catalina">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
         </a>
-        <a href="mailto:anacatalina@outlook.cl" class="dock-btn" title="Email">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        <a href="mailto:anacatalina@outlook.cl" class="dock-btn" title="Email" aria-label="Enviar correo electrónico a Ana-Catalina">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
         </a>
       </div>
     </section>
@@ -1436,7 +1485,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       <div class="card-header">
         <h2 class="card-title">
           <span class="card-title-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
           </span>
           <span id="txt-connect-title">Conectar con Asistentes de IA (MCP)</span>
         </h2>
@@ -1455,8 +1504,8 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       </div>
 
       <div class="code-container">
-        <button class="copy-btn" onclick="copyConfig()">
-          <svg id="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <button class="copy-btn" id="btn-copy" onclick="copyConfig()" aria-label="Copiar configuración al portapapeles">
+          <svg id="copy-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
           <span id="copy-label">Copiar</span>
         </button>
         <pre><code id="code-content"></code></pre>
@@ -1545,7 +1594,7 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       <!-- Result Container -->
       <div id="fit-result" class="result-box" style="display: block;" aria-live="polite">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-          <div id="fit-score" class="result-score-badge">95% (Alineación Excepcional)</div>
+          <div id="fit-score" class="result-score-badge score-high">95% (Alineación Excepcional)</div>
           <div id="fit-role" style="font-size: 0.85rem; color: var(--text-muted);">Senior Data Scientist / Machine Learning Engineer</div>
         </div>
 
@@ -1685,6 +1734,23 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
     /* ==========================================================================
        Language & Theme Handlers
        ========================================================================== */
+    const A11Y_TEXTS = {
+      es: {
+        themeToggle: "Alternar entre tema claro y tema oscuro",
+        copyConfig: "Copiar configuración al portapapeles",
+        fichaNav: "Ver Ficha Técnica en Projects Hub",
+        githubNav: "Repositorio de GitHub de anacatalina-mcp",
+        homeLogo: "Ir a la página principal de Ana-Catalina"
+      },
+      en: {
+        themeToggle: "Toggle between light and dark theme",
+        copyConfig: "Copy configuration to clipboard",
+        fichaNav: "View Tech Specs on Projects Hub",
+        githubNav: "anacatalina-mcp GitHub Repository",
+        homeLogo: "Go to Ana-Catalina home page"
+      }
+    };
+
     function setLanguage(lang) {
       currentLang = lang;
       localStorage.setItem('lang', lang);
@@ -1707,13 +1773,28 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       document.getElementById('txt-coincident-tags').textContent = t.coincidentTags;
       document.getElementById('txt-strengths-title').textContent = t.strengthsTitle;
 
+      // Update accessible labels
+      const a11y = A11Y_TEXTS[lang];
+      const logoLink = document.getElementById('brand-logo-link');
+      if (logoLink) logoLink.setAttribute('aria-label', a11y.homeLogo);
+      const linkFicha = document.getElementById('link-ficha');
+      if (linkFicha) linkFicha.setAttribute('aria-label', a11y.fichaNav);
+      const linkGithub = document.getElementById('link-github');
+      if (linkGithub) linkGithub.setAttribute('aria-label', a11y.githubNav);
+      const themeBtn = document.getElementById('theme-toggle');
+      if (themeBtn) themeBtn.setAttribute('aria-label', a11y.themeToggle);
+      const copyBtn = document.getElementById('btn-copy');
+      if (copyBtn) copyBtn.setAttribute('aria-label', a11y.copyConfig);
+
       // Update link target to ficha in projects-hub with appropriate language prefix
       const fichaTarget = lang === 'en' 
         ? "https://projects.ana-catalina.com/en/anacatalina-mcp" 
         : "https://projects.ana-catalina.com/anacatalina-mcp";
-      document.getElementById('link-ficha').setAttribute('href', fichaTarget);
-      document.getElementById('btn-hero-ficha').setAttribute('href', fichaTarget);
-      document.getElementById('footer-ficha-link').setAttribute('href', fichaTarget);
+      if (linkFicha) linkFicha.setAttribute('href', fichaTarget);
+      const btnHeroFicha = document.getElementById('btn-hero-ficha');
+      if (btnHeroFicha) btnHeroFicha.setAttribute('href', fichaTarget);
+      const footerFicha = document.getElementById('footer-ficha-link');
+      if (footerFicha) footerFicha.setAttribute('href', fichaTarget);
     }
 
     function updateThemeUI(isDark) {
@@ -1788,18 +1869,13 @@ c28 -28 1 -75 -37 -63 -27 8 -34 35 -15 56 20 22 35 24 52 7z m-770 -290 c30
       scoreBadge.textContent = data.score;
       role.textContent = data.role;
 
+      scoreBadge.classList.remove('score-high', 'score-mid', 'score-low');
       if (data.score.includes('0%') || data.score.includes('10%')) {
-        scoreBadge.style.background = 'rgba(229, 115, 167, 0.15)';
-        scoreBadge.style.borderColor = 'rgba(229, 115, 167, 0.4)';
-        scoreBadge.style.color = '#E573A7';
+        scoreBadge.classList.add('score-low');
       } else if (data.score.includes('40%') || data.score.includes('65%')) {
-        scoreBadge.style.background = 'rgba(77, 208, 225, 0.15)';
-        scoreBadge.style.borderColor = 'rgba(77, 208, 225, 0.4)';
-        scoreBadge.style.color = '#4DD0E1';
+        scoreBadge.classList.add('score-mid');
       } else {
-        scoreBadge.style.background = 'rgba(200, 243, 224, 0.15)';
-        scoreBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
-        scoreBadge.style.color = '#34d399';
+        scoreBadge.classList.add('score-high');
       }
 
       tagsContainer.innerHTML = '';

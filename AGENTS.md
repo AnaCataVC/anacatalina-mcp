@@ -208,15 +208,16 @@ When modifying `templates/index.html`:
 3. **Zero Broken Mockups:**
    - Every single button, chip, tab switcher, and copy block must be 100% operational in live production.
    - Do not leave decorative placeholders, non-functional inputs, or broken links.
-4. **Color Tokens (Pastel-Tech System — DESIGN_SYSTEM.md):**
-   - Brand Triad: `--color-brand-purple` (`#B98DFD`), `--color-brand-purple-light` (`#BA8EFF`), `--color-brand-magenta` (`#FF7889`), `--color-brand-cyan` (`#2EE6E5`).
+4. **Color Tokens & Accessibility (Pastel-Tech System — DESIGN_SYSTEM.md):**
+   - Core Palette: `--color-brand-violet` / `--color-brand-purple` (`#8B5CF6`, Electric Violet), `--color-brand-violet-light` / `--color-brand-purple-light` (`#C49BFF`, Luminous Lavender), `--color-brand-violet-deep` (`#6D28D9`, Deep Violet), `--color-brand-aqua` / `--color-brand-cyan` (`#2EE6E5`, Crystal Aqua), `--color-brand-aqua-light` (`#A5F3FC`, Glacial Aqua), `--color-brand-aqua-deep` (`#0891B2`, Deep Cyan).
    - Pastel Support: `--color-pastel-lilac` (`#CDB4F6`), `--color-pastel-pink` (`#FBCFE8`), `--color-pastel-cyan` (`#B2EFF7`), `--color-pastel-blue` (`#BCDFFB`), `--color-pastel-mint` (`#C8F3E0`).
    - Surfaces: Canvas Dark (`#0F172A`), container surfaces (`#1E293B`), Canvas Light (`#F8FAFC`), surfaces (`#FFFFFF`).
    - Decorative Watermark: Botanical poppy line-art flower SVG (`templates/poppy.svg` / `/poppy.svg`).
+   - Accessible Focus & State Management: All interactive controls declare explicit `:focus-visible` rings (`outline: 2px solid var(--border-focus)`) and descriptive `aria-label`s on icon-only buttons for WCAG 2.1 AA compliance.
 5. **Mobile Responsiveness:**
-   - Use elastic `1fr` grid columns on mobile screens (`@media (max-width: 768px)`).
+   - Use elastic `1fr` grid columns on mobile screens (`@media (max-width: 640px)`).
    - Stack header actions vertically with centered brand icon.
-   - Ensure the code container has `padding-top: 44px` on mobile so the absolute copy button never obscures configuration text.
+   - Ensure the code container has `padding-top: 48px` on mobile so the absolute copy button never obscures configuration text.
 
 ---
 
