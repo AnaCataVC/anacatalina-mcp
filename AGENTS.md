@@ -90,9 +90,9 @@ anacatalina-mcp/
 │   ├── index.html                # Single-page Pastel-Tech showcase & deterministic playground
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
-│   ├── test_content_negotiation.py # 7 automated tests for root HTML/JSON content negotiation
-│   ├── test_server.py            # 40 automated tests (Streamable HTTP, MCP tools, REST APIs, security, rate limit)
-│   └── test_sync_script.py       # 12 automated tests for cross-repo synchronization engine
+│   ├── test_content_negotiation.py # Automated tests for root HTML/JSON content negotiation and zero redirects
+│   ├── test_server.py            # Automated tests for Streamable HTTP, protocol contracts, MCP tools, REST APIs, security, and rate limit
+│   └── test_sync_script.py       # Automated tests for cross-repo synchronization engine and Pydantic validation
 ├── Dockerfile                    # Non-root container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
 ├── requirements.txt              # Production runtime dependencies with explicit upper bounds
@@ -199,7 +199,7 @@ When modifying `templates/index.html`:
 
 1. **Card Hierarchy:**
    - **Card 1 (Top Priority):** Conectar con Asistentes de IA (MCP) &mdash; tabs for Antigravity (`mcp_config.json`), Cursor & Windsurf (`mcp.json`), Claude.ai (Conector Web), Gemini (gemini.com Connected Apps), and cURL / CLI Health.
-   - **Card 2:** Catálogo Oficial de 9 Herramientas MCP.
+   - **Card 2:** Catálogo Oficial de 10 Herramientas MCP.
    - **Card 3:** Escenarios de Alineación Técnica (Ejemplos Fijos: Data Science, Ruteo/Logística, Agentes MCP, Test Negativo).
 2. **Zero Flags Rule (STRICT INVARIANT):**
    - **NEVER** use country flag emojis (`US`, `GB`, `ES`, `MX`, etc.) or flag graphics anywhere in the UI or documentation.

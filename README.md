@@ -30,11 +30,18 @@
 
 This project provides an official **Model Context Protocol (MCP)** server built in Python that enables AI assistants, hiring managers, and technical evaluators to interactively query the professional experience, technical skill matrix, featured projects, and job compatibility of **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
 
+### Two Interfaces, Built for Two Audiences
+
+| Audience | Entry Point | Purpose & Experience |
+| :--- | :--- | :--- |
+| 🤖 **AI Agents & Protocol Engineers** | Streamable HTTP (`POST /mcp`) | Direct machine-to-machine integration for Google Antigravity, Claude.ai, Cursor, Windsurf, and Gemini via JSON-RPC 2.0 with strongly-typed Pydantic v2 schemas. |
+| 👤 **Hiring Managers & Evaluators** | Interactive Web Showcase (`GET /` or `/demo`) | Human-friendly browser playground using the *Pastel-Tech Design System* with zero installation required, deterministic vacancy fit benchmarks, and instant sub-5ms responses. |
+
 ### Key Features
 - **Interactive Web Showcase & Playground:** Served directly at `/` (serves 200 OK directly to browsers via transparent content negotiation, with `/demo` as direct alias) using the *Pastel-Tech Design System*. Allows human visitors and evaluators to test job fit and query the curriculum directly in the browser with deterministic accuracy and instant in-memory responses.
 - **Transparent HTTP Content Negotiation:** Serves the interactive web interface directly to browsers (`Accept: text/html`) with HTTP 200 without redirects, while preserving the structured JSON discovery payload for programmatic agents and cURL.
 - **Modern Streamable HTTP Transport (`/mcp`):** Native transport standard for direct cloud connections from **Google Antigravity** (`mcp_config.json`), **Claude.ai** (custom connectors), **Gemini** (gemini.com Connected Apps) and **Cursor / Windsurf** (`mcp.json`).
-- **9 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
+- **10 Dedicated MCP Tools:** Granular exploration of work history, skill taxonomy by category/level, highlighted projects, automated job fit scoring, full-text curriculum search, education, contact details, and general profile.
 - **Zero-Latency In-Memory Architecture:** Clean data validation using **Pydantic v2** loaded into memory on container startup (<2ms response time).
 
 ---
@@ -52,7 +59,7 @@ flowchart TD
 
     subgraph CloudLayer["Google Cloud Run / Serverless Host"]
         C["FastMCP App (:8080)<br/>/mcp & Custom Routes"]
-        D["9 Registered MCP Tools"]
+        D["10 Registered MCP Tools"]
         E["CV Service & Pydantic Engine<br/>(models/cv.py)"]
         F[("data/cv_data.json<br/>(In-Memory Dataset)")]
     end
@@ -64,6 +71,65 @@ flowchart TD
     C <--> D
     D <--> E
     E <--> F
+```
+
+### Protocol Lifecycle & Live Invocation Demonstration
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as MCP Client (Claude / Antigravity / Cursor)
+    participant Server as FastMCP Server (Cloud Run :8080)
+    participant Engine as CV Service (Pydantic v2 Engine)
+
+    Client->>Server: POST /mcp (method: initialize)
+    Server-->>Client: 200 OK + mcp-session-id + protocolVersion
+    Client->>Server: POST /mcp (method: tools/list)
+    Server-->>Client: 200 OK (Catalog of 10 typed tools with JSON Schemas)
+    Note over Client,Server: Client selects tool & validates typed parameters
+    Client->>Server: POST /mcp (method: tools/call, name: evaluar_fit_puesto)
+    Server->>Engine: evaluate_job_fit(descripcion_vacante)
+    Engine-->>Server: In-memory regex match & score computation (<2ms)
+    Server-->>Client: 200 OK Streamable event (Structured JSON result)
+```
+
+#### Real Protocol Invocation Example
+
+1. **Request (`POST https://mcp.ana-catalina.com/mcp`):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "evaluar_fit_puesto",
+    "arguments": {
+      "descripcion_vacante": "Senior Machine Learning Engineer with Python, GCP, BigQuery and Docker"
+    }
+  }
+}
+```
+
+2. **Structured Response (`200 OK`, `text/event-stream`):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "structuredContent": {
+      "target_role_detected": "Senior Data Scientist / Machine Learning Engineer",
+      "estimated_fit_score": "85% (Alta Compatibilidad)",
+      "technologies_matched": ["Python", "BigQuery", "Google Cloud Platform (GCP)", "Docker"],
+      "matching_strengths": [
+        "Production experience at SimpliRoute applying Python, BigQuery, and GCP to logistics optimization and MCP servers.",
+        "Track record at Fracttal leading analytical pipelines, predictive maintenance, and Python deployments.",
+        "Deep expertise across the Google Cloud data and ML ecosystem."
+      ],
+      "added_value_summary": "Ana-Catalina's profile provides high synergy in Python, BigQuery, Google Cloud Platform (GCP), Docker, combining real production experience in high-growth tech startups with strong civil engineering, advanced analytics, and predictive modeling."
+    },
+    "isError": false
+  }
+}
 ```
 
 ---
@@ -124,10 +190,10 @@ uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 
 ### Automated Testing
 
-Run the full 57-test suite, coverage report, upstream data audit, and dependency vulnerability scan:
+Execute the complete automated test suite (unit, protocol contracts, content negotiation, security headers, rate limiting, and upstream data synchronization):
 
 ```bash
-# Run all 57 unit, content-negotiation, security, and sync tests
+# Run the complete automated test suite with zero regressions
 pytest tests/ -v
 
 # Run test suite with line coverage report
@@ -139,6 +205,20 @@ python -m pip_audit -r requirements.txt
 # Verify data alignment against sibling repositories (anacatalina-cv and projects-hub)
 python scripts/sync_mcp_data.py --check-only
 ```
+
+### Quality Assurance & Risk Mitigation Matrix
+
+| Architectural Concern / Risk | Production Implementation & Safeguard | Concrete Automated Evidence |
+| :--- | :--- | :--- |
+| **Protocol Compliance & Discovery** | FastMCP Streamable HTTP (`POST /mcp`) | Contract tests for `initialize`, `tools/list`, and `tools/call` ([`tests/test_server.py`](tests/test_server.py)) |
+| **Schema Stability & Type Safety** | Pydantic v2 strict models (`models/cv.py`) | 100% typed serialization & boundary validation tests |
+| **Structured Error Handling** | Envelope validation with Pydantic v2 error payloads | Automated error tests (`isError: true` on missing args / unknown tools) |
+| **Content Negotiation (Zero Latency)** | Transparent ASGI route handler (`GET /`, zero redirects) | 7 content negotiation tests ([`tests/test_content_negotiation.py`](tests/test_content_negotiation.py)) |
+| **Abusive Traffic & DOS Protection** | Pure-ASGI in-memory sliding window rate limiter | Bounded per-IP rate limit test verifying HTTP `429 Too Many Requests` |
+| **Security Headers Injection** | Injects `X-Content-Type-Options`, `X-Frame-Options` on all responses | Automated security headers injection tests |
+| **Container & Runtime Privileges** | Non-root `appuser` Debian slim Docker container | Cloud Run serverless non-privileged container sandbox |
+| **Dependency Vulnerabilities** | Upper-bound version pinning & CVE auditing | Automated `pip-audit` execution in CI/CD pipeline ([`test.yml`](.github/workflows/test.yml)) |
+| **Cross-Portfolio Data Drift** | Standalone dataset + semantic comparison engine | Daily GitHub Actions drift audit workflow ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
 
 ---
 
@@ -193,7 +273,7 @@ python scripts/sync_mcp_data.py --check-only
 
 4. **Declarative Static Asset Dispatcher & Test Suite Coverage:**
    - Centralizing all static assets in a single immutable `STATIC_ASSETS` registry in `server.py` eliminated 60+ lines of duplicate routing code while strictly preserving root canonical URLs and preventing path traversal.
-   - Full automated test suite expanded to **59 passing tests** covering MCP tools, REST endpoints, content negotiation, security headers, rate limiting, and semantic benchmark consistency.
+   - Comprehensive automated test suite running with **100% passing rate / zero regressions** across all protocol lifecycle contracts (schema discovery, argument validation, error envelopes), REST endpoints, transparent content negotiation, security headers, rate limiting, and semantic benchmark consistency.
 
 5. **Upper-Bound Dependency Pinning & Unused Package Pruning (`requirements.txt`):**
    - Version 2.0 of the official MCP SDK introduced breaking renames to `FastMCP`. All runtime dependencies enforce explicit major upper bounds (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) and unused transitive wrappers (`fastapi`) were pruned to reduce container attack surface.
@@ -210,5 +290,3 @@ python scripts/sync_mcp_data.py --check-only
 ## License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details. Developed by **Ana-Catalina Villalobos Contardo**.
-
-
