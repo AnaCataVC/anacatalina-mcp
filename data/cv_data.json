@@ -442,20 +442,21 @@
       "demo_url": "https://amiga-ia.ana-catalina.com"
     },
     {
-      "name": "Anacatalina CV — Sitio Personal Bilingüe",
+      "name": "anacatalina-cv (Sitio Personal Bilingüe)",
       "type": "personal",
       "description": "Mi CV como sitio web bilingüe con modo oscuro, más un PDF descargable generado imprimiendo plantillas HTML con el motor headless del navegador.",
       "technologies": [
         "Astro 6",
         "TypeScript",
         "Tailwind CSS v4",
+        "GitHub Actions",
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/anacatalina-cv",
       "demo_url": "https://cv.ana-catalina.com"
     },
     {
-      "name": "AI-Native Interactive Resume (MCP Server)",
+      "name": "anacatalina-mcp (AI-Native Interactive Resume)",
       "type": "personal",
       "description": "Servidor Model Context Protocol (MCP) que permite a Inteligencias Artificiales interactuar con mi experiencia profesional.",
       "technologies": [
@@ -466,6 +467,7 @@
         "Pydantic v2",
         "Docker",
         "Google Cloud Run",
+        "Task Runner",
         "Model Context Protocol",
         "Google Antigravity",
         "Gemini Connected Apps"
@@ -575,6 +577,7 @@
         "Tailwind CSS v4",
         "Zod",
         "Vitest",
+        "GitHub Actions",
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/projects-hub",
