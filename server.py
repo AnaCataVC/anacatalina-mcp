@@ -39,7 +39,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 # 0. Centralized Constants & Structured Logging Configuration
-APP_VERSION = "1.9.0"
+APP_VERSION = "1.10.0"
 RATE_LIMIT_MAX_REQUESTS = _env_int("RATE_LIMIT_PER_MINUTE", 120)
 RATE_LIMIT_WINDOW_SECONDS = 60.0
 RATE_LIMIT_MAX_TRACKED_IPS = 4096
