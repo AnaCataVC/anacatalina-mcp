@@ -304,7 +304,7 @@ def scan_projects_hub(projects_dir: Path) -> List[Dict[str, Any]]:
                 "description": frontmatter.get("description", ""),
                 "technologies": frontmatter.get("technologies", []),
                 "repo_url": frontmatter.get("githubUrl"),
-                "demo_url": frontmatter.get("websiteUrl"),
+                "demo_url": frontmatter.get("websiteUrl") or frontmatter.get("liveAppUrl"),
                 "status": frontmatter.get("status", "Activo")
             })
     return projects
@@ -691,6 +691,7 @@ class DataAuditor:
                     {"name": "Sistemas Multi-Agente", "level": "Avanzado"},
                     {"name": "LLMs & GenAI", "level": "Avanzado"},
                     {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
+                    {"name": "Evaluación de Agentes (Evals)", "level": "Avanzado"},
                     {"name": "Claude Code & Antigravity", "level": "Avanzado"},
                     {"name": "Prompt Engineering", "level": "Avanzado"},
                     {"name": "Monitoreo de Modelos ML", "level": "Intermedio"},
@@ -715,11 +716,8 @@ class DataAuditor:
                 "skills": [
                     {"name": "Python", "level": "Avanzado"},
                     {"name": "SQL", "level": "Avanzado"},
-                    {"name": "Rust", "level": "Intermedio"},
-                    {"name": "Kotlin", "level": "Intermedio"},
                     {"name": "TypeScript", "level": "Intermedio"},
                     {"name": "JavaScript", "level": "Intermedio"},
-                    {"name": "C# (.NET)", "level": "Intermedio"},
                     {"name": "Java", "level": "Intermedio"},
                     {"name": "MATLAB", "level": "Intermedio"},
                     {"name": "Node.js", "level": "Intermedio"},
@@ -727,10 +725,8 @@ class DataAuditor:
                 ]
             },
             {
-                "category": "Frontend, Mobile & Desarrollo Web",
+                "category": "Frontend & Desarrollo Web",
                 "skills": [
-                    {"name": ".NET 9 (WPF / WinUI 3)", "level": "Intermedio"},
-                    {"name": "Android & Jetpack Compose", "level": "Intermedio"},
                     {"name": "FastHTML & HTMX", "level": "Intermedio"},
                     {"name": "React JS", "level": "Intermedio"},
                     {"name": "Astro", "level": "Intermedio"},
@@ -748,6 +744,7 @@ class DataAuditor:
                     {"name": "FastAPI", "level": "Avanzado"},
                     {"name": "BigQuery", "level": "Avanzado"},
                     {"name": "PostgreSQL", "level": "Avanzado"},
+                    {"name": "Dataflow / Apache Beam", "level": "Avanzado"},
                     {"name": "Pub/Sub", "level": "Avanzado"},
                     {"name": "ETLs", "level": "Avanzado"},
                     {"name": "Redis", "level": "Intermedio"},

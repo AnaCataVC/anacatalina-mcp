@@ -27,8 +27,8 @@
       "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Diseño y despliegue en producción de infraestructura agéntica basada en Model Context Protocol (MCP) para motores logísticos, implementando guardrails deterministas, permisos de ejecución de herramientas de mínimo privilegio y persistencia distribuida con Redis en Kubernetes.",
-        "Arquitectura e implementación de un sistema distribuido de geolocalización y geocodificación multi-proveedor, diseñando pipelines asíncronos desacoplados, estrategias de alta disponibilidad, concurrencia segura y tolerancia a fallos.",
+        "Diseño y despliegue en producción de infraestructura agéntica multi-agente basada en Model Context Protocol (MCP) para motores de planificación logística, implementando delegación por dominios, flujos Human-in-the-Loop, suites de evaluación en producción (Agent Evals), guardrails deterministas y estado distribuido con Redis en Kubernetes.",
+        "Arquitectura y evolución de una plataforma distribuida de geolocalización y geocodificación directa/inversa multi-proveedor, diseñando motores de puntaje de confianza (confidence scoring), fallbacks resilientes, paralelización de consultas con reutilización de sesiones HTTP y redacción automática de PII.",
         "Gestión y modelado de datos a gran escala en Google BigQuery, canalizaciones de procesamiento distribuido con Google Cloud Dataflow / Apache Beam y orquestación con Google Pub/Sub y Apache Airflow, garantizando linaje de datos y telemetría crítica.",
         "Participación en la evolución y operación de modelos predictivos en producción, automatizando flujos de reentrenamiento y monitoreo de desempeño."
       ],
@@ -120,6 +120,10 @@
           "level": "Avanzado"
         },
         {
+          "name": "Evaluación de Agentes (Evals)",
+          "level": "Avanzado"
+        },
+        {
           "name": "Claude Code & Antigravity",
           "level": "Avanzado"
         },
@@ -186,23 +190,11 @@
           "level": "Avanzado"
         },
         {
-          "name": "Rust",
-          "level": "Intermedio"
-        },
-        {
-          "name": "Kotlin",
-          "level": "Intermedio"
-        },
-        {
           "name": "TypeScript",
           "level": "Intermedio"
         },
         {
           "name": "JavaScript",
-          "level": "Intermedio"
-        },
-        {
-          "name": "C# (.NET)",
           "level": "Intermedio"
         },
         {
@@ -224,16 +216,8 @@
       ]
     },
     {
-      "category": "Frontend, Mobile & Desarrollo Web",
+      "category": "Frontend & Desarrollo Web",
       "skills": [
-        {
-          "name": ".NET 9 (WPF / WinUI 3)",
-          "level": "Intermedio"
-        },
-        {
-          "name": "Android & Jetpack Compose",
-          "level": "Intermedio"
-        },
         {
           "name": "FastHTML & HTMX",
           "level": "Intermedio"
@@ -285,6 +269,10 @@
         },
         {
           "name": "PostgreSQL",
+          "level": "Avanzado"
+        },
+        {
+          "name": "Dataflow / Apache Beam",
           "level": "Avanzado"
         },
         {
@@ -464,7 +452,7 @@
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/anacatalina-cv",
-      "demo_url": null
+      "demo_url": "https://cv.ana-catalina.com"
     },
     {
       "name": "AI-Native Interactive Resume (MCP Server)",
@@ -500,7 +488,7 @@
         "Vercel Serverless"
       ],
       "repo_url": "https://github.com/AnaCataVC/emotion-finder",
-      "demo_url": null
+      "demo_url": "https://emotion-finder.ana-catalina.com"
     },
     {
       "name": "Google Drive Work Sync",
@@ -531,7 +519,7 @@
         "Recharts"
       ],
       "repo_url": "https://github.com/AnaCataVC/life-tracker-analytics",
-      "demo_url": null
+      "demo_url": "https://life-tracker-analytics.ana-catalina.com"
     },
     {
       "name": "Little Chef Timer",
@@ -590,7 +578,7 @@
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/projects-hub",
-      "demo_url": null
+      "demo_url": "https://projects.ana-catalina.com"
     },
     {
       "name": "Rest Your Eyes",
@@ -658,8 +646,8 @@
       "type": "personal",
       "description": "Panel interactivo de telemetría HUD y suite de control de rendimiento para Windows en C# nativo (.NET WPF/XAML) en un único ejecutable standalone de 585 KB sin dependencias externas.",
       "technologies": [
-        "C#",
-        ".NET Framework 4.8",
+        "C# 13",
+        ".NET 9",
         "WPF",
         "XAML",
         "Win32 P/Invoke",
