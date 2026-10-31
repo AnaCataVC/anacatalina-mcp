@@ -188,22 +188,28 @@ pip install -r requirements-dev.txt
 uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-### Pruebas Automatizadas
+### Pruebas Automatizadas y Automatización de Tareas
 
-Ejecutar la suite completa de pruebas automatizadas (unitarias, contratos de protocolo, negociación de contenido, cabeceras de seguridad, rate limiting y sincronización de datos upstream):
+Ejecutar la suite completa de pruebas automatizadas y las tareas de automatización para desarrolladores mediante el task runner unificado (`scripts/tasks.ps1` / `scripts/tasks.py`):
 
 ```bash
-# Ejecutar la suite completa de pruebas automatizadas con cero regresiones
-pytest tests/ -v
+# Ejecutar la suite completa de pruebas con cero regresiones
+python scripts/tasks.py test           # O en PowerShell: .\scripts\tasks.ps1 test
 
 # Ejecutar la suite con reporte de cobertura de líneas
-pytest tests/ -v --cov=models --cov=services --cov=server --cov-report=term-missing
+python scripts/tasks.py cov            # O en PowerShell: .\scripts\tasks.ps1 cov
+
+# Validar invariantes del ecosistema (Zero Flags, privacidad de rutas, identidad, 10 Tools)
+python scripts/tasks.py invariants     # O en PowerShell: .\scripts\tasks.ps1 invariants
+
+# Verificar alineación de datos frente a los repositorios hermanos
+python scripts/tasks.py audit          # O en PowerShell: .\scripts\tasks.ps1 audit
 
 # Auditar dependencias en busca de vulnerabilidades conocidas (CVEs)
-python -m pip_audit -r requirements.txt
+python scripts/tasks.py sec            # O en PowerShell: .\scripts\tasks.ps1 sec
 
-# Verificar alineación de datos frente a los repositorios hermanos (anacatalina-cv y projects-hub)
-python scripts/sync_mcp_data.py --check-only
+# Ejecutar el pipeline completo de aseguramiento de calidad (todas las verificaciones)
+python scripts/tasks.py check-all      # O en PowerShell: .\scripts\tasks.ps1 check-all
 ```
 
 ### Matriz de Aseguramiento de Calidad y Mitigación de Riesgos
@@ -218,7 +224,8 @@ python scripts/sync_mcp_data.py --check-only
 | **Inyección de Cabeceras de Seguridad** | Inyecta `X-Content-Type-Options`, `X-Frame-Options` en toda respuesta | Pruebas de inyección de cabeceras de seguridad |
 | **Privilegios de Contenedor y Runtime** | Contenedor Docker Debian slim con usuario sin privilegios (`appuser`) | Sandbox serverless no privilegiado en Google Cloud Run |
 | **Vulnerabilidad de Dependencias** | Cotas superiores en dependencias y escaneo de CVEs | Ejecución automatizada de `pip-audit` en pipeline de CI/CD ([`test.yml`](.github/workflows/test.yml)) |
-| **Deriva de Datos Inter-Portafolio** | Dataset autocontenido + motor de comparación semántica | Flujo de auditoría diaria en GitHub Actions ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
+| **Deriva de Datos Inter-Portafolio** | Dataset autocontenido + motor de comparación semántica | Auditoría diaria y PR de auto-remediación automática ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
+| **Invariantes del Ecosistema y Zero Flags** | Validador automatizado de Zero Flags, privacidad de rutas e identidad | Compuerta de verificación de invariantes ([`tests/test_invariants.py`](tests/test_invariants.py)) |
 
 ---
 

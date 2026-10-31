@@ -73,7 +73,9 @@ anacatalina-mcp/
 │   ├── dependabot.yml            # Automated weekly dependency updates (pip & github-actions)
 │   └── workflows/
 │       ├── test.yml              # Test suite, coverage report, and pip-audit on push/PRs
-│       └── upstream-drift.yml    # Daily drift audit against anacatalina-cv / projects-hub (opens an issue)
+│       └── upstream-drift.yml    # Daily drift audit and automated remediation PR generator
+├── .githooks/
+│   └── pre-push                  # Automated local pre-push quality gate (invariants + pytest)
 ├── data/
 │   └── cv_data.json              # In-memory single source of truth for the CV dataset
 ├── docs/
@@ -82,7 +84,11 @@ anacatalina-mcp/
 │   ├── __init__.py
 │   └── cv.py                     # Pydantic v2 models (PersonalInfo, ExperienceItem, Skills, etc.)
 ├── scripts/
-│   └── sync_mcp_data.py          # Native Python data audit and synchronization utility
+│   ├── bump_version.py           # Native version bump & release synchronizer
+│   ├── sync_mcp_data.py          # Native Python data audit and synchronization utility
+│   ├── tasks.ps1                 # PowerShell task runner for local dev & quality gates
+│   ├── tasks.py                  # Cross-platform task runner engine
+│   └── verify_ecosystem_invariants.py # Verification of Zero Flags, Path Privacy, and identity invariants
 ├── services/
 │   ├── __init__.py
 │   └── cv_service.py             # In-memory CVService singleton, search, and benchmark engine
@@ -91,6 +97,7 @@ anacatalina-mcp/
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
 │   ├── test_content_negotiation.py # Automated tests for root HTML/JSON content negotiation and zero redirects
+│   ├── test_invariants.py        # Automated tests for ecosystem invariants (Zero Flags, privacy, catalog)
 │   ├── test_server.py            # Automated tests for Streamable HTTP, protocol contracts, MCP tools, REST APIs, security, and rate limit
 │   └── test_sync_script.py       # Automated tests for cross-repo synchronization engine and Pydantic validation
 ├── Dockerfile                    # Non-root container definition for Google Cloud Run
@@ -225,6 +232,34 @@ When modifying `templates/index.html`:
 
 All commands assume a local Python 3.12 virtual environment (`.venv`):
 
+### 1. Unified Task Runner (`scripts/tasks.ps1` / `scripts/tasks.py`)
+```powershell
+# Run complete test suite
+.\scripts\tasks.ps1 test
+
+# Run tests with code coverage report
+.\scripts\tasks.ps1 cov
+
+# Validate ecosystem invariants (Zero Flags, Path Privacy, Identity, 10 Tools)
+.\scripts\tasks.ps1 invariants
+
+# Check for data drift against sibling repositories
+.\scripts\tasks.ps1 audit
+
+# Synchronize data/cv_data.json and run quality gate
+.\scripts\tasks.ps1 sync
+
+# Security audit on production dependencies
+.\scripts\tasks.ps1 sec
+
+# Run local development server (with orphan port cleanup and hot reload)
+.\scripts\tasks.ps1 serve
+
+# Run complete quality assurance pipeline (invariants + drift + tests + sec)
+.\scripts\tasks.ps1 check-all
+```
+
+### 2. Direct Python CLI Commands
 ```powershell
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
@@ -238,8 +273,17 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Synchronize data/cv_data.json with sibling repositories
 .venv\Scripts\python.exe scripts/sync_mcp_data.py --sync
 
+# Bump version and validate release gates
+.venv\Scripts\python.exe scripts/bump_version.py 1.10.0
+
 # Run local development server (with hot reload)
 .venv\Scripts\uvicorn.exe server:app --reload --port 8080
+```
+
+### 3. Git Pre-Push Hook Setup
+```powershell
+# Enable repository-level pre-push quality gate
+git config core.hooksPath .githooks
 ```
 
 ---
@@ -278,13 +322,18 @@ These items document deliberate architectural choices and operational boundaries
    - In accordance with the March 2025 MCP specification update deprecating HTTP+SSE, the server operates exclusively via **Streamable HTTP** (`/mcp`).
    - Legacy SSE endpoints (`/sse`, `/messages/`) and the local stdio bridge (`conecta_cata.py`) were eliminated to keep the architecture clean, high-performance, and directly cloud-native for Claude.ai Custom Connectors, Cursor, and modern MCP clients.
 
-5. **Upstream Drift Detection (content audit, not SHA pins):**
-   - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`, and opens/reopens/closes a single recurring issue. It is kept out of the PR gate because drift comes from the other repos.
+5. **Upstream Drift Detection & Auto-Remediation PRs (content audit, not SHA pins):**
+   - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`.
+   - On drift, it opens/reopens the tracking issue and automatically triggers a remediation pipeline (`sync_mcp_data.py --sync`, invariant verification, and full pytest suite), pushing branch `chore/auto-sync-upstream-data` and creating/updating an automated Pull Request for review.
    - The audit also flags i18n keys the sync depends on that are missing upstream (otherwise `--sync` silently uses hardcoded fallbacks). Details: `docs/upstream-sync.md`.
 
 6. **Pure-ASGI Security Headers, Bounded Sliding-Window Rate Limiting & Observability:**
    - `SecurityAndRateLimitMiddleware` in `server.py` is implemented as a pure ASGI middleware (avoiding Starlette `BaseHTTPMiddleware` buffering issues on SSE/Streamable HTTP streams) that injects `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` on all responses (including `429`), and enforces a bounded in-memory per-IP sliding-window rate limit (default 120 req/min on `/mcp` and `/api/*`, max 4096 tracked IPs).
    - Application version is centralized in `APP_VERSION` in `server.py`, and structured standard logging (`anacatalina_mcp.server`, `anacatalina_mcp.cv_service`) outputs directly to `stdout` for Google Cloud Logging ingestion.
+
+7. **Automated Ecosystem Invariants, CI Caching & Task Automation:**
+   - Ecosystem invariants (Zero Flags Rule, Path Privacy, candidate name hyphenation `Ana-Catalina`, and 10/10 FastMCP tool catalog integrity) are automated via `scripts/verify_ecosystem_invariants.py` and executed both in CI/CD (`test.yml` with pip caching and workflow concurrency cancellation) and as part of `tests/test_invariants.py`.
+   - Local developer toil is eliminated through unified task runners (`scripts/tasks.ps1`, `scripts/tasks.py`) and a Git pre-push hook (`.githooks/pre-push`).
 
 ---
 

@@ -188,22 +188,28 @@ pip install -r requirements-dev.txt
 uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-### Automated Testing
+### Automated Testing & Task Automation
 
-Execute the complete automated test suite (unit, protocol contracts, content negotiation, security headers, rate limiting, and upstream data synchronization):
+Execute the complete automated test suite and developer automation tasks via the unified task runner (`scripts/tasks.ps1` / `scripts/tasks.py`):
 
 ```bash
-# Run the complete automated test suite with zero regressions
-pytest tests/ -v
+# Run complete test suite with zero regressions
+python scripts/tasks.py test           # Or in PowerShell: .\scripts\tasks.ps1 test
 
 # Run test suite with line coverage report
-pytest tests/ -v --cov=models --cov=services --cov=server --cov-report=term-missing
+python scripts/tasks.py cov            # Or in PowerShell: .\scripts\tasks.ps1 cov
+
+# Validate ecosystem invariants (Zero Flags, Path Privacy, Identity, 10 Tools)
+python scripts/tasks.py invariants     # Or in PowerShell: .\scripts\tasks.ps1 invariants
+
+# Check for data drift against sibling repositories
+python scripts/tasks.py audit          # Or in PowerShell: .\scripts\tasks.ps1 audit
 
 # Audit dependencies for known CVEs
-python -m pip_audit -r requirements.txt
+python scripts/tasks.py sec            # Or in PowerShell: .\scripts\tasks.ps1 sec
 
-# Verify data alignment against sibling repositories (anacatalina-cv and projects-hub)
-python scripts/sync_mcp_data.py --check-only
+# Run the complete end-to-end quality assurance pipeline (all checks)
+python scripts/tasks.py check-all      # Or in PowerShell: .\scripts\tasks.ps1 check-all
 ```
 
 ### Quality Assurance & Risk Mitigation Matrix
@@ -218,7 +224,8 @@ python scripts/sync_mcp_data.py --check-only
 | **Security Headers Injection** | Injects `X-Content-Type-Options`, `X-Frame-Options` on all responses | Automated security headers injection tests |
 | **Container & Runtime Privileges** | Non-root `appuser` Debian slim Docker container | Cloud Run serverless non-privileged container sandbox |
 | **Dependency Vulnerabilities** | Upper-bound version pinning & CVE auditing | Automated `pip-audit` execution in CI/CD pipeline ([`test.yml`](.github/workflows/test.yml)) |
-| **Cross-Portfolio Data Drift** | Standalone dataset + semantic comparison engine | Daily GitHub Actions drift audit workflow ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
+| **Cross-Portfolio Data Drift** | Standalone dataset + semantic comparison engine | Daily drift audit and self-healing remediation PR ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
+| **Ecosystem Invariants & Zero Flags** | Automated validator for Zero Flags, Path Privacy & Identity | Invariants verification gate ([`tests/test_invariants.py`](tests/test_invariants.py)) |
 
 ---
 

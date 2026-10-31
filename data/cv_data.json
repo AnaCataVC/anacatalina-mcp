@@ -429,7 +429,7 @@
     {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 22 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
+      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 23 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",

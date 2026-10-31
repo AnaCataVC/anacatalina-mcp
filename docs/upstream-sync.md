@@ -23,7 +23,9 @@ The script expects the three repos side by side (`../anacatalina-cv`, `../projec
 
 1. It checks out this repo plus `main` of both sources as sibling folders, so the audit always compares against published content, never a local branch or uncommitted edits.
 2. It runs `sync_mcp_data.py --check-only`.
-3. On drift, it opens (or reopens and comments on) a single issue titled *Upstream drift: data/cv_data.json is out of sync* with the full report. Once the audit passes again, it closes that issue.
+3. On drift, it opens (or reopens and comments on) a single issue titled *Upstream drift: data/cv_data.json is out of sync* with the full report.
+4. **Automated Remediation Pull Request:** When drift is detected, the workflow runs `sync_mcp_data.py --sync`, executes the ecosystem invariant checks (`scripts/verify_ecosystem_invariants.py`) and full `pytest` suite, and automatically creates or updates a remediation Pull Request (`chore/auto-sync-upstream-data`).
+5. Once merged and back in sync, subsequent daily runs automatically close the drift issue.
 
 The workflow is deliberately separate from `test.yml`: a drift is caused by a commit in another repo, so it must not fail the PR under review.
 

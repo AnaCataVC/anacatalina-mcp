@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 env:
   ISSUE_TITLE: "Upstream drift: data/cv_data.json is out of sync"
@@ -70,6 +71,36 @@ jobs:
           else
             gh issue reopen "$number" || true
             gh issue comment "$number" --body-file "$RUNNER_TEMP/body.md"
+          fi
+
+      - name: Auto-sync dataset and generate remediation PR
+        if: steps.audit.outputs.in_sync == 'false'
+        working-directory: anacatalina-mcp
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          pip install -r requirements-dev.txt
+          python scripts/sync_mcp_data.py --sync
+          python scripts/verify_ecosystem_invariants.py
+          python -m pytest tests/ -v
+
+          if [ -n "$(git status --porcelain data/cv_data.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            BRANCH_NAME="chore/auto-sync-upstream-data"
+            git checkout -B "$BRANCH_NAME"
+            git add data/cv_data.json
+            git commit -m "chore(data): auto-sync cv_data.json with upstream repositories"
+            git push -u origin "$BRANCH_NAME" --force
+
+            PR_TITLE="chore(data): auto-sync cv_data.json with upstream repositories"
+            existing_pr=$(gh pr list --state open --head "$BRANCH_NAME" --json number --jq ".[0].number // empty")
+            if [ -z "$existing_pr" ]; then
+              gh pr create --title "$PR_TITLE" \
+                --body "Automated synchronization with upstream \`anacatalina-cv\` and \`projects-hub\` following drift detection. All automated tests and invariant gates passed successfully." \
+                --base main --head "$BRANCH_NAME" || true
+            fi
           fi
 
       - name: Close the drift issue once back in sync
