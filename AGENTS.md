@@ -335,6 +335,10 @@ These items document deliberate architectural choices and operational boundaries
    - Ecosystem invariants (Zero Flags Rule, Path Privacy, candidate name hyphenation `Ana-Catalina`, and 10/10 FastMCP tool catalog integrity) are automated via `scripts/verify_ecosystem_invariants.py` and executed both in CI/CD (`test.yml` with pip caching and workflow concurrency cancellation) and as part of `tests/test_invariants.py`.
    - Local developer toil is eliminated through unified task runners (`scripts/tasks.ps1`, `scripts/tasks.py`) and a Git pre-push hook (`.githooks/pre-push`).
 
+8. **Cloud Run Request Timeout, Scale-to-Zero & Free-Tier Cost Guardrails:**
+   - The Cloud Run service operates under scale-to-zero autoscaling (`min-instances: 0`) and request-based CPU allocation (`run.googleapis.com/cpu-throttling: true`).
+   - The service request timeout is strictly bounded to `timeoutSeconds: 300` (5 minutes) instead of the platform default (3600s / 1 hour). When external AI assistants (Cursor, Claude Desktop, Antigravity) connect over Streamable HTTP (`GET /mcp` streaming), persistent idle connections are severed after 5 minutes of inactivity rather than remaining open for 1 hour. This eliminates runaway billable instance accumulation and keeps monthly compute well within the Google Cloud Run Free Tier (180,000 vCPU-seconds / month), preventing billing spikes while preserving sub-5ms in-memory response latency for live evaluations and web showcase queries. Detailed post-mortem analysis: `docs/learning/cloud-run-mcp-cost-guardrails.md`.
+
 ---
 
 ## 🌐 Portfolio Ecosystem Architecture & Inter-Repository Contract
