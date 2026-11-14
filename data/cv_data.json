@@ -427,13 +427,33 @@
   ],
   "projects": [
     {
+      "name": "AMI Claude Mods",
+      "type": "personal",
+      "description": "Suite de 8 mods modulares, paneles reactivos y function hooks para Claude Desktop y Claude Code CLI integrados con Amiga IA. Incluye orquestación de planes, control de cuota, medidores discretos, guardas Git/K8s e i18n.",
+      "technologies": [
+        "Claude Desktop",
+        "Claude Code CLI",
+        "TypeScript 5.4+",
+        "React / Ink JSX",
+        "Reactive State Atoms",
+        "EngineInterface ($)",
+        "Cleanroom TDD",
+        "claude-code/testing",
+        "Amiga IA"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/ami-claude-mods",
+      "demo_url": "https://ami-claude-mods.ana-catalina.com"
+    },
+    {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de subagentes autónomos, hooks de seguridad sin estado y 23 skills declarativas portátiles. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
+      "description": "Ecosistema integral de 14 subagentes autónomos, hooks de seguridad sin estado y 25 skills declarativas portátiles con instalación selectiva por packs de dominio e invariantes de ingeniería reforzadas. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",
         "Delimited Block Protocol",
+        "Cleanroom TDD",
+        "Empirical Benchmarks",
         "Release Automation",
         "PowerShell",
         "Node.js"
@@ -442,20 +462,21 @@
       "demo_url": "https://amiga-ia.ana-catalina.com"
     },
     {
-      "name": "Anacatalina CV — Sitio Personal Bilingüe",
+      "name": "anacatalina-cv (Sitio Personal Bilingüe)",
       "type": "personal",
       "description": "Mi CV como sitio web bilingüe con modo oscuro, más un PDF descargable generado imprimiendo plantillas HTML con el motor headless del navegador.",
       "technologies": [
         "Astro 6",
         "TypeScript",
         "Tailwind CSS v4",
+        "GitHub Actions",
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/anacatalina-cv",
       "demo_url": "https://cv.ana-catalina.com"
     },
     {
-      "name": "AI-Native Interactive Resume (MCP Server)",
+      "name": "anacatalina-mcp (AI-Native Interactive Resume)",
       "type": "personal",
       "description": "Servidor Model Context Protocol (MCP) que permite a Inteligencias Artificiales interactuar con mi experiencia profesional.",
       "technologies": [
@@ -466,12 +487,29 @@
         "Pydantic v2",
         "Docker",
         "Google Cloud Run",
+        "Task Runner",
         "Model Context Protocol",
         "Google Antigravity",
         "Gemini Connected Apps"
       ],
       "repo_url": "https://github.com/AnaCataVC/anacatalina-mcp",
       "demo_url": "https://mcp.ana-catalina.com/"
+    },
+    {
+      "name": "Android Icons Admin",
+      "type": "personal",
+      "description": "Utilidad local-first y determinista para Android 8.0 a 16 y Samsung One UI 8.5 que automatiza la personalización estética de iconos de apps mediante widgets sin insignia, accesos directos silenciosos y exportación a Theme Park.",
+      "technologies": [
+        "Kotlin 2.1",
+        "Android 8.0-16",
+        "Jetpack Compose",
+        "Material 3",
+        "One UI 8.5",
+        "Cleanroom TDD",
+        "JUnit 5"
+      ],
+      "repo_url": "https://github.com/AnaCataVC/android-icon-admin",
+      "demo_url": "https://android-icon-admin.ana-catalina.com"
     },
     {
       "name": "Emotion Finder",
@@ -482,8 +520,8 @@
         "FastHTML",
         "HTMX",
         "scikit-learn",
-        "Pico CSS",
-        "TF-IDF",
+        "Active Learning",
+        "Antigravity Agents",
         "Turso LibSQL",
         "Vercel Serverless"
       ],
@@ -493,13 +531,15 @@
     {
       "name": "Google Drive Work Sync",
       "type": "personal",
-      "description": "Aplicación de escritorio nativa para Windows 11 (WinUI 3 / .NET 9) que sincroniza carpetas de trabajo y contexto de agentes IA hacia Google Drive mediante Google Apps Script, con hashing incremental y redacción de secretos.",
+      "description": "Aplicación de escritorio nativa para Windows 11 (WinUI 3 / .NET 9) que sincroniza carpetas de trabajo y contexto de agentes IA hacia Google Drive mediante motor nativo Rust con BLAKE3 SIMD y Google Apps Script.",
       "technologies": [
         "C# 13",
         ".NET 9",
+        "Rust",
         "WinUI 3",
         "Windows App SDK",
-        "CommunityToolkit.Mvvm",
+        "BLAKE3 SIMD",
+        "P/Invoke FFI",
         "Google Apps Script",
         "xUnit"
       ],
@@ -575,6 +615,7 @@
         "Tailwind CSS v4",
         "Zod",
         "Vitest",
+        "GitHub Actions",
         "Vercel"
       ],
       "repo_url": "https://github.com/AnaCataVC/projects-hub",
@@ -590,6 +631,7 @@
         "Foreground Services",
         "Broadcast Receivers",
         "Jetpack DataStore",
+        "Habit Analytics",
         "MVVM"
       ],
       "repo_url": "https://github.com/AnaCataVC/rest-your-eyes",
@@ -606,13 +648,14 @@
         "XAML",
         "Win32 API",
         "Multi-Monitor",
+        "Habit Tracking",
         "Fluent Design"
       ],
       "repo_url": "https://github.com/AnaCataVC/screen-health-guardian",
       "demo_url": "https://screen-health-guardian.ana-catalina.com"
     },
     {
-      "name": "Ayudante de Compras — Shopping List Helper",
+      "name": "Shopping List Helper",
       "type": "personal",
       "description": "Aplicación móvil nativa para Android (100% offline-first) para gestionar compras recurrentes del hogar y armar la lista de compras por tienda.",
       "technologies": [
@@ -661,7 +704,7 @@
     {
       "name": "Windows Icons Admin",
       "type": "personal",
-      "description": "Utilidad de alto rendimiento para Windows 10 y 11 que automatiza la personalización masiva de iconos de carpetas y del sistema, con motor de reglas, codificador PNG a ICO nativo y refresco instantáneo del shell.",
+      "description": "Utilidad de alto rendimiento para Windows 10 y 11 que automatiza la personalización masiva de carpetas, aplicaciones y nodos del sistema, con motor de reglas, codificador PNG a ICO nativo y refresco instantáneo del shell.",
       "technologies": [
         "C# 13",
         ".NET 9",
