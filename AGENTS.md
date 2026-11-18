@@ -65,20 +65,30 @@ When generating, modifying, or querying data concerning the candidate, coding ag
 anacatalina-mcp/
 ├── .agents/
 │   ├── agents/
+│   │   ├── ac-mcp-protocol-verifier.md # Read-only verifier for Streamable HTTP, security & container readiness
+│   │   ├── ac-mcp-showcase-auditor.md  # Read-only auditor for UI tokens, a11y, Zero Flags & 5-client parity
 │   │   └── mcp-sync-auditor.md   # Master MCP Data Synchronization & Ecosystem Auditor Agent
 │   └── skills/
+│       ├── ac-mcp-add-tool/
+│       │   └── SKILL.md          # Procedural checklist to add or modify an MCP tool
+│       ├── ac-mcp-release-version/
+│       │   └── SKILL.md          # Guided release checklist and vX.Y.Z tagging workflow
+│       ├── ac-mcp-tune-fit-engine/
+│       │   └── SKILL.md          # Safe tuning workflow for the deterministic job fit engine
 │       └── sync-mcp-data/
 │           └── SKILL.md          # Cross-repository data audit & sync workflow instructions
 ├── .github/
-│   ├── dependabot.yml            # Automated weekly dependency updates (pip & github-actions)
+│   ├── dependabot.yml            # Automated monthly dependency updates (pip & github-actions)
 │   └── workflows/
-│       ├── test.yml              # Test suite, coverage report, and pip-audit on push/PRs
+│       ├── release.yml           # Tag-triggered (v*) release validator and GitHub Release publisher
+│       ├── test.yml              # Test suite, coverage report, pip-audit, and docker-smoke on push/PRs
 │       └── upstream-drift.yml    # Daily drift audit and automated remediation PR generator
 ├── .githooks/
 │   └── pre-push                  # Automated local pre-push quality gate (invariants + pytest)
 ├── data/
 │   └── cv_data.json              # In-memory single source of truth for the CV dataset
 ├── docs/
+│   ├── automations.md            # Inventory of CI/CD workflows, hooks, and task runner automations
 │   └── upstream-sync.md          # How the cross-repo sync and drift detection work
 ├── models/
 │   ├── __init__.py
