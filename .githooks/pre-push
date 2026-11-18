@@ -1,11 +1,19 @@
 #!/bin/sh
 # .githooks/pre-push — Pre-push automated quality gate for anacatalina-mcp.
-# Enable via: git config core.hooksPath .githooks
+# Enable via: git config core.hooksPath .githooks (or: python scripts/tasks.py setup-hooks)
 
 echo "Running pre-push quality gate..."
 
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PYTHON_BIN=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then
+  PYTHON_BIN=".venv/bin/python"
+else
+  PYTHON_BIN="python"
+fi
+
 # 1. Verify ecosystem invariants
-python scripts/verify_ecosystem_invariants.py
+"$PYTHON_BIN" scripts/verify_ecosystem_invariants.py
 INV_EXIT=$?
 if [ $INV_EXIT -ne 0 ]; then
   echo "Pre-push check failed: Ecosystem invariant violations detected."
@@ -13,7 +21,7 @@ if [ $INV_EXIT -ne 0 ]; then
 fi
 
 # 2. Run fast test suite
-python -m pytest tests/ -q
+"$PYTHON_BIN" -m pytest tests/ -q
 TEST_EXIT=$?
 if [ $TEST_EXIT -ne 0 ]; then
   echo "Pre-push check failed: pytest test suite returned regressions ($TEST_EXIT)."

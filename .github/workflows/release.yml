@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+
+      - name: Verify tag matches server.py APP_VERSION
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          APP_VERSION=$(python -c "import re, pathlib; m = re.search(r'APP_VERSION\s*=\s*[\"\']([^\"\']+)[\"\']', pathlib.Path('server.py').read_text()); print(m.group(1) if m else '')")
+          if [ "$TAG_VERSION" != "$APP_VERSION" ]; then
+            echo "Tag version ($TAG_VERSION) does not match server.py APP_VERSION ($APP_VERSION)"
+            exit 1
+          fi
+
+      - name: Install dependencies and run quality gates
+        run: |
+          pip install -r requirements-dev.txt
+          python scripts/verify_ecosystem_invariants.py
+          python -m pytest tests/ -q
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes

@@ -29,3 +29,13 @@ jobs:
       - name: Audit dependencies for known vulnerabilities
         run: python -m pip_audit -r requirements.txt
 
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t anacatalina-mcp:ci .
+      - name: Verify container startup import
+        run: docker run --rm anacatalina-mcp:ci python -c "import server; print('OK', server.APP_VERSION)"
+
+

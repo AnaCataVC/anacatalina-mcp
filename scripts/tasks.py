@@ -10,6 +10,8 @@ Usage:
     python scripts/tasks.py sync
     python scripts/tasks.py sec
     python scripts/tasks.py serve [--port 8080]
+    python scripts/tasks.py setup-hooks
+    python scripts/tasks.py bump --version X.Y.Z
     python scripts/tasks.py check-all
 """
 
@@ -83,6 +85,20 @@ def task_serve(port: int = 8080) -> int:
     return run_cmd([sys.executable, "-m", "uvicorn", "server:app", "--reload", "--port", str(port)])
 
 
+def task_setup_hooks() -> int:
+    code = run_cmd(["git", "config", "core.hooksPath", ".githooks"])
+    if code == 0:
+        print("✅ Git hooksPath configured to .githooks")
+    return code
+
+
+def task_bump(version: str | None) -> int:
+    if not version:
+        print("❌ Missing --version X.Y.Z for 'bump' task.", file=sys.stderr)
+        return 1
+    return run_cmd([sys.executable, "scripts/bump_version.py", version])
+
+
 def task_check_all() -> int:
     steps = [
         ("Ecosystem Invariants", [sys.executable, "scripts/verify_ecosystem_invariants.py"]),
@@ -108,10 +124,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Unified task runner for anacatalina-mcp.")
     parser.add_argument(
         "task",
-        choices=["test", "cov", "invariants", "audit", "sync", "sec", "serve", "check-all"],
+        choices=["test", "cov", "invariants", "audit", "sync", "sec", "serve", "setup-hooks", "bump", "check-all"],
         help="Task to execute",
     )
     parser.add_argument("--port", type=int, default=8080, help="Port for server (default: 8080)")
+    parser.add_argument("--version", type=str, default=None, help="Semantic version X.Y.Z for bump task")
 
     args = parser.parse_args()
 
@@ -129,6 +146,10 @@ def main() -> int:
         return task_sec()
     elif args.task == "serve":
         return task_serve(port=args.port)
+    elif args.task == "setup-hooks":
+        return task_setup_hooks()
+    elif args.task == "bump":
+        return task_bump(args.version)
     elif args.task == "check-all":
         return task_check_all()
     return 0
