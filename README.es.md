@@ -30,11 +30,18 @@
 
 Este proyecto implementa un servidor oficial de **Model Context Protocol (MCP)** en Python que permite a evaluadores técnicos, reclutadores y modelos LLM (como Claude o GPT) explorar de forma interactiva y estructurada la trayectoria profesional, habilidades técnicas, proyectos insignia y compatibilidad con vacantes de **Ana-Catalina Villalobos Contardo** (Data Scientist & Machine Learning Engineer).
 
+### Dos Interfaces, Diseñadas para Dos Audiencias
+
+| Audiencia | Punto de Entrada | Propósito y Experiencia |
+| :--- | :--- | :--- |
+| 🤖 **Agentes de IA e Ingenieros de Protocolo** | Streamable HTTP (`POST /mcp`) | Integración directa máquina a máquina para Google Antigravity, Claude.ai, Cursor, Windsurf y Gemini mediante JSON-RPC 2.0 con esquemas fuertemente tipados en Pydantic v2. |
+| 👤 **Reclutadores y Evaluadores Técnicos** | Showcase Web Interactivo (`GET /` o `/demo`) | Playground interactivo en navegador bajo el *Pastel-Tech Design System* sin necesidad de instalación, con benchmarks deterministas de afinidad técnica y respuestas instantáneas sub-5ms. |
+
 ### Características Principales
 - **Web Showcase & Playground Interactivo:** Servido directamente en `/` (responde 200 OK directamente a navegadores mediante negociación transparente de contenido, con `/demo` como alias directo) bajo el *Pastel-Tech Design System*. Permite a reclutadores y visitantes humanos evaluar compatibilidad con vacantes y buscar en el currículum en tiempo real con latencia inferior a 5ms y resultados 100% verificables en memoria.
 - **Negociación Transparente de Contenido:** Devuelve la aplicación web interactiva directamente a navegadores (`Accept: text/html`) con HTTP 200 sin redirecciones, preservando el JSON de descubrimiento original para agentes y cURL.
 - **Transporte Moderno Streamable HTTP (`/mcp`):** Transporte nativo recomendado por la especificación MCP para conexiones directas desde **Google Antigravity** (`mcp_config.json`), **Claude.ai** (conectores personalizados), **Gemini** (gemini.com Connected Apps) y **Cursor / Windsurf** (`mcp.json`).
-- **9 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
+- **10 Herramientas MCP Especializadas:** Consulta granular de experiencia laboral, stack tecnológico con niveles de dominio, proyectos insignia, evaluación automática de vacantes, búsqueda global por palabras clave, educación, contacto y perfil general.
 - **Desacoplamiento y Rendimiento:** Datos estructurados en `data/cv_data.json` validados en memoria con **Pydantic v2** al iniciar el contenedor (<2ms por consulta).
 
 ---
@@ -52,7 +59,7 @@ flowchart TD
 
     subgraph CloudLayer["Google Cloud Run / Servidor Serverless"]
         C["FastMCP App (:8080)<br/>/mcp y Rutas Personalizadas"]
-        D["9 Herramientas MCP Oficiales"]
+        D["10 Herramientas MCP Oficiales"]
         E["Servicio CV y Motor Pydantic<br/>(models/cv.py)"]
         F[("data/cv_data.json<br/>(Dataset en Memoria)")]
     end
@@ -66,11 +73,70 @@ flowchart TD
     E <--> F
 ```
 
+### Ciclo de Vida del Protocolo y Demostración en Vivo
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Client as Cliente MCP (Claude / Antigravity / Cursor)
+    participant Server as Servidor FastMCP (Cloud Run :8080)
+    participant Engine as Servicio CV (Motor Pydantic v2)
+
+    Client->>Server: POST /mcp (method: initialize)
+    Server-->>Client: 200 OK + mcp-session-id + protocolVersion
+    Client->>Server: POST /mcp (method: tools/list)
+    Server-->>Client: 200 OK (Catálogo de 10 herramientas tipadas con JSON Schemas)
+    Note over Client,Server: El cliente selecciona la herramienta y valida parámetros tipados
+    Client->>Server: POST /mcp (method: tools/call, name: evaluar_fit_puesto)
+    Server->>Engine: evaluate_job_fit(descripcion_vacante)
+    Engine-->>Server: Coincidencia regex en memoria y cálculo de afinidad (<2ms)
+    Server-->>Client: 200 OK Evento Streamable (Resultado JSON estructurado)
+```
+
+#### Ejemplo Real de Invocación del Protocolo
+
+1. **Solicitud (`POST https://mcp.ana-catalina.com/mcp`):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "evaluar_fit_puesto",
+    "arguments": {
+      "descripcion_vacante": "Senior Machine Learning Engineer con Python, GCP, BigQuery y Docker"
+    }
+  }
+}
+```
+
+2. **Respuesta Estructurada (`200 OK`, `text/event-stream`):**
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "structuredContent": {
+      "target_role_detected": "Senior Data Scientist / Machine Learning Engineer",
+      "estimated_fit_score": "85% (Alta Compatibilidad)",
+      "technologies_matched": ["Python", "BigQuery", "Google Cloud Platform (GCP)", "Docker"],
+      "matching_strengths": [
+        "Experiencia en producción en SimpliRoute aplicando Python, BigQuery y GCP en optimización logística y servidores MCP.",
+        "Trayectoria en Fracttal liderando pipelines analíticos, mantenimiento predictivo y despliegues con Python.",
+        "Dominio profundo del ecosistema de datos y machine learning en Google Cloud."
+      ],
+      "added_value_summary": "El perfil de Ana-Catalina ofrece alta sinergia en Python, BigQuery, Google Cloud Platform (GCP), Docker, combinando experiencia real en producción en startups tecnológicas de alto crecimiento con sólida formación en ingeniería civil, analítica avanzada y modelamiento predictivo."
+    },
+    "isError": false
+  }
+}
+```
+
 ---
 
 ## Catálogo de Herramientas MCP
 
-El servidor expone **9 herramientas oficiales** registradas a través del protocolo MCP:
+El servidor expone **10 herramientas oficiales** registradas a través del protocolo MCP:
 
 | Herramienta | Parámetros | Tipo de Retorno | Descripción |
 | :--- | :--- | :--- | :--- |
@@ -80,6 +146,7 @@ El servidor expone **9 herramientas oficiales** registradas a través del protoc
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, requerido)* | `FitEvaluationResult` | Analiza los requerimientos de una vacante laboral y calcula el porcentaje de compatibilidad, fortalezas coincidentes y propuesta de valor. |
 | `buscar_en_curriculum` | `consulta` *(str, requerido)* | `SearchResult` | Búsqueda transversal por palabra clave en todo el currículum (experiencia, habilidades, proyectos y educación), validada con modelo Pydantic e indexación retrocompatible por corchetes. |
 | `obtener_educacion` | *Ninguno* | `List[EducationItem]` | Formación académica formal, grado obtenido, institución y especialización. |
+| `obtener_publicaciones` | *Ninguno* | `List[PublicationItem]` | Publicaciones científicas indexadas (Structural Health Monitoring, Procesos Gaussianos e inferencia Bayesiana). |
 | `obtener_contacto` | *Ninguno* | `ContactDetails` | Canales directos de contacto profesional (Email y perfil de LinkedIn). |
 | `obtener_perfil` | *Ninguno* | `PersonalInfo` | Perfil general: nombre, cargo actual, ubicación y enlaces de portafolio (incluyendo GitHub). |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Síntesis ejecutiva del perfil profesional enfocada en Data Science, ML, GCP y arquitecturas MCP en español (`es`) o inglés (`en`). |
@@ -121,23 +188,44 @@ pip install -r requirements-dev.txt
 uvicorn server:app --host 0.0.0.0 --port 8080 --reload
 ```
 
-### Pruebas Automatizadas
+### Pruebas Automatizadas y Automatización de Tareas
 
-Ejecutar la suite completa de 57 pruebas, reporte de cobertura, auditoría de sincronización upstream y escaneo de vulnerabilidades:
+Ejecutar la suite completa de pruebas automatizadas y las tareas de automatización para desarrolladores mediante el task runner unificado (`scripts/tasks.ps1` / `scripts/tasks.py`):
 
 ```bash
-# Ejecutar las 57 pruebas unitarias, de negociación de contenido, seguridad y sincronización
-pytest tests/ -v
+# Ejecutar la suite completa de pruebas con cero regresiones
+python scripts/tasks.py test           # O en PowerShell: .\scripts\tasks.ps1 test
 
 # Ejecutar la suite con reporte de cobertura de líneas
-pytest tests/ -v --cov=models --cov=services --cov=server --cov-report=term-missing
+python scripts/tasks.py cov            # O en PowerShell: .\scripts\tasks.ps1 cov
+
+# Validar invariantes del ecosistema (Zero Flags, privacidad de rutas, identidad, 10 Tools)
+python scripts/tasks.py invariants     # O en PowerShell: .\scripts\tasks.ps1 invariants
+
+# Verificar alineación de datos frente a los repositorios hermanos
+python scripts/tasks.py audit          # O en PowerShell: .\scripts\tasks.ps1 audit
 
 # Auditar dependencias en busca de vulnerabilidades conocidas (CVEs)
-python -m pip_audit -r requirements.txt
+python scripts/tasks.py sec            # O en PowerShell: .\scripts\tasks.ps1 sec
 
-# Verificar alineación de datos frente a los repositorios hermanos (anacatalina-cv y projects-hub)
-python scripts/sync_mcp_data.py --check-only
+# Ejecutar el pipeline completo de aseguramiento de calidad (todas las verificaciones)
+python scripts/tasks.py check-all      # O en PowerShell: .\scripts\tasks.ps1 check-all
 ```
+
+### Matriz de Aseguramiento de Calidad y Mitigación de Riesgos
+
+| Preocupación Arquitectónica / Riesgo | Implementación y Salvaguarda en Producción | Evidencia Automatizada Concreta |
+| :--- | :--- | :--- |
+| **Cumplimiento de Protocolo y Descubrimiento** | FastMCP sobre Streamable HTTP (`POST /mcp`) | Pruebas de contrato para `initialize`, `tools/list` y `tools/call` ([`tests/test_server.py`](tests/test_server.py)) |
+| **Estabilidad de Esquemas y Seguridad de Tipos** | Modelos estrictos en Pydantic v2 (`models/cv.py`) | Pruebas de serialización tipada y validación de límites |
+| **Manejo Estructurado de Errores** | Validación de envelopes con detalle de errores Pydantic | Pruebas de error automatizadas (`isError: true` en argumentos faltantes o herramientas desconocidas) |
+| **Negociación de Contenido (Cero Redirecciones)** | Manejador de rutas ASGI transparente (`GET /` sin redirects) | 7 pruebas de negociación de contenido ([`tests/test_content_negotiation.py`](tests/test_content_negotiation.py)) |
+| **Protección contra Tráfico Abusivo y DoS** | Rate limiter de ventana deslizante en memoria ASGI puro | Prueba de rate limiting acotado por IP verificando HTTP `429 Too Many Requests` |
+| **Inyección de Cabeceras de Seguridad** | Inyecta `X-Content-Type-Options`, `X-Frame-Options` en toda respuesta | Pruebas de inyección de cabeceras de seguridad |
+| **Privilegios de Contenedor y Runtime** | Contenedor Docker Debian slim con usuario sin privilegios (`appuser`) | Sandbox serverless no privilegiado en Google Cloud Run |
+| **Vulnerabilidad de Dependencias** | Cotas superiores en dependencias y escaneo de CVEs | Ejecución automatizada de `pip-audit` en pipeline de CI/CD ([`test.yml`](.github/workflows/test.yml)) |
+| **Deriva de Datos Inter-Portafolio** | Dataset autocontenido + motor de comparación semántica | Auditoría diaria y PR de auto-remediación automática ([`upstream-drift.yml`](.github/workflows/upstream-drift.yml)) |
+| **Invariantes del Ecosistema y Zero Flags** | Validador automatizado de Zero Flags, privacidad de rutas e identidad | Compuerta de verificación de invariantes ([`tests/test_invariants.py`](tests/test_invariants.py)) |
 
 ---
 
@@ -192,7 +280,7 @@ python scripts/sync_mcp_data.py --check-only
 
 4. **Factoría Declarativa de Assets Estáticos y Cobertura de Pruebas:**
    - La centralización de todos los activos estáticos en un registro inmutable `STATIC_ASSETS` en `server.py` eliminó más de 60 líneas de código duplicado, preservando estrictamente las URLs raíz canónicas y previniendo vulnerabilidades de *path traversal*.
-   - La suite de pruebas automatizadas se amplió a **59 pruebas passing al 100%**, cubriendo herramientas MCP, endpoints REST, negociación de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
+   - Suite completa de pruebas automatizadas con **100% de éxito / cero regresiones** cubriendo contratos completos del protocolo MCP (descubrimiento de esquemas, validación de argumentos, sobres de error estructurados), endpoints REST, negociación transparente de contenido, cabeceras de seguridad, rate limiting y coherencia semántica de benchmarks.
 
 5. **Acotamiento de Dependencias y Poda de Paquetes No Utilizados (`requirements.txt`):**
    - La versión `2.0.0` del SDK oficial de MCP introdujo cambios incompatibles en `FastMCP`. Todas las dependencias de producción aplican cotas superiores explícitas (`mcp>=1.3.0,<2.0.0`, `starlette<2.0.0`, `pydantic<3.0.0`) y se eliminaron paquetes no utilizados (`fastapi`) para reducir la superficie de ataque del contenedor.
@@ -209,5 +297,3 @@ python scripts/sync_mcp_data.py --check-only
 ## Licencia
 
 Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles. Desarrollado por **Ana-Catalina Villalobos Contardo**.
-
-

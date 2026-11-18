@@ -19,6 +19,7 @@ from models.cv import (
     SkillCategory,
     ProjectItem,
     EducationItem,
+    PublicationItem,
     ContactDetails,
     PersonalInfo,
     FitEvaluationResult,
@@ -38,7 +39,7 @@ def _env_int(name: str, default: int) -> int:
 
 
 # 0. Centralized Constants & Structured Logging Configuration
-APP_VERSION = "1.8.0"
+APP_VERSION = "1.10.1"
 RATE_LIMIT_MAX_REQUESTS = _env_int("RATE_LIMIT_PER_MINUTE", 120)
 RATE_LIMIT_WINDOW_SECONDS = 60.0
 RATE_LIMIT_MAX_TRACKED_IPS = 4096
@@ -115,6 +116,15 @@ async def buscar_en_curriculum(consulta: str) -> SearchResult:
 async def obtener_educacion() -> List[EducationItem]:
     """Obtiene el historial de formación académica formal."""
     return cv_service.get_education()
+
+
+@mcp.tool(
+    name="obtener_publicaciones",
+    description="Devuelve las publicaciones científicas y papers de investigación de Ana-Catalina (Structural Health Monitoring, Procesos Gaussianos e inferencia Bayesiana), con título, journal, fecha, DOI y resumen metodológico."
+)
+async def obtener_publicaciones() -> List[PublicationItem]:
+    """Obtiene el listado de publicaciones científicas y artículos académicos."""
+    return cv_service.get_publications()
 
 
 @mcp.tool(
@@ -203,14 +213,13 @@ async def demo_page(request: Request):
 # Declarative static assets mapping: route -> (Path, media_type)
 STATIC_ASSETS: Dict[str, Tuple[Path, str]] = {
     "/favicon.svg": (_BASE_DIR / "favicon.svg", "image/svg+xml"),
-    "/logo-acvc.svg": (_BASE_DIR / "logo-acvc.svg", "image/svg+xml"),
-    "/logo-acvc.png": (_BASE_DIR / "logo-acvc.png", "image/png"),
-    "/logo-av.svg": (_BASE_DIR / "logo-av.svg", "image/svg+xml"),
-    "/logo-av.png": (_BASE_DIR / "logo-av.png", "image/png"),
+    "/logo-ac.png": (_BASE_DIR / "logo-ac.png", "image/png"),
     "/favicon.ico": (_BASE_DIR / "favicon.ico", "image/x-icon"),
     "/favicon-32x32.png": (_BASE_DIR / "favicon-32x32.png", "image/png"),
     "/favicon-96x96.png": (_BASE_DIR / "favicon-96x96.png", "image/png"),
     "/apple-touch-icon.png": (_BASE_DIR / "apple-touch-icon.png", "image/png"),
+    "/icon-192.png": (_BASE_DIR / "icon-192.png", "image/png"),
+    "/icon-512.png": (_BASE_DIR / "icon-512.png", "image/png"),
     "/icon.png": (_BASE_DIR / "icon.png", "image/png"),
     "/poppy.svg": (_BASE_DIR / "templates" / "poppy.svg", "image/svg+xml"),
 }
@@ -291,6 +300,13 @@ async def api_projects(request: Request):
     technology = request.query_params.get("technology")
     projects = cv_service.get_projects(project_type=p_type, technology=technology)
     return JSONResponse([proj.model_dump() for proj in projects], status_code=200)
+
+
+@mcp.custom_route("/api/publications", methods=["GET"])
+async def api_publications(request: Request):
+    """Standalone REST endpoint: returns research publications and scientific papers."""
+    publications = cv_service.get_publications()
+    return JSONResponse([pub.model_dump() for pub in publications], status_code=200)
 
 
 # 5. In-Memory Sliding Window Rate Limiter & Security Headers Middleware

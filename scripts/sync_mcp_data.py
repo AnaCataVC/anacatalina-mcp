@@ -91,6 +91,51 @@ def parse_cv_ts(cv_ts_path: Path) -> Dict[str, Dict[str, str]]:
     return trans
 
 
+def parse_publications_from_cv_ts(cv_ts_path: Path) -> List[Dict[str, Any]]:
+    """
+    Extract publications array from anacatalina-cv/src/data/cv.ts SSOT file.
+    """
+    if not cv_ts_path.exists():
+        return []
+
+    content = cv_ts_path.read_text(encoding="utf-8")
+    pub_block_m = re.search(r"publications:\s*\[(.*?)\],\s*languages:", content, re.DOTALL)
+    if not pub_block_m:
+        return []
+
+    pub_block = pub_block_m.group(1)
+    publications: List[Dict[str, Any]] = []
+    item_pattern = re.compile(
+        r'\{\s*id:\s*[\'"]([^\'"]+)[\'"].*?title:\s*[\'"]([^\'"]+)[\'"].*?journal:\s*[\'"]([^\'"]+)[\'"].*?date:\s*\{([^}]+)\}.*?url:\s*[\'"]([^\'"]+)[\'"].*?doi:\s*[\'"]([^\'"]+)[\'"].*?description:\s*\{([^}]+)\}',
+        re.DOTALL
+    )
+    for m in item_pattern.finditer(pub_block):
+        pub_id = m.group(1)
+        title = m.group(2)
+        journal = m.group(3)
+        date_body = m.group(4)
+        url = m.group(5)
+        doi = m.group(6)
+        desc_body = m.group(7)
+
+        date_es_m = re.search(r'es\s*:\s*[\'"`](.*?)[\'"`]', date_body)
+        date_es = clean_html(date_es_m.group(1)) if date_es_m else ""
+
+        desc_es_m = re.search(r'es\s*:\s*[\'"`](.*?)[\'"`]', desc_body, re.DOTALL)
+        desc_es = clean_html(desc_es_m.group(1)) if desc_es_m else ""
+
+        publications.append({
+            "id": pub_id,
+            "title": title,
+            "journal": journal,
+            "period": date_es,
+            "url": url,
+            "doi": doi,
+            "description": desc_es
+        })
+    return publications
+
+
 def parse_i18n_js(file_path: Path) -> Dict[str, Dict[str, str]]:
     """
     Parse export const translations = { ... } from anacatalina-cv/src/i18n.js
@@ -259,7 +304,7 @@ def scan_projects_hub(projects_dir: Path) -> List[Dict[str, Any]]:
                 "description": frontmatter.get("description", ""),
                 "technologies": frontmatter.get("technologies", []),
                 "repo_url": frontmatter.get("githubUrl"),
-                "demo_url": frontmatter.get("websiteUrl"),
+                "demo_url": frontmatter.get("websiteUrl") or frontmatter.get("liveAppUrl"),
                 "status": frontmatter.get("status", "Activo")
             })
     return projects
@@ -310,6 +355,7 @@ class DataAuditor:
                 "current_experience_count": len(current_data.get("experience", [])),
                 "current_skills_categories": len(current_data.get("skills", [])),
                 "current_projects_count": len(current_data.get("projects", [])),
+                "current_publications_count": len(current_data.get("publications", [])),
                 "hub_projects_found": len(hub_projects),
                 "i18n_keys_found": len(cv_translations),
             },
@@ -452,6 +498,41 @@ class DataAuditor:
                     "issue": f"Key '{key}' missing in anacatalina-cv i18n.js; sync would use the hardcoded fallback."
                 })
                 report["in_sync"] = False
+
+        # 5. Audit Publications Alignment
+        cv_ts_path = self.cv_dir / "src" / "data" / "cv.ts"
+        if cv_ts_path.exists():
+            upstream_pubs = parse_publications_from_cv_ts(cv_ts_path)
+            curr_pubs = current_data.get("publications", [])
+            curr_by_id = {p.get("id"): p for p in curr_pubs}
+            for pub in upstream_pubs:
+                curr = curr_by_id.get(pub.get("id"))
+                if not curr:
+                    report["discrepancies"].append({
+                        "component": f"publications.{pub.get('id')}",
+                        "issue": f"Publication '{pub.get('title')}' missing in MCP publications."
+                    })
+                    report["in_sync"] = False
+                else:
+                    diffs = []
+                    if curr.get("title") != pub.get("title"):
+                        diffs.append("title")
+                    if curr.get("journal") != pub.get("journal"):
+                        diffs.append("journal")
+                    if curr.get("period") != pub.get("period"):
+                        diffs.append("period")
+                    if curr.get("url") != pub.get("url"):
+                        diffs.append("url")
+                    if curr.get("doi") != pub.get("doi"):
+                        diffs.append("doi")
+                    if curr.get("description") != pub.get("description"):
+                        diffs.append("description")
+                    if diffs:
+                        report["discrepancies"].append({
+                            "component": f"publications.{pub.get('id')}",
+                            "issue": f"Publication '{pub.get('id')}' differs from anacatalina-cv ({', '.join(diffs)})."
+                        })
+                        report["in_sync"] = False
 
         return report
 
@@ -610,6 +691,7 @@ class DataAuditor:
                     {"name": "Sistemas Multi-Agente", "level": "Avanzado"},
                     {"name": "LLMs & GenAI", "level": "Avanzado"},
                     {"name": "Model Context Protocol (MCP)", "level": "Avanzado"},
+                    {"name": "Evaluación de Agentes (Evals)", "level": "Avanzado"},
                     {"name": "Claude Code & Antigravity", "level": "Avanzado"},
                     {"name": "Prompt Engineering", "level": "Avanzado"},
                     {"name": "Monitoreo de Modelos ML", "level": "Intermedio"},
@@ -634,11 +716,8 @@ class DataAuditor:
                 "skills": [
                     {"name": "Python", "level": "Avanzado"},
                     {"name": "SQL", "level": "Avanzado"},
-                    {"name": "Rust", "level": "Intermedio"},
-                    {"name": "Kotlin", "level": "Intermedio"},
                     {"name": "TypeScript", "level": "Intermedio"},
                     {"name": "JavaScript", "level": "Intermedio"},
-                    {"name": "C# (.NET)", "level": "Intermedio"},
                     {"name": "Java", "level": "Intermedio"},
                     {"name": "MATLAB", "level": "Intermedio"},
                     {"name": "Node.js", "level": "Intermedio"},
@@ -646,10 +725,8 @@ class DataAuditor:
                 ]
             },
             {
-                "category": "Frontend, Mobile & Desarrollo Web",
+                "category": "Frontend & Desarrollo Web",
                 "skills": [
-                    {"name": ".NET 9 (WPF / WinUI 3)", "level": "Intermedio"},
-                    {"name": "Android & Jetpack Compose", "level": "Intermedio"},
                     {"name": "FastHTML & HTMX", "level": "Intermedio"},
                     {"name": "React JS", "level": "Intermedio"},
                     {"name": "Astro", "level": "Intermedio"},
@@ -667,6 +744,7 @@ class DataAuditor:
                     {"name": "FastAPI", "level": "Avanzado"},
                     {"name": "BigQuery", "level": "Avanzado"},
                     {"name": "PostgreSQL", "level": "Avanzado"},
+                    {"name": "Dataflow / Apache Beam", "level": "Avanzado"},
                     {"name": "Pub/Sub", "level": "Avanzado"},
                     {"name": "ETLs", "level": "Avanzado"},
                     {"name": "Redis", "level": "Intermedio"},
@@ -787,6 +865,25 @@ class DataAuditor:
                 "details": "Actividad destacada: Ayudante del curso Probabilidades y Estadística."
             }
         ]
+
+        # 7. Publications
+        parsed_pubs = parse_publications_from_cv_ts(self.cv_dir / "src" / "data" / "cv.ts")
+        if parsed_pubs:
+            new_data["publications"] = parsed_pubs
+        elif "publications" in current_data:
+            new_data["publications"] = current_data["publications"]
+        else:
+            new_data["publications"] = [
+                {
+                    "id": "delamination_paper",
+                    "title": "Generalized Gaussian smoothing for baseline-free debonding assessment of sandwich panels",
+                    "journal": "Structural Control Health Monitoring",
+                    "period": "Marzo 2021",
+                    "url": "https://doi.org/10.1002/stc.2727",
+                    "doi": "10.1002/stc.2727",
+                    "description": "Investigación en monitorización de integridad estructural (SHM) y evaluación no destructiva en paneles sándwich de materiales compuestos de alto rendimiento. Desarrolla una formulación matemática baseline-free basada en Procesos Gaussianos (GP) y análisis Bayesiano sobre modos de curvatura vibracional, detectando y cuantificando delaminaciones (debonding) sin requerir datos previos del estado intacto."
+                }
+            ]
 
         # Validate with Pydantic CVData model to guarantee 100% schema integrity
         validated = CVData(**new_data)

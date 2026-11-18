@@ -82,6 +82,17 @@ class EducationItem(BaseModel):
     details: Optional[str] = Field(None, description="Relevant details or focus areas")
 
 
+class PublicationItem(BaseModel):
+    """Academic publication or research paper record."""
+    id: str = Field(description="Unique identifier for the publication")
+    title: str = Field(description="Publication title")
+    journal: str = Field(description="Journal or publisher name")
+    period: str = Field(description="Publication date or timeframe (e.g. Marzo 2021)")
+    url: Optional[str] = Field(None, description="Public URL or DOI link")
+    doi: Optional[str] = Field(None, description="Digital Object Identifier (DOI)")
+    description: str = Field(description="Abstract or overview of research findings and methodology")
+
+
 class FitEvaluationResult(BaseModel):
     """Automated job description fit analysis result."""
     target_role_detected: str = Field(description="Role detected or inferred from job description")
@@ -108,6 +119,14 @@ class SearchResult(BaseModel):
         default_factory=list,
         description="Matching project items"
     )
+    matched_publications_count: int = Field(
+        default=0,
+        description="Number of matching publications"
+    )
+    publications: List[PublicationItem] = Field(
+        default_factory=list,
+        description="Matching publication items"
+    )
 
     def __getitem__(self, item: str) -> Any:
         """Preserves dictionary-style indexing for backwards compatibility."""
@@ -125,3 +144,4 @@ class CVData(BaseModel):
     skills: List[SkillCategory] = Field(default_factory=list)
     projects: List[ProjectItem] = Field(default_factory=list)
     education: List[EducationItem] = Field(default_factory=list)
+    publications: List[PublicationItem] = Field(default_factory=list)

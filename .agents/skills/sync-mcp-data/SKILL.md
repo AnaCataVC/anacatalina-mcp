@@ -23,7 +23,7 @@ Esta skill guía el proceso de auditoría y sincronización entre el servidor MC
 3. **Validación Estricta de Esquemas Pydantic v2:**
    - Toda modificación a `data/cv_data.json` debe validar exitosamente contra el modelo `models.cv.CVData`.
 4. **Calidad y Suite de Tests (Quality Gate):**
-   - Tras cualquier sincronización o edición de datos, ejecutar `pytest tests/ -v` para certificar que las 9 tools MCP y todos los endpoints REST y Streamable HTTP operan sin regresiones.
+   - Tras cualquier sincronización o edición de datos, ejecutar `pytest tests/ -v` para certificar que las 10 tools MCP y todos los endpoints REST y Streamable HTTP operan sin regresiones.
 
 ---
 

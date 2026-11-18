@@ -13,13 +13,13 @@ Contract Invariants:
 import pytest
 from starlette.testclient import TestClient
 
-from server import app
+from server import app, APP_VERSION
 
 
 EXPECTED_DISCOVERY_SCHEMA = {
     "name": "Ana-Catalina Interactive Portfolio MCP",
     "status": "healthy",
-    "version": "1.8.0",
+    "version": APP_VERSION,
     "mcp_endpoint": "/mcp",
     "health_endpoint": "/health",
     "web_showcase": "/demo",

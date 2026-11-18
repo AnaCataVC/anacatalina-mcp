@@ -1,6 +1,7 @@
 """
 Unit and integration tests for Ana-Catalina MCP Server.
 """
+import json
 import pytest
 from starlette.testclient import TestClient
 
@@ -8,6 +9,7 @@ from services.cv_service import CVService, get_cv_service
 from models.cv import SearchResult
 from server import (
     app,
+    mcp,
     APP_VERSION,
     STATIC_ASSETS,
     reset_rate_limiter,
@@ -17,6 +19,7 @@ from server import (
     evaluar_fit_puesto,
     buscar_en_curriculum,
     obtener_educacion,
+    obtener_publicaciones,
     obtener_contacto,
     obtener_perfil,
     obtener_resumen_ejecutivo,
@@ -29,6 +32,16 @@ def service():
     return get_cv_service()
 
 
+@pytest.fixture(autouse=True)
+def reset_mcp_session_manager():
+    """Resets StreamableHTTPSessionManager._has_started between tests so multiple TestClient lifespans can run."""
+    if hasattr(mcp, "_session_manager") and mcp._session_manager is not None:
+        mcp._session_manager._has_started = False
+    yield
+    if hasattr(mcp, "_session_manager") and mcp._session_manager is not None:
+        mcp._session_manager._has_started = False
+
+
 def test_cv_data_loaded(service):
     """Verifies that CV data is properly loaded and validated."""
     assert service.cv.personal_info.name == "Ana-Catalina Villalobos Contardo"
@@ -38,6 +51,8 @@ def test_cv_data_loaded(service):
     assert service.cv.personal_info.full_name == "Ana-Catalina Alejandra Villalobos Contardo"
     assert "SimpliRoute" in [exp.company for exp in service.cv.experience]
     assert "Fracttal" in [exp.company for exp in service.cv.experience]
+    assert len(service.cv.publications) >= 1
+    assert "Gaussian" in service.cv.publications[0].title
 
 
 @pytest.mark.asyncio
@@ -93,6 +108,16 @@ async def test_tool_buscar_en_curriculum():
     dumped = search_res.model_dump()
     assert "matched_experiences_count" in dumped
     assert "matched_projects_count" in dumped
+    assert "matched_publications_count" in dumped
+
+
+@pytest.mark.asyncio
+async def test_tool_buscar_en_curriculum_matches_publications():
+    """Tests that buscar_en_curriculum matches scientific publications."""
+    search_res = await buscar_en_curriculum(consulta="Gaussian")
+    assert search_res.matched_publications_count >= 1
+    assert any("delamination_paper" in p.id for p in search_res.publications)
+    assert any("sandwich" in p.title.lower() for p in search_res.publications)
 
 
 @pytest.mark.asyncio
@@ -119,6 +144,16 @@ async def test_tool_obtener_educacion():
     education = await obtener_educacion()
     assert len(education) >= 1
     assert any("Chile" in e.institution for e in education)
+
+
+@pytest.mark.asyncio
+async def test_tool_obtener_publicaciones():
+    """Tests obtener_publicaciones tool."""
+    pubs = await obtener_publicaciones()
+    assert len(pubs) >= 1
+    assert "Gaussian" in pubs[0].title
+    assert pubs[0].doi == "10.1002/stc.2727"
+    assert "Structural Control" in pubs[0].journal
 
 
 @pytest.mark.asyncio
@@ -211,37 +246,10 @@ def test_icon_png_endpoint():
     assert len(res.content) > 1000
 
 
-def test_logo_acvc_svg_endpoint():
-    """Tests that /logo-acvc.svg returns the brand monogram / emblem SVG with image/svg+xml content type."""
+def test_logo_ac_png_endpoint():
+    """Tests that /logo-ac.png returns the 3D brand monogram PNG with image/png content type."""
     client = TestClient(app)
-    res = client.get("/logo-acvc.svg")
-    assert res.status_code == 200
-    assert "image/svg+xml" in res.headers["content-type"]
-    assert len(res.content) > 500
-
-
-def test_logo_acvc_png_endpoint():
-    """Tests that /logo-acvc.png returns the brand monogram / emblem PNG with image/png content type."""
-    client = TestClient(app)
-    res = client.get("/logo-acvc.png")
-    assert res.status_code == 200
-    assert "image/png" in res.headers["content-type"]
-    assert len(res.content) > 1000
-
-
-def test_logo_av_svg_endpoint():
-    """Tests that /logo-av.svg returns the geometric AV emblem SVG with image/svg+xml content type."""
-    client = TestClient(app)
-    res = client.get("/logo-av.svg")
-    assert res.status_code == 200
-    assert "image/svg+xml" in res.headers["content-type"]
-    assert len(res.content) > 500
-
-
-def test_logo_av_png_endpoint():
-    """Tests that /logo-av.png returns the geometric AV emblem PNG with image/png content type."""
-    client = TestClient(app)
-    res = client.get("/logo-av.png")
+    res = client.get("/logo-ac.png")
     assert res.status_code == 200
     assert "image/png" in res.headers["content-type"]
     assert len(res.content) > 1000
@@ -346,6 +354,18 @@ def test_api_projects_endpoint():
     assert all(p["type"] == "personal" for p in data)
 
 
+def test_api_publications_endpoint():
+    """Tests GET /api/publications."""
+    client = TestClient(app)
+    res = client.get("/api/publications")
+    assert res.status_code == 200
+    data = res.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    assert "Generalized Gaussian" in data[0]["title"]
+    assert data[0]["doi"] == "10.1002/stc.2727"
+
+
 def test_health_endpoint():
     """Tests the health check route and verifies Streamable HTTP is the active transport."""
     client = TestClient(app)
@@ -355,6 +375,38 @@ def test_health_endpoint():
     assert data["service"] == "anacatalina-mcp"
     transports = data.get("transports", [])
     assert any("Streamable HTTP" in t for t in transports), "Streamable HTTP transport must be listed"
+
+
+def _parse_sse_data(text: str) -> dict:
+    """Extracts and parses JSON payload from SSE event stream text."""
+    for line in text.splitlines():
+        if line.startswith("data: "):
+            return json.loads(line[6:])
+    raise ValueError(f"No SSE data field found in response: {text[:200]}")
+
+
+def _init_mcp_client(client: TestClient) -> dict:
+    """Helper that initializes an MCP session over Streamable HTTP and returns headers with session ID."""
+    response = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": "2024-11-05",
+                "capabilities": {},
+                "clientInfo": {"name": "pytest-mcp", "version": "1.0"},
+            },
+        },
+        headers={"Accept": "application/json, text/event-stream"},
+    )
+    assert response.status_code == 200
+    session_id = response.headers.get("mcp-session-id")
+    headers = {"Accept": "application/json, text/event-stream"}
+    if session_id:
+        headers["mcp-session-id"] = session_id
+    return headers
 
 
 def test_mcp_streamable_http_endpoint_accepts_post():
@@ -378,6 +430,149 @@ def test_mcp_streamable_http_endpoint_accepts_post():
         assert "mcp-session-id" in response.headers
         assert "protocolVersion" in response.text
         assert "serverInfo" in response.text
+
+
+def test_mcp_streamable_http_tools_list_schema_discovery():
+    """Verifies that tools/list over Streamable HTTP returns all 10 tools with typed JSON schemas."""
+    expected_tools = {
+        "obtener_experiencia",
+        "obtener_stack_tecnologico",
+        "obtener_proyectos_destacados",
+        "evaluar_fit_puesto",
+        "buscar_en_curriculum",
+        "obtener_educacion",
+        "obtener_publicaciones",
+        "obtener_contacto",
+        "obtener_perfil",
+        "obtener_resumen_ejecutivo",
+    }
+    with TestClient(app) as client:
+        headers = _init_mcp_client(client)
+        response = client.post(
+            "/mcp",
+            json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+            headers=headers,
+        )
+        assert response.status_code == 200
+        payload = _parse_sse_data(response.text)
+        assert payload.get("jsonrpc") == "2.0"
+        assert payload.get("id") == 2
+        tools = payload.get("result", {}).get("tools", [])
+        assert len(tools) == 10, f"Expected 10 tools registered, found {len(tools)}"
+
+        tool_names = {t["name"] for t in tools}
+        assert tool_names == expected_tools, f"Tool names mismatch: {tool_names ^ expected_tools}"
+
+        # Verify every tool provides typed schema and descriptive metadata
+        for tool in tools:
+            assert "name" in tool and tool["name"]
+            assert "description" in tool and tool["description"]
+            assert "inputSchema" in tool
+            assert tool["inputSchema"].get("type") == "object"
+            assert "properties" in tool["inputSchema"]
+
+
+def test_mcp_streamable_http_tools_call_success():
+    """Verifies tools/call over Streamable HTTP successfully executes evaluar_fit_puesto."""
+    with TestClient(app) as client:
+        headers = _init_mcp_client(client)
+        response = client.post(
+            "/mcp",
+            json={
+                "jsonrpc": "2.0",
+                "id": 3,
+                "method": "tools/call",
+                "params": {
+                    "name": "evaluar_fit_puesto",
+                    "arguments": {
+                        "descripcion_vacante": "Senior Python Engineer con GCP, BigQuery y Docker"
+                    },
+                },
+            },
+            headers=headers,
+        )
+        assert response.status_code == 200
+        payload = _parse_sse_data(response.text)
+        assert payload.get("jsonrpc") == "2.0"
+        assert payload.get("id") == 3
+        result = payload.get("result", {})
+        assert result.get("isError") is False
+        assert "structuredContent" in result
+        structured = result["structuredContent"]
+        assert "estimated_fit_score" in structured
+        assert "technologies_matched" in structured
+        assert "Python" in structured["technologies_matched"]
+        assert "BigQuery" in structured["technologies_matched"]
+
+
+def test_mcp_streamable_http_tools_call_validation_error():
+    """Verifies tools/call returns structured error envelope when required argument is missing."""
+    with TestClient(app) as client:
+        headers = _init_mcp_client(client)
+        response = client.post(
+            "/mcp",
+            json={
+                "jsonrpc": "2.0",
+                "id": 4,
+                "method": "tools/call",
+                "params": {
+                    "name": "evaluar_fit_puesto",
+                    "arguments": {},
+                },
+            },
+            headers=headers,
+        )
+        assert response.status_code == 200
+        payload = _parse_sse_data(response.text)
+        result = payload.get("result", {})
+        assert result.get("isError") is True
+        error_text = result["content"][0]["text"]
+        assert "descripcion_vacante" in error_text
+        assert "Field required" in error_text
+
+
+def test_mcp_streamable_http_tools_call_unknown_tool():
+    """Verifies tools/call returns controlled error envelope for unknown tool name."""
+    with TestClient(app) as client:
+        headers = _init_mcp_client(client)
+        response = client.post(
+            "/mcp",
+            json={
+                "jsonrpc": "2.0",
+                "id": 5,
+                "method": "tools/call",
+                "params": {
+                    "name": "herramienta_no_existente",
+                    "arguments": {},
+                },
+            },
+            headers=headers,
+        )
+        assert response.status_code == 200
+        payload = _parse_sse_data(response.text)
+        result = payload.get("result", {})
+        assert result.get("isError") is True
+        assert "Unknown tool" in result["content"][0]["text"]
+
+
+def test_mcp_streamable_http_invalid_jsonrpc_method():
+    """Verifies Streamable HTTP returns standard JSON-RPC error on invalid request method."""
+    with TestClient(app) as client:
+        headers = _init_mcp_client(client)
+        response = client.post(
+            "/mcp",
+            json={
+                "jsonrpc": "2.0",
+                "id": 99,
+                "method": "invalid/unknown_method",
+                "params": {},
+            },
+            headers=headers,
+        )
+        assert response.status_code == 200
+        payload = _parse_sse_data(response.text)
+        assert "error" in payload
+        assert payload["error"]["code"] == -32602
 
 
 def test_mcp_endpoint_route_registered():
