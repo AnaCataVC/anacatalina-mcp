@@ -17,6 +17,7 @@ from models.cv import (
     SkillItem,
     ProjectItem,
     EducationItem,
+    PublicationItem,
     FitEvaluationResult,
     SearchResult,
 )
@@ -46,11 +47,12 @@ class CVService:
         
         cv_data = CVData.model_validate(raw_data)
         logger.info(
-            "Loaded CV dataset from %s (%d experiences, %d skill categories, %d projects)",
+            "Loaded CV dataset from %s (%d experiences, %d skill categories, %d projects, %d publications)",
             self.data_path.name,
             len(cv_data.experience),
             len(cv_data.skills),
             len(cv_data.projects),
+            len(cv_data.publications),
         )
         return cv_data
 
@@ -132,8 +134,12 @@ class CVService:
         """Returns formal academic education history."""
         return self.cv.education
 
+    def get_publications(self) -> List[PublicationItem]:
+        """Returns research publications and scientific papers."""
+        return self.cv.publications
+
     def search(self, query: str) -> SearchResult:
-        """Performs cross-cutting keyword search across experience, skills, and projects."""
+        """Performs cross-cutting keyword search across experience, skills, projects, and publications."""
         q = query.lower().strip()
         matched_experience = [
             exp for exp in self.cv.experience
@@ -156,6 +162,14 @@ class CVService:
             or any(q in t.lower() for t in proj.technologies)
         ]
 
+        matched_publications = [
+            pub for pub in self.cv.publications
+            if q in pub.title.lower()
+            or q in pub.journal.lower()
+            or q in pub.description.lower()
+            or (pub.doi and q in pub.doi.lower())
+        ]
+
         return SearchResult(
             query=query,
             matched_experiences_count=len(matched_experience),
@@ -163,6 +177,8 @@ class CVService:
             matched_skills=matched_skills,
             matched_projects_count=len(matched_projects),
             projects=matched_projects,
+            matched_publications_count=len(matched_publications),
+            publications=matched_publications,
         )
 
     def evaluate_job_fit(self, scenario_or_description: str) -> FitEvaluationResult:

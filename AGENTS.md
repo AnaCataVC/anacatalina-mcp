@@ -73,7 +73,9 @@ anacatalina-mcp/
 │   ├── dependabot.yml            # Automated weekly dependency updates (pip & github-actions)
 │   └── workflows/
 │       ├── test.yml              # Test suite, coverage report, and pip-audit on push/PRs
-│       └── upstream-drift.yml    # Daily drift audit against anacatalina-cv / projects-hub (opens an issue)
+│       └── upstream-drift.yml    # Daily drift audit and automated remediation PR generator
+├── .githooks/
+│   └── pre-push                  # Automated local pre-push quality gate (invariants + pytest)
 ├── data/
 │   └── cv_data.json              # In-memory single source of truth for the CV dataset
 ├── docs/
@@ -82,7 +84,11 @@ anacatalina-mcp/
 │   ├── __init__.py
 │   └── cv.py                     # Pydantic v2 models (PersonalInfo, ExperienceItem, Skills, etc.)
 ├── scripts/
-│   └── sync_mcp_data.py          # Native Python data audit and synchronization utility
+│   ├── bump_version.py           # Native version bump & release synchronizer
+│   ├── sync_mcp_data.py          # Native Python data audit and synchronization utility
+│   ├── tasks.ps1                 # PowerShell task runner for local dev & quality gates
+│   ├── tasks.py                  # Cross-platform task runner engine
+│   └── verify_ecosystem_invariants.py # Verification of Zero Flags, Path Privacy, and identity invariants
 ├── services/
 │   ├── __init__.py
 │   └── cv_service.py             # In-memory CVService singleton, search, and benchmark engine
@@ -90,9 +96,10 @@ anacatalina-mcp/
 │   ├── index.html                # Single-page Pastel-Tech showcase & deterministic playground
 │   └── poppy.svg                 # Botanical poppy SVG watermark for UI background
 ├── tests/
-│   ├── test_content_negotiation.py # 7 automated tests for root HTML/JSON content negotiation
-│   ├── test_server.py            # 40 automated tests (Streamable HTTP, MCP tools, REST APIs, security, rate limit)
-│   └── test_sync_script.py       # 12 automated tests for cross-repo synchronization engine
+│   ├── test_content_negotiation.py # Automated tests for root HTML/JSON content negotiation and zero redirects
+│   ├── test_invariants.py        # Automated tests for ecosystem invariants (Zero Flags, privacy, catalog)
+│   ├── test_server.py            # Automated tests for Streamable HTTP, protocol contracts, MCP tools, REST APIs, security, and rate limit
+│   └── test_sync_script.py       # Automated tests for cross-repo synchronization engine and Pydantic validation
 ├── Dockerfile                    # Non-root container definition for Google Cloud Run
 ├── pytest.ini                    # Pytest configuration (asyncio mode)
 ├── requirements.txt              # Production runtime dependencies with explicit upper bounds
@@ -131,7 +138,7 @@ The job fit evaluator (`evaluar_fit_puesto` tool and `/api/evaluate-fit` REST en
 
 ## Official MCP Tools Catalog
 
-The FastMCP server exposes **9 official tools** via the standard MCP protocol:
+The FastMCP server exposes **10 official tools** via the standard MCP protocol:
 
 | Tool Name | Parameters | Return Type | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -139,8 +146,9 @@ The FastMCP server exposes **9 official tools** via the standard MCP protocol:
 | `obtener_stack_tecnologico` | `categoria` *(str, optional)*<br/>`nivel` *(str, optional)* | `List[SkillCategory]` | Technical skill matrix (Python, SQL, BigQuery, Vertex AI, Docker) with proficiency levels. |
 | `obtener_proyectos_destacados` | `tipo` *(str, optional)*<br/>`tecnologia` *(str, optional)* | `List[ProjectItem]` | Flagship personal and professional projects with architectures and demo links. |
 | `evaluar_fit_puesto` | `descripcion_vacante` *(str, required)* | `FitEvaluationResult` | Dynamic vacancy fit analysis matching technologies against CV skills, returning score, strengths, and added value. |
-| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, and projects in memory (Pydantic model with backwards-compatible dict indexing). |
+| `buscar_en_curriculum` | `consulta` *(str, required)* | `SearchResult` | Cross-cutting keyword search across experience, skills, projects, and publications in memory (Pydantic model with backwards-compatible dict indexing). |
 | `obtener_educacion` | *None* | `List[EducationItem]` | Formal degree and academic background from Universidad de Chile. |
+| `obtener_publicaciones` | *None* | `List[PublicationItem]` | Indexed scientific publications and papers (Structural Health Monitoring, Gaussian Processes, Bayesian inference). |
 | `obtener_contacto` | *None* | `ContactDetails` | Direct professional contact email and LinkedIn URL. |
 | `obtener_perfil` | *None* | `PersonalInfo` | General profile: display name, first/middle/last names, full name, headline, location, and GitHub. |
 | `obtener_resumen_ejecutivo` | `idioma` *(str, default="es")* | `str` | Executive summary focused on Data Science, ML, and MCP in Spanish (`es`) or English (`en`). |
@@ -161,6 +169,7 @@ In `server.py`, the Starlette application routes requests as follows:
 | `/api/search` | `GET` | `application/json` | Standalone REST endpoint for cross-curriculum keyword search (`?q=...`) via direct HTTP. |
 | `/api/skills` | `GET` | `application/json` | Standalone REST endpoint returning technical skill taxonomy with category and level filters. |
 | `/api/projects` | `GET` | `application/json` | Standalone REST endpoint returning featured projects filtered by type or tech. |
+| `/api/publications` | `GET` | `application/json` | Standalone REST endpoint returning scientific publications and research papers. |
 | `/icon.png` | `GET` | `image/png` | Serves the official MCP server robot mascot PNG displayed in `README.md` and the Hero showcase. |
 | `/logo-acvc.svg` | `GET` | `image/svg+xml` | Serves the official brand monogram / emblem vector SVG (ACVC). |
 | `/logo-acvc.png` | `GET` | `image/png` | Serves the official high-resolution brand monogram / emblem PNG (ACVC). |
@@ -197,7 +206,7 @@ When modifying `templates/index.html`:
 
 1. **Card Hierarchy:**
    - **Card 1 (Top Priority):** Conectar con Asistentes de IA (MCP) &mdash; tabs for Antigravity (`mcp_config.json`), Cursor & Windsurf (`mcp.json`), Claude.ai (Conector Web), Gemini (gemini.com Connected Apps), and cURL / CLI Health.
-   - **Card 2:** Catálogo Oficial de 9 Herramientas MCP.
+   - **Card 2:** Catálogo Oficial de 10 Herramientas MCP.
    - **Card 3:** Escenarios de Alineación Técnica (Ejemplos Fijos: Data Science, Ruteo/Logística, Agentes MCP, Test Negativo).
 2. **Zero Flags Rule (STRICT INVARIANT):**
    - **NEVER** use country flag emojis (`US`, `GB`, `ES`, `MX`, etc.) or flag graphics anywhere in the UI or documentation.
@@ -206,15 +215,16 @@ When modifying `templates/index.html`:
 3. **Zero Broken Mockups:**
    - Every single button, chip, tab switcher, and copy block must be 100% operational in live production.
    - Do not leave decorative placeholders, non-functional inputs, or broken links.
-4. **Color Tokens (Pastel-Tech System — DESIGN_SYSTEM.md):**
-   - Brand Triad: `--color-brand-purple` (`#B98DFD`), `--color-brand-purple-light` (`#BA8EFF`), `--color-brand-magenta` (`#FF7889`), `--color-brand-cyan` (`#2EE6E5`).
+4. **Color Tokens & Accessibility (Pastel-Tech System — DESIGN_SYSTEM.md):**
+   - Core Palette: `--color-brand-violet` / `--color-brand-purple` (`#8B5CF6`, Electric Violet), `--color-brand-violet-light` / `--color-brand-purple-light` (`#C49BFF`, Luminous Lavender), `--color-brand-violet-deep` (`#6D28D9`, Deep Violet), `--color-brand-aqua` / `--color-brand-cyan` (`#2EE6E5`, Crystal Aqua), `--color-brand-aqua-light` (`#A5F3FC`, Glacial Aqua), `--color-brand-aqua-deep` (`#0891B2`, Deep Cyan).
    - Pastel Support: `--color-pastel-lilac` (`#CDB4F6`), `--color-pastel-pink` (`#FBCFE8`), `--color-pastel-cyan` (`#B2EFF7`), `--color-pastel-blue` (`#BCDFFB`), `--color-pastel-mint` (`#C8F3E0`).
    - Surfaces: Canvas Dark (`#0F172A`), container surfaces (`#1E293B`), Canvas Light (`#F8FAFC`), surfaces (`#FFFFFF`).
    - Decorative Watermark: Botanical poppy line-art flower SVG (`templates/poppy.svg` / `/poppy.svg`).
+   - Accessible Focus & State Management: All interactive controls declare explicit `:focus-visible` rings (`outline: 2px solid var(--border-focus)`) and descriptive `aria-label`s on icon-only buttons for WCAG 2.1 AA compliance.
 5. **Mobile Responsiveness:**
-   - Use elastic `1fr` grid columns on mobile screens (`@media (max-width: 768px)`).
+   - Use elastic `1fr` grid columns on mobile screens (`@media (max-width: 640px)`).
    - Stack header actions vertically with centered brand icon.
-   - Ensure the code container has `padding-top: 44px` on mobile so the absolute copy button never obscures configuration text.
+   - Ensure the code container has `padding-top: 48px` on mobile so the absolute copy button never obscures configuration text.
 
 ---
 
@@ -222,6 +232,34 @@ When modifying `templates/index.html`:
 
 All commands assume a local Python 3.12 virtual environment (`.venv`):
 
+### 1. Unified Task Runner (`scripts/tasks.ps1` / `scripts/tasks.py`)
+```powershell
+# Run complete test suite
+.\scripts\tasks.ps1 test
+
+# Run tests with code coverage report
+.\scripts\tasks.ps1 cov
+
+# Validate ecosystem invariants (Zero Flags, Path Privacy, Identity, 10 Tools)
+.\scripts\tasks.ps1 invariants
+
+# Check for data drift against sibling repositories
+.\scripts\tasks.ps1 audit
+
+# Synchronize data/cv_data.json and run quality gate
+.\scripts\tasks.ps1 sync
+
+# Security audit on production dependencies
+.\scripts\tasks.ps1 sec
+
+# Run local development server (with orphan port cleanup and hot reload)
+.\scripts\tasks.ps1 serve
+
+# Run complete quality assurance pipeline (invariants + drift + tests + sec)
+.\scripts\tasks.ps1 check-all
+```
+
+### 2. Direct Python CLI Commands
 ```powershell
 # Activate virtual environment
 .venv\Scripts\Activate.ps1
@@ -235,8 +273,17 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
 # Synchronize data/cv_data.json with sibling repositories
 .venv\Scripts\python.exe scripts/sync_mcp_data.py --sync
 
+# Bump version and validate release gates
+.venv\Scripts\python.exe scripts/bump_version.py 1.10.0
+
 # Run local development server (with hot reload)
 .venv\Scripts\uvicorn.exe server:app --reload --port 8080
+```
+
+### 3. Git Pre-Push Hook Setup
+```powershell
+# Enable repository-level pre-push quality gate
+git config core.hooksPath .githooks
 ```
 
 ---
@@ -251,7 +298,7 @@ All commands assume a local Python 3.12 virtual environment (`.venv`):
    - The primary source of truth and baseline data for candidate information (work history, skills taxonomy, projects, academic background, achievements, and bilingual summaries) is the sibling repository `anacatalina-cv` ([github.com/AnaCataVC/anacatalina-cv](https://github.com/AnaCataVC/anacatalina-cv) or locally at `../anacatalina-cv`, specifically its structured Astro components and i18n dictionaries in `src/data/cv.ts`, `src/pages/index.astro`, and `src/i18n.js`).
    - `anacatalina-mcp` packages its own verified in-memory dataset in `data/cv_data.json` and operates fully standalone without hard external build-time dependencies.
    - When updating or auditing `data/cv_data.json` or curriculum benchmarks in this repository, agents can inspect and pull verified baseline data directly from `anacatalina-cv` to maintain 100% cross-portfolio ecosystem consistency.
-   - Known gap: `anacatalina-cv` also has Publications and Courses & Certifications sections with no equivalent in `models/cv.py` (`CVData`). Adding them is a schema change (new Pydantic models, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task.
+   - Known gap: `anacatalina-cv` also has a Courses & Certifications section with no equivalent in `models/cv.py` (`CVData`). Adding it is a schema change (new Pydantic model, likely a new/extended MCP tool), not a data sync — deliberately left out of `data/cv_data.json` until requested as its own task. (Publications were incorporated as `PublicationItem` and `obtener_publicaciones`).
 
 ---
 
@@ -275,13 +322,22 @@ These items document deliberate architectural choices and operational boundaries
    - In accordance with the March 2025 MCP specification update deprecating HTTP+SSE, the server operates exclusively via **Streamable HTTP** (`/mcp`).
    - Legacy SSE endpoints (`/sse`, `/messages/`) and the local stdio bridge (`conecta_cata.py`) were eliminated to keep the architecture clean, high-performance, and directly cloud-native for Claude.ai Custom Connectors, Cursor, and modern MCP clients.
 
-5. **Upstream Drift Detection (content audit, not SHA pins):**
-   - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`, and opens/reopens/closes a single recurring issue. It is kept out of the PR gate because drift comes from the other repos.
+5. **Upstream Drift Detection & Auto-Remediation PRs (content audit, not SHA pins):**
+   - `.github/workflows/upstream-drift.yml` runs `scripts/sync_mcp_data.py --check-only` daily against `main` of `anacatalina-cv` and `projects-hub`.
+   - On drift, it opens/reopens the tracking issue and automatically triggers a remediation pipeline (`sync_mcp_data.py --sync`, invariant verification, and full pytest suite), pushing branch `chore/auto-sync-upstream-data` and creating/updating an automated Pull Request for review.
    - The audit also flags i18n keys the sync depends on that are missing upstream (otherwise `--sync` silently uses hardcoded fallbacks). Details: `docs/upstream-sync.md`.
 
 6. **Pure-ASGI Security Headers, Bounded Sliding-Window Rate Limiting & Observability:**
    - `SecurityAndRateLimitMiddleware` in `server.py` is implemented as a pure ASGI middleware (avoiding Starlette `BaseHTTPMiddleware` buffering issues on SSE/Streamable HTTP streams) that injects `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` on all responses (including `429`), and enforces a bounded in-memory per-IP sliding-window rate limit (default 120 req/min on `/mcp` and `/api/*`, max 4096 tracked IPs).
    - Application version is centralized in `APP_VERSION` in `server.py`, and structured standard logging (`anacatalina_mcp.server`, `anacatalina_mcp.cv_service`) outputs directly to `stdout` for Google Cloud Logging ingestion.
+
+7. **Automated Ecosystem Invariants, CI Caching & Task Automation:**
+   - Ecosystem invariants (Zero Flags Rule, Path Privacy, candidate name hyphenation `Ana-Catalina`, and 10/10 FastMCP tool catalog integrity) are automated via `scripts/verify_ecosystem_invariants.py` and executed both in CI/CD (`test.yml` with pip caching and workflow concurrency cancellation) and as part of `tests/test_invariants.py`.
+   - Local developer toil is eliminated through unified task runners (`scripts/tasks.ps1`, `scripts/tasks.py`) and a Git pre-push hook (`.githooks/pre-push`).
+
+8. **Cloud Run Request Timeout, Scale-to-Zero & Free-Tier Cost Guardrails:**
+   - The Cloud Run service operates under scale-to-zero autoscaling (`min-instances: 0`) and request-based CPU allocation (`run.googleapis.com/cpu-throttling: true`).
+   - The service request timeout is strictly bounded to `timeoutSeconds: 300` (5 minutes) instead of the platform default (3600s / 1 hour). When external AI assistants (Cursor, Claude Desktop, Antigravity) connect over Streamable HTTP (`GET /mcp` streaming), persistent idle connections are severed after 5 minutes of inactivity rather than remaining open for 1 hour. This eliminates runaway billable instance accumulation and keeps monthly compute well within the Google Cloud Run Free Tier (180,000 vCPU-seconds / month), preventing billing spikes while preserving sub-5ms in-memory response latency for live evaluations and web showcase queries. Detailed post-mortem analysis: `docs/learning/cloud-run-mcp-cost-guardrails.md`.
 
 ---
 
@@ -373,9 +429,9 @@ Every repository in the portfolio must strictly adhere to the following universa
    - Flags represent sovereign states, not languages; terminal emulators, Windows shells, and XAML render them as broken letters (`[U][S]`) or tofu glyphs (`□□`). Always use ISO codes (`ES`, `EN`) or text labels (`Español`, `English`).
 
 5. **Design Palette & Aesthetics (Pastel-Tech System):**
-   - **Brand Core Triad**: Tech Lavender (`#B98DFD` / `#BA8EFF` in dark text), Petal Rose (`#FF7889`), Crystal Aqua (`#2EE6E5`).
+   - **Brand Core Palette**: Electric Violet (#8B5CF6 / #C49BFF in dark text), Crystal Aqua (#2EE6E5 / #A5F3FC).
    - **Pastel Support Tokens**: Pastel Lilac (`#CDB4F6`), Pastel Pink (`#FBCFE8`), Pastel Cyan (`#B2EFF7`), Pastel Blue (`#BCDFFB`), Pastel Mint (`#C8F3E0`), and Dark Canvas (`#1E1A2B` / `#0F172A`).
-   - **Visual Brand Anchor**: Geometric ACVC emblem with continuous harmonic conic gradient (`#2EE6E5`, `#B98DFD`, `#FF7889`).
+   - **Visual Brand Anchor**: 3D fluid glass 'AC' continuous tubular monogram with optical refraction and luminous specular highlights.
    - **Typography**: `Outfit` for geometric headings, `Inter` for crisp body copy, `JetBrains Mono` for code/specs.
    - **Zero Broken Mockups**: Every button, toggle, link, and interactive widget must be 100% operational in production.
 
@@ -385,8 +441,8 @@ Every repository in the portfolio must strictly adhere to the following universa
 
 - **Component Classification:** The Programmatic AI Gateway & MCP Server (`mcp.ana-catalina.com`).
 - **Provided Interfaces & Services (Outputs):**
-  - Streamable HTTP MCP endpoint at `/mcp` delivering 9 official tools (`obtener_experiencia`, `obtener_stack_tecnologico`, `obtener_proyectos_destacados`, `evaluar_fit_puesto`, `buscar_en_curriculum`, `obtener_educacion`, `obtener_contacto`, `obtener_perfil`, `obtener_resumen_ejecutivo`).
-  - Standalone REST APIs (`/api/evaluate-fit`, `/api/search`, `/api/skills`, `/api/projects`).
+  - Streamable HTTP MCP endpoint at `/mcp` delivering 10 official tools (`obtener_experiencia`, `obtener_stack_tecnologico`, `obtener_proyectos_destacados`, `evaluar_fit_puesto`, `buscar_en_curriculum`, `obtener_educacion`, `obtener_publicaciones`, `obtener_contacto`, `obtener_perfil`, `obtener_resumen_ejecutivo`).
+  - Standalone REST APIs (`/api/evaluate-fit`, `/api/search`, `/api/skills`, `/api/projects`, `/api/publications`).
   - Interactive browser showcase and deterministic vacancy playground at `/` and `/demo`.
   - Machine-readable discovery JSON at `GET /` when requested with `Accept: application/json`.
 - **Consumed Dependencies (Inputs):**

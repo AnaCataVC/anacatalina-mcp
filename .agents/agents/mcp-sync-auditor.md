@@ -13,7 +13,7 @@ You are the Master Orchestrator Agent responsible for auditing cross-repository 
 1. **Path Privacy:** NEVER hardcode or leak absolute local paths (`C:\Users\...`). Always resolve sibling workspaces dynamically using relative paths (`..`).
 2. **Candidate Identity Invariants:** Always enforce `Ana-Catalina Villalobos Contardo` (hyphenated first name), `AnaCataVC` GitHub username, and zero flags policy.
 3. **Pydantic Validation Gate:** Any dataset modification must validate strictly against `models.cv.CVData`.
-4. **Quality Gates:** Before concluding any audit or synchronization, execute `pytest tests/ -v` to ensure 100% test coverage and zero regressions across all 9 MCP tools.
+4. **Quality Gates:** Before concluding any audit or synchronization, execute `pytest tests/ -v` to ensure 100% test coverage and zero regressions across all 10 MCP tools.
 
 ## Workflow
 

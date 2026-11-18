@@ -7,6 +7,7 @@ from scripts.sync_mcp_data import (
     clean_html,
     parse_i18n_js,
     parse_cv_ts,
+    parse_publications_from_cv_ts,
     parse_project_markdown,
     normalize_skill,
     parse_skills_from_cv_astro,
@@ -102,6 +103,44 @@ def test_auditor_generate_synchronized_dataset_validates_pydantic():
     assert cv_data_obj.personal_info.name == "Ana-Catalina Villalobos Contardo"
     assert len(cv_data_obj.experience) >= 4
     assert len(cv_data_obj.projects) >= 2
+    assert len(cv_data_obj.publications) >= 1
+    assert "Gaussian" in cv_data_obj.publications[0].title
+
+
+def test_parse_publications_from_cv_ts(tmp_path: Path):
+    cv_ts = tmp_path / "cv.ts"
+    cv_ts.write_text(
+        'export const cvData = {\n'
+        '  publications: [\n'
+        '    {\n'
+        '      id: "test_paper",\n'
+        '      title: "Test Paper Title",\n'
+        '      journal: "Test Journal",\n'
+        '      date: {\n'
+        '        es: "Marzo 2021",\n'
+        '        en: "March 2021"\n'
+        '      },\n'
+        '      url: "https://doi.org/10.1002/test",\n'
+        '      doi: "10.1002/test",\n'
+        '      description: {\n'
+        '        es: "Resumen con <strong>HTML</strong>.",\n'
+        '        en: "Abstract with <strong>HTML</strong>."\n'
+        '      }\n'
+        '    }\n'
+        '  ],\n'
+        '  languages: []\n'
+        '};\n',
+        encoding="utf-8"
+    )
+
+    pubs = parse_publications_from_cv_ts(cv_ts)
+    assert len(pubs) == 1
+    assert pubs[0]["id"] == "test_paper"
+    assert pubs[0]["title"] == "Test Paper Title"
+    assert pubs[0]["journal"] == "Test Journal"
+    assert pubs[0]["period"] == "Marzo 2021"
+    assert pubs[0]["doi"] == "10.1002/test"
+    assert pubs[0]["description"] == "Resumen con HTML."
 
 
 def test_auditor_audit_reports_missing_translation_keys(tmp_path: Path):
