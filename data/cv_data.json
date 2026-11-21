@@ -447,7 +447,7 @@
     {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de 14 subagentes autónomos, hooks de seguridad sin estado y 25 skills declarativas portátiles con instalación selectiva por packs de dominio e invariantes de ingeniería reforzadas. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
+      "description": "Ecosistema integral de 13 subagentes autónomos, hooks de seguridad sin estado y 26 skills declarativas portátiles con instalación selectiva por packs de dominio e invariantes de ingeniería reforzadas. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",
@@ -595,7 +595,7 @@
     {
       "name": "One UI Extra Widgets",
       "type": "personal",
-      "description": "Suite nativa de seis widgets para pantalla de inicio en Android con estética Samsung One UI, construida en Kotlin con Jetpack Glance, Jetpack Compose, efemérides astronómicas offline y telemetría 5G NR / Wi-Fi 6.",
+      "description": "Suite nativa de doce widgets para pantalla de inicio en Android con estética Samsung One UI, construida en Kotlin con Jetpack Glance, Jetpack Compose, efemérides astronómicas offline y telemetría 5G NR / Wi-Fi 6.",
       "technologies": [
         "Kotlin",
         "Jetpack Glance",
