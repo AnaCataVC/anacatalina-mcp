@@ -7,10 +7,13 @@ on:
     - cron: "0 11 * * *"
   workflow_dispatch:
 
+concurrency:
+  group: upstream-drift
+  cancel-in-progress: false
+
 permissions:
   contents: write
   issues: write
-  pull-requests: write
 
 env:
   ISSUE_TITLE: "Upstream drift: data/cv_data.json is out of sync"
@@ -22,6 +25,7 @@ jobs:
       # Sibling layout so DataAuditor resolves ../anacatalina-cv and ../projects-hub by default.
       - uses: actions/checkout@v4
         with:
+          ref: main
           path: anacatalina-mcp
       - uses: actions/checkout@v4
         with:
@@ -36,9 +40,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -r anacatalina-mcp/requirements.txt
+          cache: "pip"
+          cache-dependency-path: |
+            anacatalina-mcp/requirements.txt
+            anacatalina-mcp/requirements-dev.txt
+      - run: pip install -r anacatalina-mcp/requirements-dev.txt
 
-      - name: Audit
+      - name: Audit upstream drift
         id: audit
         working-directory: anacatalina-mcp
         run: |
@@ -46,23 +54,76 @@ jobs:
             echo "in_sync=true" >> "$GITHUB_OUTPUT"
           else
             echo "in_sync=false" >> "$GITHUB_OUTPUT"
-            python scripts/sync_mcp_data.py > "$RUNNER_TEMP/report.txt"
+            python scripts/sync_mcp_data.py > "$RUNNER_TEMP/report.txt" || true
           fi
 
-      - name: Open or update the drift issue
+      - name: Auto-sync, validate, and push directly to main
+        id: autosync
         if: steps.audit.outputs.in_sync == 'false'
+        working-directory: anacatalina-mcp
+        run: |
+          set +e
+          fail() {
+            echo "synced=false" >> "$GITHUB_OUTPUT"
+            echo "failure_reason=$1" >> "$GITHUB_OUTPUT"
+            python scripts/sync_mcp_data.py > "$RUNNER_TEMP/report.txt" || true
+            exit 0
+          }
+
+          python scripts/sync_mcp_data.py --sync || fail "scripts/sync_mcp_data.py --sync failed"
+          python scripts/verify_ecosystem_invariants.py || fail "scripts/verify_ecosystem_invariants.py failed after sync"
+          python -m pytest tests/ -q || fail "pytest test suite failed after sync"
+          python scripts/sync_mcp_data.py --check-only || fail "drift remains after --sync (manual intervention required, e.g. missing i18n keys)"
+
+          if [ -n "$(git status --porcelain data/cv_data.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/cv_data.json
+            git commit -m "chore(data): auto-sync cv_data.json with upstream repositories" || fail "git commit failed"
+
+            if ! git push origin HEAD:main; then
+              git pull --rebase origin main && git push origin HEAD:main || fail "git push to main failed"
+            fi
+
+            COMMIT_SHA=$(git rev-parse --short HEAD)
+            echo "commit_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+          echo "synced=true" >> "$GITHUB_OUTPUT"
+
+      - name: Close drift issue once in sync
+        if: steps.audit.outputs.in_sync == 'true' || steps.autosync.outputs.synced == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          number=$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" --json number,title \
+            --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
+          if [ -n "$number" ]; then
+            if [ "${{ steps.autosync.outputs.synced }}" = "true" ] && [ -n "${{ steps.autosync.outputs.commit_sha }}" ]; then
+              gh issue close "$number" --comment "Auto-synced \`data/cv_data.json\` directly to \`main\` in commit \`${{ steps.autosync.outputs.commit_sha }}\` (invariants, pytest, and post-sync audit passed)."
+            else
+              gh issue close "$number" --comment "Back in sync with anacatalina-cv and projects-hub."
+            fi
+          fi
+
+      - name: Open or update drift issue when auto-sync fails
+        if: steps.audit.outputs.in_sync == 'false' && steps.autosync.outputs.synced != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
           {
-            echo "The scheduled audit found drift against \`main\` of anacatalina-cv / projects-hub."
+            echo "The scheduled audit found drift against \`main\` of \`anacatalina-cv\` / \`projects-hub\`, and automated remediation could not complete."
+            echo
+            echo "**Failure reason:** ${{ steps.autosync.outputs.failure_reason }}"
+            echo "**Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             echo
             echo '```'
             cat "$RUNNER_TEMP/report.txt"
             echo '```'
             echo
-            echo "See docs/upstream-sync.md for how to resolve it."
+            echo "See \`docs/upstream-sync.md\` for how to resolve it."
           } > "$RUNNER_TEMP/body.md"
           number=$(gh issue list --state all --search "in:title \"$ISSUE_TITLE\"" --json number,title \
             --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
@@ -72,45 +133,4 @@ jobs:
             gh issue reopen "$number" || true
             gh issue comment "$number" --body-file "$RUNNER_TEMP/body.md"
           fi
-
-      - name: Auto-sync dataset and generate remediation PR
-        if: steps.audit.outputs.in_sync == 'false'
-        working-directory: anacatalina-mcp
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          pip install -r requirements-dev.txt
-          python scripts/sync_mcp_data.py --sync
-          python scripts/verify_ecosystem_invariants.py
-          python -m pytest tests/ -v
-
-          if [ -n "$(git status --porcelain data/cv_data.json)" ]; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            BRANCH_NAME="chore/auto-sync-upstream-data"
-            git checkout -B "$BRANCH_NAME"
-            git add data/cv_data.json
-            git commit -m "chore(data): auto-sync cv_data.json with upstream repositories"
-            git push -u origin "$BRANCH_NAME" --force
-
-            PR_TITLE="chore(data): auto-sync cv_data.json with upstream repositories"
-            existing_pr=$(gh pr list --state open --head "$BRANCH_NAME" --json number --jq ".[0].number // empty")
-            if [ -z "$existing_pr" ]; then
-              gh pr create --title "$PR_TITLE" \
-                --body "Automated synchronization with upstream \`anacatalina-cv\` and \`projects-hub\` following drift detection. All automated tests and invariant gates passed successfully." \
-                --base main --head "$BRANCH_NAME" || true
-            fi
-          fi
-
-      - name: Close the drift issue once back in sync
-        if: steps.audit.outputs.in_sync == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          number=$(gh issue list --state open --search "in:title \"$ISSUE_TITLE\"" --json number,title \
-            --jq "map(select(.title == \"$ISSUE_TITLE\")) | .[0].number // empty")
-          if [ -n "$number" ]; then
-            gh issue close "$number" --comment "Back in sync with anacatalina-cv and projects-hub."
-          fi
+          exit 1

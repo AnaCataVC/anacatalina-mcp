@@ -82,7 +82,7 @@ anacatalina-mcp/
 │   └── workflows/
 │       ├── release.yml           # Tag-triggered (v*) release validator and GitHub Release publisher
 │       ├── test.yml              # Test suite, coverage report, pip-audit, and docker-smoke on push/PRs
-│       └── upstream-drift.yml    # Daily drift audit and automated remediation PR generator
+│       └── upstream-drift.yml    # Daily drift audit and self-healing direct-to-main sync (escalates to issue only on failure)
 ├── .githooks/
 │   └── pre-push                  # Automated local pre-push quality gate (invariants + pytest)
 ├── data/

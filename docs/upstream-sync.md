@@ -21,11 +21,12 @@ The script expects the three repos side by side (`../anacatalina-cv`, `../projec
 
 `.github/workflows/upstream-drift.yml` runs daily (and on demand via *Run workflow*):
 
-1. It checks out this repo plus `main` of both sources as sibling folders, so the audit always compares against published content, never a local branch or uncommitted edits.
+1. It checks out `main` of this repo plus `main` of both sources as sibling folders, so the audit always compares against published content, never a local branch or uncommitted edits.
 2. It runs `sync_mcp_data.py --check-only`.
-3. On drift, it opens (or reopens and comments on) a single issue titled *Upstream drift: data/cv_data.json is out of sync* with the full report.
-4. **Automated Remediation Pull Request:** When drift is detected, the workflow runs `sync_mcp_data.py --sync`, executes the ecosystem invariant checks (`scripts/verify_ecosystem_invariants.py`) and full `pytest` suite, and automatically creates or updates a remediation Pull Request (`chore/auto-sync-upstream-data`).
-5. Once merged and back in sync, subsequent daily runs automatically close the drift issue.
+3. **Self-Healing Auto-Sync (Direct to `main`):** When drift is detected, the workflow runs `sync_mcp_data.py --sync`, executes the ecosystem invariant checks (`scripts/verify_ecosystem_invariants.py`), runs the full `pytest` suite, and re-runs `sync_mcp_data.py --check-only` to verify zero remaining drift.
+4. If all gates pass, it commits and pushes `data/cv_data.json` directly to `main` and automatically closes any open drift issue in the same run (no manual PR required).
+5. Only if automated remediation fails (e.g., failing invariants/tests, push failure, or non-auto-fixable drift such as missing `i18n.js` keys) does the workflow open/reopen the issue titled *Upstream drift: data/cv_data.json is out of sync* with the failure reason and full report, and fail the run for visibility.
+6. Once back in sync, subsequent runs automatically close any open drift issue.
 
 The workflow is deliberately separate from `test.yml`: a drift is caused by a commit in another repo, so it must not fail the PR under review.
 
