@@ -7,7 +7,7 @@ This document catalogs the automated CI/CD pipelines, Git lifecycle hooks, task 
 | Workflow | Trigger | Purpose | Status |
 | :--- | :--- | :--- | :--- |
 | `.github/workflows/test.yml` | `push` (`main`), `pull_request` | Runs `scripts/verify_ecosystem_invariants.py`, `pytest` with coverage (`models`, `services`, `server`), `pip_audit` on `requirements.txt`, and a `docker-smoke` job building `Dockerfile` and verifying `import server`. | Healthy |
-| `.github/workflows/upstream-drift.yml` | `schedule` (`0 11 * * *`), `workflow_dispatch` | Audits `data/cv_data.json` against `AnaCataVC/anacatalina-cv` and `AnaCataVC/projects-hub`, manages drift issues, and opens `chore/auto-sync-upstream-data` PRs after running invariants and `pytest`. | Healthy |
+| `.github/workflows/upstream-drift.yml` | `schedule` (`0 11 * * *`), `workflow_dispatch` | Audits `data/cv_data.json` against `AnaCataVC/anacatalina-cv` and `AnaCataVC/projects-hub`, auto-syncs directly to `main` after passing invariants, `pytest`, and a post-sync audit, closes any open drift issue automatically, and only opens/reopens an issue if auto-remediation fails. | Healthy |
 | `.github/workflows/release.yml` | `push` (tags `v*`) | Verifies the tag matches `APP_VERSION` in `server.py`, runs invariants and `pytest`, and creates a GitHub Release with `--generate-notes`. | Healthy |
 | `.github/dependabot.yml` | Monthly schedule | Groups `pip` and `github-actions` dependency updates while ignoring major `mcp` version bumps. | Healthy |
 
