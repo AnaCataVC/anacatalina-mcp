@@ -272,6 +272,10 @@
           "level": "Avanzado"
         },
         {
+          "name": "Dataform",
+          "level": "Intermedio"
+        },
+        {
           "name": "Dataflow / Apache Beam",
           "level": "Avanzado"
         },
