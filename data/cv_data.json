@@ -27,10 +27,10 @@
       "location": "Santiago, Chile (Remoto)",
       "type": "laboral",
       "responsibilities": [
-        "Diseño y despliegue en producción de infraestructura agéntica multi-agente basada en Model Context Protocol (MCP) para motores de planificación logística, implementando delegación por dominios, flujos Human-in-the-Loop, suites de evaluación en producción (Agent Evals), guardrails deterministas y estado distribuido con Redis en Kubernetes.",
+        "Diseño y despliegue en producción de infraestructura agéntica multi-agente basada en Model Context Protocol (MCP) que integra copilotos operacionales y flujos de ruteo automático con motores de optimización logística, implementando delegación por dominios, flujos Human-in-the-Loop, suites de evaluación en producción (Agent Evals), guardrails deterministas y estado distribuido con Redis en Kubernetes.",
         "Arquitectura y evolución de una plataforma distribuida de geolocalización y geocodificación directa/inversa multi-proveedor, diseñando motores de puntaje de confianza (confidence scoring), fallbacks resilientes, paralelización de consultas con reutilización de sesiones HTTP y redacción automática de PII.",
-        "Gestión y modelado de datos a gran escala en Google BigQuery, canalizaciones de procesamiento distribuido con Google Cloud Dataflow / Apache Beam y orquestación con Google Pub/Sub y Apache Airflow, garantizando linaje de datos y telemetría crítica.",
-        "Participación en la evolución y operación de modelos predictivos en producción, automatizando flujos de reentrenamiento y monitoreo de desempeño."
+        "Gestión, transformación y modelado de datos a gran escala en Google BigQuery y Dataform, canalizaciones de procesamiento distribuido con Google Cloud Dataflow / Apache Beam y orquestación con Google Pub/Sub y Apache Airflow, garantizando linaje de datos y telemetría crítica.",
+        "Evolución y operación de modelos predictivos en producción automatizando flujos de reentrenamiento y monitoreo de desempeño, junto con revisión arquitectónica y aseguramiento de calidad de código transversal en servicios de IA agéntica, motores de optimización matemática e infraestructura en Kubernetes."
       ],
       "technologies": [
         "Python",
