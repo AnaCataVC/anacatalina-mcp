@@ -744,6 +744,7 @@ class DataAuditor:
                     {"name": "FastAPI", "level": "Avanzado"},
                     {"name": "BigQuery", "level": "Avanzado"},
                     {"name": "PostgreSQL", "level": "Avanzado"},
+                    {"name": "Dataform", "level": "Intermedio"},
                     {"name": "Dataflow / Apache Beam", "level": "Avanzado"},
                     {"name": "Pub/Sub", "level": "Avanzado"},
                     {"name": "ETLs", "level": "Avanzado"},
