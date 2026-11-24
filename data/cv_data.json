@@ -599,7 +599,7 @@
     {
       "name": "One UI Extra Widgets",
       "type": "personal",
-      "description": "Suite nativa de doce widgets para pantalla de inicio en Android con estética Samsung One UI, construida en Kotlin con Jetpack Glance, Jetpack Compose, efemérides astronómicas offline y telemetría 5G NR / Wi-Fi 6.",
+      "description": "Suite nativa de quince widgets para pantalla de inicio en Android con estética Samsung One UI, construida en Kotlin con Jetpack Glance, Jetpack Compose, efemérides astronómicas offline y telemetría 5G NR / Wi-Fi 6.",
       "technologies": [
         "Kotlin",
         "Jetpack Glance",
