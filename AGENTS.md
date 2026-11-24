@@ -71,8 +71,12 @@ anacatalina-mcp/
 │   └── skills/
 │       ├── ac-mcp-add-tool/
 │       │   └── SKILL.md          # Procedural checklist to add or modify an MCP tool
+│       ├── ac-mcp-merge-dependabot-prs/
+│       │   └── SKILL.md          # Review, rebase, merge Dependabot PRs & verify live production health
 │       ├── ac-mcp-release-version/
 │       │   └── SKILL.md          # Guided release checklist and vX.Y.Z tagging workflow
+│       ├── ac-mcp-triage-drift-issue/
+│       │   └── SKILL.md          # Diagnose & resolve upstream-drift.yml failure issues end-to-end
 │       ├── ac-mcp-tune-fit-engine/
 │       │   └── SKILL.md          # Safe tuning workflow for the deterministic job fit engine
 │       └── sync-mcp-data/
