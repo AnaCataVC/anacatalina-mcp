@@ -433,7 +433,7 @@
     {
       "name": "AMI Claude Mods",
       "type": "personal",
-      "description": "Suite de 8 mods modulares, paneles reactivos y function hooks para Claude Desktop y Claude Code CLI integrados con Amiga IA. Incluye orquestación de planes, control de cuota, medidores discretos, guardas Git/K8s e i18n.",
+      "description": "Suite de 9 mods modulares, paneles reactivos y function hooks para Claude Desktop y Claude Code CLI con integración opcional con Amiga IA. Incluye orquestación de planes, control de cuota y sesión, medidores discretos, guardas Git/K8s e i18n.",
       "technologies": [
         "Claude Desktop",
         "Claude Code CLI",
@@ -451,7 +451,7 @@
     {
       "name": "Amiga IA",
       "type": "personal",
-      "description": "Ecosistema integral de 13 subagentes autónomos, hooks de seguridad sin estado y 26 skills declarativas portátiles con instalación selectiva por packs de dominio e invariantes de ingeniería reforzadas. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
+      "description": "Ecosistema integral de 13 subagentes autónomos, hooks de seguridad sin estado y 25 skills declarativas portátiles con instalación selectiva por packs de dominio e invariantes de ingeniería reforzadas. 100% compatible con Antigravity (Gemini), Claude Code y OpenAI Codex.",
       "technologies": [
         "Subagent Orchestration",
         "Agent Skills",
